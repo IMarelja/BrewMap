@@ -1,0 +1,30 @@
+graph TB
+    subgraph docker["Docker Compose"]
+        subgraph public["Public network"]
+            webapp["Webapp Container"]
+        end
+        subgraph pubint["Public + Internal"]
+            api["API Container"]
+        end
+        subgraph internal["Internal network"]
+            mongodb[("MongoDB Container")]
+        end
+    end
+    
+    external["Client"]
+
+    flutter["Flutter App"]
+    
+    external -->|HTTP/REST| webapp
+    %% external -->|HTTP/REST| api
+    external --> flutter
+    flutter -->|API Calls| api
+    webapp -->|API Calls| api
+    api -->|Query/Update| mongodb
+    
+    style webapp fill:#4A90E2
+    style api fill:#4A90E2
+    style mongodb fill:#555555,color:#fff
+    style docker fill:#f9f9f9,stroke:#333
+    style external fill:#90EE90
+    style flutter fill:#b1ecff
