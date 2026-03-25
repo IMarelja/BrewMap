@@ -2,3 +2,4 @@
 .home/
 **/bin/
 **/obj/
+.vs
