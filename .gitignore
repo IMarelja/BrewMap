@@ -3,3 +3,9 @@
 **/bin/
 **/obj/
 .vs
+
+# Database specific
+brewmap_data/
+brewmap_config/
+# Environment variables
+.env
