@@ -1,5 +1,6 @@
 using BrewMapAPI.Models;       
-using BrewMapAPI.Service.User;      
+using BrewMapAPI.Service.User;     
+using BrewMapAPI.Data;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
