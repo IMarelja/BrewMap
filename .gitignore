@@ -1,7 +1,3 @@
-appsettings.json
-appsettings.Development.json
-appsettings.*.json
-secrets.json
 .dotnet/
 .home/
 **/bin/
@@ -13,3 +9,6 @@ brewmap_data/
 brewmap_config/
 # Environment variables
 .env
+
+# API specific
+WebAPI/BrewMapAPI/BrewMapAPI/appsettings.json
