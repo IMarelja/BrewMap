@@ -2,6 +2,8 @@
 using System.Text;
 using BrewMapAPI.DTO.Auth;
 using BrewMapAPI.Models;
+using BrewMapAPI.Data;
+using MongoDB.Driver;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
@@ -15,11 +17,12 @@ namespace BrewMapAPI.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        DbContext _context;
-        IConfiguration _config;
-        
-        public AuthController(IConfiguration config)
+        private readonly MongoDbContext _context;
+        private readonly IConfiguration _config;
+
+        public AuthController(MongoDbContext context, IConfiguration config)
         {
+            _context = context;
             _config = config;
         }
 
@@ -30,19 +33,17 @@ namespace BrewMapAPI.Controllers
             try
             {
                 var genericLoginFail = "Incorrect username or password";
-                
-                var existingUser = _context.Users.FirstOrDefault(x => x.Username == loginUser.Username);
+                // MongoDB syntax for finding one user
+                var existingUser = _context.Users.Find(x => x.Username == loginUser.Username).FirstOrDefault();
                 if (existingUser == null)
                 {
                     return Unauthorized(genericLoginFail);
                 }
-                
-                var hash = PasswordHashProvider.GetHash(loginUser.Password, existingUser.PassSalt);
-                if (hash != existingUser.PassHash)
+                var hash = PasswordHashProvider.GetHash(loginUser.Password, existingUser.PasswordSalt);
+                if (hash != existingUser.PasswordHash)
                 {
                     return Unauthorized(genericLoginFail);
                 }
-                
                 var secureKey = _config["JWT:SecureKey"];
                 var serializedToken = JwtTokenProvider.CreateJwtToken(secureKey, 60, loginUser.Username, "User");
                 return Ok(serializedToken);
@@ -51,7 +52,6 @@ namespace BrewMapAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            
         }
 
         [HttpPost("register")]
@@ -61,22 +61,19 @@ namespace BrewMapAPI.Controllers
             try
             {
                 var trimmedUsername = registerUser.Username.Trim();
-                if (_context.Users.Any(x => x.Username.Equals(trimmedUsername)))
+                if (_context.Users.Find(x => x.Username == trimmedUsername).Any())
                 {
                     return BadRequest();
                 }
                 var trimmedEmail = registerUser.Email.Trim();
-                if (_context.Users.Any(x => x.Email.Equals(trimmedEmail)))
+                if (_context.Users.Find(x => x.Email == trimmedEmail).Any())
                 {
                     return BadRequest();
                 }
-
                 var passSalt = PasswordHashProvider.GetSalt();
                 var passHash = PasswordHashProvider.GetHash(registerUser.Password, passSalt);
-
                 var user = new User
                 {
-                    Id = null,
                     Username = trimmedUsername,
                     Email = trimmedEmail,
                     PasswordHash = passHash,
@@ -84,9 +81,7 @@ namespace BrewMapAPI.Controllers
                     CreatedAt = DateTime.UtcNow,
                     Role = "User"
                 };
-            
-                _context.Add(user);
-                _context.SaveChanges();
+                _context.Users.InsertOne(user); // MongoDB insert
                 return Ok(registerUser);
             }
             catch (Exception ex)
@@ -94,6 +89,5 @@ namespace BrewMapAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        
     }
 }
