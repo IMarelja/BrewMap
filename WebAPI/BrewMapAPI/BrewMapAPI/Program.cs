@@ -9,9 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<DatabaseSettings>(
     builder.Configuration.GetSection("DatabaseSettings"));
 
-// Register MongoDB service(s)
-builder.Services.AddScoped<MongoDbContext>();  
-builder.Services.AddScoped<UserService>(); 
+// Register MongoDB context
+builder.Services.AddSingleton<MongoDbContext>();  
 
 // Add services to the container.
 builder.Services.AddControllers();
