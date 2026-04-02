@@ -10,7 +10,8 @@ builder.Services.Configure<DatabaseSettings>(
     builder.Configuration.GetSection("DatabaseSettings"));
 
 // Register MongoDB service(s)
-builder.Services.AddSingleton<UserService>();   
+builder.Services.AddScoped<MongoDbContext>();  
+builder.Services.AddScoped<UserService>(); 
 
 // Add services to the container.
 builder.Services.AddControllers();
