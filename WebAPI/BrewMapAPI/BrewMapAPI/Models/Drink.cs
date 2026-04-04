@@ -17,6 +17,7 @@ namespace BrewMapAPI.Models
         public string? Description { get; set; }
 
         [BsonElement("availableAtLocationId")]
+        [BsonRepresentation(BsonType.ObjectId)]
         public string AvailableAtLocationId { get; set; }
 
         [BsonElement("isVisible")]
@@ -26,6 +27,7 @@ namespace BrewMapAPI.Models
         public int ReportCount { get; set; } = 0;
 
         [BsonElement("createdByUserId")]
+        [BsonRepresentation(BsonType.ObjectId)]
         public string CreatedByUserId { get; set; }
 
         [BsonElement("createdAt")]
