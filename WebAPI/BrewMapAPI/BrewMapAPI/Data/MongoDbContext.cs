@@ -17,7 +17,7 @@ namespace BrewMapAPI.Data
         }
 
         public IMongoCollection<User> Users => _database.GetCollection<User>("users");
-        public IMongoCollection<Drink> Drinks => _database.GetCollection<Drink>("drinks");
+        public IMongoCollection<Drink> Drinks => _database.GetCollection<Drink>("products");
         public IMongoCollection<Location> Locations => _database.GetCollection<Location>("locations");
         public IMongoCollection<Review> Reviews => _database.GetCollection<Review>("reviews");
     }
