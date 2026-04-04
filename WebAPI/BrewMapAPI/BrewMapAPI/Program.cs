@@ -2,6 +2,8 @@ using BrewMapAPI.Models;
 using BrewMapAPI.Service.User;     
 using BrewMapAPI.Data;
 using Microsoft.Extensions.Options;
+using BrewMapAPI.Repository.Drinks;
+using BrewMapAPI.Service.Drinks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,12 @@ builder.Services.AddSingleton<MongoDbContext>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Business level architecture
+builder.Services.AddScoped<IDrinkService, DrinkService>();
+
+// Data access level architecture
+builder.Services.AddScoped<IDrinkRepo, DrinkRepo>();
 
 var app = builder.Build();
 
