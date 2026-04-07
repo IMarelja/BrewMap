@@ -4,7 +4,7 @@ namespace BrewMapAPI.Service.Auth
 {
     public interface IAuthService
     {
-        AuthResponse Login(LoginRequest request);
-        AuthResponse Register(RegisterRequest request);
+        Task<AuthResponse> Login(LoginRequest request);
+        Task<AuthResponse> Register(RegisterRequest request);
     }
 }

@@ -1,8 +1,10 @@
 using BrewMapAPI.Models;       
 using BrewMapAPI.Service.User;     
 using BrewMapAPI.Data;
+using BrewMapAPI.Repository.Auth;
 using Microsoft.Extensions.Options;
 using BrewMapAPI.Repository.Drinks;
+using BrewMapAPI.Service.Auth;
 using BrewMapAPI.Service.Drinks;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,9 +22,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Business level architecture
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDrinkService, DrinkService>();
 
 // Data access level architecture
+builder.Services.AddScoped<IAuthRepo, AuthRepo>();
 builder.Services.AddScoped<IDrinkRepo, DrinkRepo>();
 
 var app = builder.Build();

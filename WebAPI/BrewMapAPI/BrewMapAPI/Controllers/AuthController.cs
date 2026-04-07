@@ -27,7 +27,7 @@ namespace BrewMapAPI.Controllers
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public IActionResult Login([FromBody] LoginRequest loginUser)
+        public async Task<IActionResult> Login([FromBody] LoginRequest loginUser)
         {
             if (!ModelState.IsValid)
             {
@@ -35,7 +35,7 @@ namespace BrewMapAPI.Controllers
             }
             try
             {
-                AuthResponse request = _authService.Login(loginUser);
+                AuthResponse request = await _authService.Login(loginUser);
                 return StatusCode(request.StatusCode, request.Message);
             }
             catch (Exception ex)
@@ -46,7 +46,7 @@ namespace BrewMapAPI.Controllers
 
         [HttpPost("register")]
         [AllowAnonymous]
-        public IActionResult Register([FromBody] RegisterRequest registerUser)
+        public async Task<IActionResult> Register([FromBody] RegisterRequest registerUser)
         {
             if (!ModelState.IsValid)
             {
@@ -54,7 +54,7 @@ namespace BrewMapAPI.Controllers
             }
             try
             {
-                AuthResponse request = _authService.Register(registerUser);
+                AuthResponse request = await _authService.Register(registerUser);
                 return StatusCode(request.StatusCode, request.Message);
             }
             catch (Exception ex)
