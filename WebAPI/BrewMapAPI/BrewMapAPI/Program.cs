@@ -1,11 +1,29 @@
+using BrewMapAPI.Models;       
+using BrewMapAPI.Service.User;     
+using BrewMapAPI.Data;
+using Microsoft.Extensions.Options;
+using BrewMapAPI.Repository.Drinks;
+using BrewMapAPI.Service.Drinks;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Configure strong-typed settings for MongoDB
+builder.Services.Configure<DatabaseSettings>(
+    builder.Configuration.GetSection("DatabaseSettings"));
 
+// Register MongoDB context
+builder.Services.AddSingleton<MongoDbContext>();  
+
+// Add services to the container.
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Business level architecture
+builder.Services.AddScoped<IDrinkService, DrinkService>();
+
+// Data access level architecture
+builder.Services.AddScoped<IDrinkRepo, DrinkRepo>();
 
 var app = builder.Build();
 
@@ -15,9 +33,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
