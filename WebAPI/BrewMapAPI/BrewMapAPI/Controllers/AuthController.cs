@@ -18,15 +18,11 @@ namespace BrewMapAPI.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly MongoDbContext _context;
-        private readonly IConfiguration _config;
         private readonly IAuthService _authService;
 
-        public AuthController(MongoDbContext context, IConfiguration config, IAuthService authService)
+        public AuthController(MongoDbContext context, IConfiguration config)
         {
-            _context = context;
-            _config = config;
-            _authService = authService;
+            _authService = new AuthService(context, config);
         }
 
         [HttpPost("login")]
@@ -39,8 +35,8 @@ namespace BrewMapAPI.Controllers
             }
             try
             {
-                _authService.Login(loginUser);
-                return Ok();
+                AuthResponse request = _authService.Login(loginUser);
+                return StatusCode(request.StatusCode, request.Message);
             }
             catch (Exception ex)
             {
@@ -58,8 +54,8 @@ namespace BrewMapAPI.Controllers
             }
             try
             {
-                _authService.Register(registerUser);
-                return Ok();
+                AuthResponse request = _authService.Register(registerUser);
+                return StatusCode(request.StatusCode, request.Message);
             }
             catch (Exception ex)
             {
