@@ -20,9 +20,9 @@ namespace BrewMapAPI.Controllers
     {
         private readonly IAuthService _authService;
 
-        public AuthController(MongoDbContext context, IConfiguration config)
+        public AuthController(IAuthService authService)
         {
-            _authService = new AuthService(context, config);
+            _authService = authService;
         }
 
         [HttpPost("login")]
