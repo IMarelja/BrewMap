@@ -1,6 +1,9 @@
 ﻿using BrewMapAPI.Data;
 using BrewMapAPI.DTO.Auth;
+using BrewMapAPI.Repository.Auth;
 using BrewMapAPI.Security;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Memory;
 using MongoDB.Driver;
 
 namespace BrewMapAPI.Service.Auth
@@ -8,19 +11,20 @@ namespace BrewMapAPI.Service.Auth
     public class AuthService : IAuthService
     {
         private readonly IConfiguration _config;
-        private readonly MongoDbContext _context;
-        public AuthService(MongoDbContext context, IConfiguration config)
+        private readonly IAuthRepo _repo;
+        
+        public AuthService(IConfiguration config, IAuthRepo repo)
         {
-            _context = context;
             _config = config;
+            _repo = repo;
         }
-        public AuthResponse Login(LoginRequest request)
+        public async Task<AuthResponse> Login(LoginRequest request)
         {
             try
             {
                 var genericLoginFail = "Incorrect username or password";
                 // MongoDB syntax for finding one user
-                var existingUser = _context.Users.Find(x => x.Username == request.Username).FirstOrDefault();
+                var existingUser = await _repo.GetByUsername(request.Username);
                 if (existingUser == null)
                 {
                     return new AuthResponse()
@@ -30,7 +34,7 @@ namespace BrewMapAPI.Service.Auth
                         StatusCode = 401
                     };
                 }
-                var hash = PasswordHashProvider.GetHash(request.Password, existingUser.PasswordSalt);
+                var hash = PasswordHashProvider.GetHash(request.Password, existingUser.PasswordSalt!);
                 if (hash != existingUser.PasswordHash)
                 {
                     return new AuthResponse()
@@ -41,7 +45,7 @@ namespace BrewMapAPI.Service.Auth
                     };
                 }
                 var secureKey = _config["JWT:SecureKey"];
-                var serializedToken = JwtTokenProvider.CreateJwtToken(secureKey, 60, request.Username, existingUser.Role);
+                var serializedToken = JwtTokenProvider.CreateJwtToken(secureKey!, 60, request.Username, existingUser.Role);
                 return new AuthResponse()
                 {
                     Success = true,
@@ -61,12 +65,12 @@ namespace BrewMapAPI.Service.Auth
             }
         }
 
-        public AuthResponse Register(RegisterRequest request)
+        public async Task<AuthResponse> Register(RegisterRequest request)
         {
             try
             {
                 var trimmedUsername = request.Username.Trim();
-                if (_context.Users.Find(x => x.Username == trimmedUsername).Any())
+                if (await _repo.GetByUsername(trimmedUsername) != null)
                 {
                     return new AuthResponse()
                     {
@@ -76,7 +80,7 @@ namespace BrewMapAPI.Service.Auth
                     };
                 }
                 var trimmedEmail = request.Email.Trim();
-                if (_context.Users.Find(x => x.Email == trimmedEmail).Any())
+                if (await _repo.GetByEmail(trimmedEmail) != null)
                 {
                     return new AuthResponse()
                     {
@@ -97,7 +101,8 @@ namespace BrewMapAPI.Service.Auth
                     Role = "User",
                     ReportCount = 0
                 };
-                _context.Users.InsertOne(user); // MongoDB insert
+                
+                await _repo.Create(user);
                 return new AuthResponse()
                 {
                     Success = true,
