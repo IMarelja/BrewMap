@@ -9,3 +9,6 @@ brewmap_data/
 brewmap_config/
 # Environment variables
 .env
+
+# API specific
+WebAPI/BrewMapAPI/BrewMapAPI/appsettings.json
