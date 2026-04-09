@@ -29,28 +29,72 @@ namespace BrewMapAPI.Controllers
             }
         }
 
-        [HttpGet("location/{locationId}")]
+        [HttpGet("Locations/{locationId}")]
         public async Task<IActionResult> GetByLocationId(string locationId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var drinks = await _service.GetByLocationId(locationId);
+                return Ok(drinks);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateDrink([FromBody] CreateDrink drink)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (!ModelState.IsValid) 
+                    return BadRequest(ModelState);
+
+                var created = await _service.CreateDrink(drink);
+                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateDrink([FromBody] UpdateDrink drink)
         {
-            throw new NotImplementedException();
+
+            try
+            {
+                if (!ModelState.IsValid) 
+                    return BadRequest(ModelState);
+
+
+                var updated = await _service.UpdateDrink(drink);
+                if (updated == null)
+                    return NotFound();
+                return Ok(updated);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDrink(string id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var deleted = await _service.DeleteDrink(id);
+                if (!deleted)
+                    return NotFound();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
