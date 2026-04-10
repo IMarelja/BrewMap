@@ -1,6 +1,7 @@
 ﻿using BrewMapAPI.DTO.Drink;
 using BrewMapAPI.Models;
 using BrewMapAPI.Repository.Drinks;
+using MongoDB.Driver;
 
 namespace BrewMapAPI.Service.Drinks
 {
@@ -15,8 +16,18 @@ namespace BrewMapAPI.Service.Drinks
 
         public async Task<ReadDrink> CreateDrink(CreateDrink drink)
         {
-            var created = await _repo.CreateDrink(drink);
-            return toReadModel(created);
+            drink.Name = (drink.Name ?? string.Empty).Trim();
+            drink.Description = drink.Description?.Trim();
+
+            try
+            {
+                var created = await _repo.CreateDrink(drink);
+                return toReadModel(created);
+            }
+            catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
+            {
+                throw new InvalidOperationException("A drink with the same name already exists at this location.");
+            }
         }
 
         public async Task<bool> DeleteDrink(string id)
@@ -43,10 +54,17 @@ namespace BrewMapAPI.Service.Drinks
             drink.Name = (drink.Name ?? string.Empty).Trim();
             drink.Description = drink.Description?.Trim();
 
-            var updated = await _repo.UpdateDrink(drink);
-            if (updated == null)
-                return null;
-            return toReadModel(updated);
+            try
+            {
+                var updated = await _repo.UpdateDrink(drink);
+                if (updated == null)
+                    return null;
+                return toReadModel(updated);
+            }
+            catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
+            {
+                throw new InvalidOperationException("A drink with the same name already exists at this location.");
+            }
         }
 
         private ReadDrink toReadModel(Drink drink)
