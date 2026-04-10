@@ -20,9 +20,14 @@ namespace BrewMapAPI.Data
 
         private void ApplyIndex()
         {
-            var drinksIndex_availableAtLocationId = Builders<Drink>.IndexKeys.Ascending(x => x.AvailableAtLocationId);
+            var drinksIndex = Builders<Drink>.IndexKeys
+                .Ascending(x => x.AvailableAtLocationId)
+                .Ascending(x => x.Name);
 
-            Drinks.Indexes.CreateOne(new CreateIndexModel<Drink>(drinksIndex_availableAtLocationId));
+            Drinks.Indexes.CreateOne(new CreateIndexModel<Drink>(
+                drinksIndex,
+                new CreateIndexOptions { Unique = true }
+            ));
         }
 
         public IMongoCollection<User> Users => _database.GetCollection<User>("users");
