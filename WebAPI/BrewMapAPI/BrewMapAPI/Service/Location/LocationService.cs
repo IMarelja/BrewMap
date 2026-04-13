@@ -70,7 +70,6 @@ namespace BrewMapAPI.Service.Location
                 };
             }
 
-            location.LastEdit = DateTime.UtcNow;
             location.UpdatedAt = DateTime.UtcNow;
             location.Edits.Add(new EditHistory
             {

@@ -157,7 +157,7 @@ db.locations.insertMany([
     addedByUserId: userId1,
     createdAt: now,
     updatedAt: now,
-    lastEdit: null,
+    
     edits: [],
     aggregatedRating: { average: 4.7, count: 3 },
   },
@@ -176,7 +176,7 @@ db.locations.insertMany([
     addedByUserId: userId2,
     createdAt: now,
     updatedAt: now,
-    lastEdit: null,
+    
     edits: [],
     aggregatedRating: { average: 4.2, count: 2 },
   },
@@ -195,7 +195,7 @@ db.locations.insertMany([
     addedByUserId: userId1,
     createdAt: now,
     updatedAt: now,
-    lastEdit: null,
+    
     edits: [],
     aggregatedRating: { average: 4.0, count: 2 },
   },
@@ -214,7 +214,7 @@ db.locations.insertMany([
     addedByUserId: userId3,
     createdAt: now,
     updatedAt: now,
-    lastEdit: null,
+    
     edits: [],
     aggregatedRating: { average: 4.5, count: 2 },
   },
@@ -233,7 +233,7 @@ db.locations.insertMany([
     addedByUserId: userId4,
     createdAt: now,
     updatedAt: now,
-    lastEdit: null,
+    
     edits: [],
     aggregatedRating: { average: 4.8, count: 2 },
   },
@@ -252,7 +252,7 @@ db.locations.insertMany([
     addedByUserId: userId5,
     createdAt: now,
     updatedAt: now,
-    lastEdit: null,
+    
     edits: [],
     aggregatedRating: { average: 4.3, count: 2 },
   },
@@ -271,7 +271,7 @@ db.locations.insertMany([
     addedByUserId: userId2,
     createdAt: now,
     updatedAt: now,
-    lastEdit: null,
+    
     edits: [],
     aggregatedRating: { average: 3.5, count: 2 },
   },
@@ -290,7 +290,7 @@ db.locations.insertMany([
     addedByUserId: userId3,
     createdAt: now,
     updatedAt: now,
-    lastEdit: null,
+    
     edits: [],
     aggregatedRating: { average: 4.1, count: 2 },
   },
@@ -309,7 +309,7 @@ db.locations.insertMany([
     addedByUserId: userId1,
     createdAt: now,
     updatedAt: now,
-    lastEdit: null,
+    
     edits: [],
     aggregatedRating: { average: 4.6, count: 2 },
   },
@@ -328,7 +328,7 @@ db.locations.insertMany([
     addedByUserId: userId4,
     createdAt: now,
     updatedAt: now,
-    lastEdit: null,
+    
     edits: [],
     aggregatedRating: { average: 4.4, count: 2 },
   },
