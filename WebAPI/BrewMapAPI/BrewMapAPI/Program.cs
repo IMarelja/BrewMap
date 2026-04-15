@@ -9,7 +9,7 @@ using BrewMapAPI.Service.Location;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure strong-typed settings for MongoDB
+// Configure strong-typed settings for MongoDB.
 builder.Services.Configure<DatabaseSettings>(
     builder.Configuration.GetSection("DatabaseSettings"));
 
