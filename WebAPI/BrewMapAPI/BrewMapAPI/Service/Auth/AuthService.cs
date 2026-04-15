@@ -44,8 +44,7 @@ namespace BrewMapAPI.Service.Auth
                         StatusCode = 401
                     };
                 }
-                var secureKey = _config["JWT:SecureKey"];
-                var serializedToken = JwtTokenProvider.CreateJwtToken(secureKey!, 60, request.Username, existingUser.Role);
+                var serializedToken = JwtTokenProvider.CreateJwtToken(existingUser, _config, 60);
                 return new AuthResponse()
                 {
                     Success = true,
@@ -103,11 +102,13 @@ namespace BrewMapAPI.Service.Auth
                 };
                 
                 await _repo.Create(user);
+                var serializedToken = JwtTokenProvider.CreateJwtToken(user, _config, 60);
                 return new AuthResponse()
                 {
                     Success = true,
                     Message = "User successfully registered",
-                    StatusCode = 200
+                    StatusCode = 200,
+                    Token = serializedToken
                 };
             }
             catch (Exception ex)
