@@ -8,7 +8,7 @@ namespace BrewMapAPI.Security;
 
 public class JwtTokenProvider
 {
-    public static string CreateJwtToken(string secureKey, int expiration, string subject = null, string role = null)
+    public static string CreateJwtToken(string secureKey, int expiration, string? subject = null, string? role = null)
     {
         var tokenKey = Encoding.UTF8.GetBytes(secureKey);
         var tokenDescriptor = new SecurityTokenDescriptor()
