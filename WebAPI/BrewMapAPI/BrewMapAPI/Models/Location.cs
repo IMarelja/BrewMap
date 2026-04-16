@@ -2,6 +2,8 @@
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 
 namespace BrewMapAPI.Models
 {
@@ -33,7 +35,7 @@ namespace BrewMapAPI.Models
         public Dictionary<string, DayOpeningHours> OpeningHours { get; set; }
 
         [BsonElement("contact")]
-        public Contact Contact { get; set; }
+        public Contact? Contact { get; set; }
 
         [BsonElement("reportCount")]
         public int ReportCount { get; set; } = 0;
@@ -83,22 +85,61 @@ namespace BrewMapAPI.Models
         public List<double> Coordinates { get; set; } 
     }
 
-   
-    public class DayOpeningHours
+    public class DayOpeningHours : IValidatableObject
     {
+        private static readonly Regex TimeRegex =
+            new(@"^([01]\d|2[0-3]):([0-5]\d)$", RegexOptions.Compiled);
+
         [BsonElement("open")]
-        public string Open { get; set; } 
+        public string? Open { get; set; }
 
         [BsonElement("close")]
-        public string Close { get; set; } 
+        public string? Close { get; set; }
 
         [BsonElement("isClosed")]
         public bool IsClosed { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (IsClosed)
+            {
+                if (Open != null || Close != null)
+                {
+                    yield return new ValidationResult(
+                        "Open and Close must be null when IsClosed is true.",
+                        new[] { nameof(Open), nameof(Close) });
+                }
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(Open) || string.IsNullOrWhiteSpace(Close))
+                {
+                    yield return new ValidationResult(
+                        "Open and Close are required when IsClosed is false.",
+                        new[] { nameof(Open), nameof(Close) });
+                }
+
+                if (!TimeRegex.IsMatch(Open ?? ""))
+                {
+                    yield return new ValidationResult(
+                        "Open time must be in HH:mm format.",
+                        new[] { nameof(Open) });
+                }
+
+                if (!TimeRegex.IsMatch(Close ?? ""))
+                {
+                    yield return new ValidationResult(
+                        "Close time must be in HH:mm format.",
+                        new[] { nameof(Close) });
+                }
+            }
+        }
     }
 
     public class Contact
     {
         [BsonElement("website")]
+        [Url]
         public string? Website { get; set; }
     }
 
@@ -115,5 +156,34 @@ namespace BrewMapAPI.Models
         public string? EditComment { get; set; }
     }
 
- 
+
+    public class Category
+    {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
+
+        [BsonElement("tag")]
+        public string Tag { get; set; }
+
+        [BsonElement("name")]
+        public string Name { get; set; }
+        [BsonElement("isActive")]
+        public bool IsActive { get; set; }
+    }
+
+    public class PaymentOption
+    {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
+
+        [BsonElement("_tag")]
+        public string Tag { get; set; }
+
+        [BsonElement("name")]
+        public string Name { get; set; }
+
+
+    }
 }

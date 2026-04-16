@@ -28,6 +28,8 @@ builder.Services.AddScoped<ILocationService, LocationService>();
 // Data access level architecture
 builder.Services.AddScoped<IDrinkRepo, DrinkRepo>();
 builder.Services.AddScoped<ILocationRepo, LocationRepo>();
+builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
+builder.Services.AddScoped<IPaymentOptionRepo, PaymentOptionRepo>();
 
 var app = builder.Build();
 

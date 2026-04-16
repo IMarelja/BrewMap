@@ -4,10 +4,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BrewMapAPI.DTO.Location
 {
-    public class UpdateLocation
+    public class UpdateLocation : IValidatableObject
     {
-        [Required]
-        public string Id { get; set; }
+
+        private static readonly string[] RequiredDays =
+{
+        "Monday", "Tuesday", "Wednesday",
+        "Thursday", "Friday", "Saturday", "Sunday"
+    };
 
         public string Name { get; set; }
         public string? Description { get; set; }
@@ -16,8 +20,31 @@ namespace BrewMapAPI.DTO.Location
         public double? Longitude { get; set; }
         public string CategoryTag { get; set; }
         public List<string> PaymentOptionTags { get; set; }
-        public Dictionary<string, DayOpeningHours> OpeningHours { get; set; }
-        public Contact Contact { get; set; }
+        public Contact? Contact { get; set; }
         public string? EditComment { get; set; }
+
+        [Required]
+        public Dictionary<string, DayOpeningHours> OpeningHours { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (OpeningHours == null)
+            {
+                yield return new ValidationResult(
+                    "OpeningHours is required.",
+                    new[] { nameof(OpeningHours) });
+                yield break;
+            }
+
+            foreach (var day in RequiredDays)
+            {
+                if (!OpeningHours.ContainsKey(day))
+                {
+                    yield return new ValidationResult(
+                        $"OpeningHours must include '{day}'.",
+                        new[] { nameof(OpeningHours) });
+                }
+            }
+        }
     }
 }

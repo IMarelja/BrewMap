@@ -8,7 +8,7 @@ namespace BrewMapAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // Only logged-in users
+    //[Authorize]
     public class LocationsController : ControllerBase
     {
         private readonly ILocationService _service;
@@ -20,7 +20,12 @@ namespace BrewMapAPI.Controllers
 
         private string GetUserId()
         {
-            return User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            userId = "69de57933be4ef30b78ce5b0"; //to do remove this later
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new UnauthorizedAccessException("Invalid authentication token.");
+
+            return userId;
         }
 
         /// <summary>
@@ -29,9 +34,17 @@ namespace BrewMapAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<ReadLocation>> Create([FromBody] CreateLocation dto)
         {
-            var userId = GetUserId();
-            var result = await _service.CreateAsync(dto, userId);
-            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+
+            try
+            {
+                var userId = GetUserId();
+                var result = await _service.CreateAsync(dto, userId);
+                return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         /// <summary>
@@ -41,8 +54,15 @@ namespace BrewMapAPI.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<ReadLocation>>> GetAll()
         {
-            var locations = await _service.GetAllAsync();
-            return Ok(locations);
+            try
+            {
+                var locations = await _service.GetAllAsync();
+                return Ok(locations);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         /// <summary>
@@ -52,11 +72,18 @@ namespace BrewMapAPI.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<ReadLocation>> GetById(string id)
         {
-            var location = await _service.GetByIdAsync(id);
-            if (location == null)
-                return NotFound();
+            try
+            {
+                var location = await _service.GetByIdAsync(id);
+                if (location == null)
+                    return NotFound(new { message = "Location not found." });
 
-            return Ok(location);
+                return Ok(location);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         /// <summary>
@@ -65,16 +92,21 @@ namespace BrewMapAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(string id, [FromBody] UpdateLocation dto)
         {
-            if (id != dto.Id)
-                return BadRequest("ID mismatch.");
+            try
+            {
+                var userId = GetUserId();
+                var success = await _service.UpdateAsync(id, dto, userId);
 
-            var userId = GetUserId();
-            var success = await _service.UpdateAsync(dto, userId);
+                if (!success)
+                    return NotFound(new { message = "Location not found or access denied." });
 
-            if (!success)
-                return NotFound();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
 
-            return NoContent();
         }
 
         /// <summary>
@@ -83,13 +115,20 @@ namespace BrewMapAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
-            var userId = GetUserId();
-            var success = await _service.DeleteAsync(id, userId);
+            try
+            {
+                var userId = GetUserId();
+                var success = await _service.DeleteAsync(id, userId);
 
-            if (!success)
-                return NotFound();
+                if (!success)
+                    return NotFound(new { message = "Location not found or access denied." });
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
