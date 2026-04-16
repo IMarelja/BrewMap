@@ -7,14 +7,23 @@ namespace BrewMapAPI.Service.Location
     public class LocationService: ILocationService
     {
         private readonly ILocationRepo _repo;
+        private readonly ICategoryRepo _categoryRepo;
+        private readonly IPaymentOptionRepo _paymentOptionRepo;
 
-        public LocationService(ILocationRepo repo)
+        public LocationService(
+            ILocationRepo repo,
+            ICategoryRepo categoryRepo,
+            IPaymentOptionRepo paymentOptionRepo)
         {
             _repo = repo;
+            _categoryRepo = categoryRepo;
+            _paymentOptionRepo = paymentOptionRepo;
         }
 
         public async Task<ReadLocation> CreateAsync(CreateLocation dto, string userId)
         {
+            //await ValidateTagsAsync(dto.CategoryTag, dto.PaymentOptionTags);
+
             var location = new Models.Location
             {
                 Name = dto.Name,
@@ -47,12 +56,20 @@ namespace BrewMapAPI.Service.Location
             return location == null ? null : MapToReadDto(location);
         }
 
-        public async Task<bool> UpdateAsync(UpdateLocation dto, string userId)
+        public async Task<bool> UpdateAsync(string id, UpdateLocation dto, string userId)
         {
-            var location = await _repo.GetByIdAsync(dto.Id);
+            var location = await _repo.GetByIdAsync(id);
             if (location == null) return false;
 
-            if (!string.IsNullOrEmpty(dto.Name))
+            if (!string.IsNullOrWhiteSpace(dto.CategoryTag) ||
+                (dto.PaymentOptionTags != null && dto.PaymentOptionTags.Any()))
+            {
+                //await ValidateTagsAsync(
+                //    dto.CategoryTag ?? location.CategoryTag,
+                //    dto.PaymentOptionTags ?? location.PaymentOptionTags);
+            }
+
+            if (!string.IsNullOrWhiteSpace(dto.Name))
                 location.Name = dto.Name;
 
             location.Description = dto.Description ?? location.Description;
@@ -66,7 +83,11 @@ namespace BrewMapAPI.Service.Location
             {
                 location.LocationPoint = new GeoJsonPoint
                 {
-                    Coordinates = new List<double> { dto.Longitude.Value, dto.Latitude.Value }
+                    Coordinates = new List<double>
+            {
+                dto.Longitude.Value,
+                dto.Latitude.Value
+            }
                 };
             }
 
@@ -114,6 +135,32 @@ namespace BrewMapAPI.Service.Location
                 TotalReviews = location.AggregatedRating?.Count ?? 0,
                 CreatedAt = location.CreatedAt
             };
+        }
+
+        private async Task ValidateTagsAsync(string categoryTag, List<string> paymentTags)
+        {
+            if (string.IsNullOrWhiteSpace(categoryTag))
+                throw new ArgumentException("CategoryTag is required.");
+
+            //var category = await _categoryRepo.GetByTagAsync(categoryTag);
+            //if (category == null)
+            //    throw new ArgumentException($"Invalid CategoryTag: '{categoryTag}'.");
+
+            if (paymentTags == null || !paymentTags.Any())
+                return;
+
+            var invalidTags = new List<string>();
+
+            foreach (var tag in paymentTags.Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                var paymentOption = await _paymentOptionRepo.GetByTagAsync(tag);
+                if (paymentOption == null)
+                    invalidTags.Add(tag);
+            }
+
+            if (invalidTags.Any())
+                throw new ArgumentException(
+                    $"Invalid PaymentOptionTags: {string.Join(", ", invalidTags)}.");
         }
     }
 }

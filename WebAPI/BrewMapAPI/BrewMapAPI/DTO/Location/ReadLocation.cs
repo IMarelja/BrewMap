@@ -1,6 +1,7 @@
 ﻿using BrewMapAPI.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace BrewMapAPI.DTO.Location
 {
@@ -15,7 +16,7 @@ namespace BrewMapAPI.DTO.Location
         public string CategoryTag { get; set; }
         public List<string> PaymentOptionTags { get; set; }
         public Dictionary<string, DayOpeningHours> OpeningHours { get; set; }
-        public Contact Contact { get; set; }
+        public Contact? Contact { get; set; }
         public bool IsActive { get; set; }
         public double AverageRating { get; set; }
         public int TotalReviews { get; set; }
