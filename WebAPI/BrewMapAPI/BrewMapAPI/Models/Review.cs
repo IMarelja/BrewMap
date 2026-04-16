@@ -36,6 +36,7 @@ namespace BrewMapAPI.Models
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 
+  
     public class ReviewTarget
     {
         [BsonElement("type")]
@@ -43,6 +44,6 @@ namespace BrewMapAPI.Models
 
         [BsonElement("id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string TargetId { get; set; }
     }
 }
