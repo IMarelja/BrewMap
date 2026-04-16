@@ -97,7 +97,7 @@ namespace BrewMapAPI.Service.Auth
                     PasswordHash = passHash,
                     PasswordSalt = passSalt,
                     CreatedAt = DateTime.UtcNow,
-                    Role = "User",
+                    Role = "user",
                     ReportCount = 0
                 };
                 
