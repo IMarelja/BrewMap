@@ -4,6 +4,8 @@ using BrewMapAPI.Data;
 using Microsoft.Extensions.Options;
 using BrewMapAPI.Repository.Drinks;
 using BrewMapAPI.Service.Drinks;
+using BrewMapAPI.Service.Pins;
+using BrewMapAPI.Repository.Pins;
 using BrewMapAPI.Service.Review;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,6 +13,7 @@ using BrewMapAPI.Repository.Reviews;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+
 using System.Text;
 using Microsoft.OpenApi.Models;     
 var builder = WebApplication.CreateBuilder(args);
@@ -70,6 +73,9 @@ builder.Services.AddScoped<IReviewService, ReviewService>();
 // Data access level architecture
 builder.Services.AddScoped<IDrinkRepo, DrinkRepo>();
 builder.Services.AddScoped<IReviewRepo, ReviewRepo>();
+
+builder.Services.AddScoped<IPinRepo, PinRepo>();
+builder.Services.AddScoped<IPinService, PinService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
