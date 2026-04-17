@@ -32,12 +32,16 @@ namespace BrewMapAPI.Service.Location
                 CategoryTag = dto.CategoryTag,
                 PaymentOptionTags = dto.PaymentOptionTags,
                 OpeningHours = dto.OpeningHours,
-                Contact = dto.Contact,
+                Contact = new Contact
+                {
+                    Website = dto.Contact.Website
+                },
                 AddedByUserId = userId,
                 LocationPoint = new GeoJsonPoint
                 {
                     Coordinates = new List<double> { dto.Longitude, dto.Latitude }
-                }
+                },
+                IsActive = true
             };
 
             await _repo.CreateAsync(location);
