@@ -30,7 +30,7 @@ namespace BrewMapAPI.DTO.Location
         public string CategoryTag { get; set; } = "cafe";
         [Required]
         public List<string> PaymentOptionTags { get; set; } = new();
-        public Contact? Contact { get; set; }
+        public ContactDto? Contact { get; set; }
 
         [Required]
         public Dictionary<string, DayOpeningHours> OpeningHours { get; set; }
@@ -53,6 +53,22 @@ namespace BrewMapAPI.DTO.Location
                         $"OpeningHours must include '{day}'.",
                         new[] { nameof(OpeningHours) });
                 }
+            }
+        }
+
+        public class ContactDto
+        {
+            [OptionalUrl]
+            public string Website { get; set; } = string.Empty;
+        }
+
+        public class OptionalUrlAttribute : ValidationAttribute
+        {
+            public override bool IsValid(object? value)
+            {
+                if (value == null || string.IsNullOrWhiteSpace(value as string))
+                    return true;
+                return new UrlAttribute().IsValid(value);
             }
         }
     }
