@@ -139,7 +139,6 @@ namespace BrewMapAPI.Models
     public class Contact
     {
         [BsonElement("website")]
-        [Url]
         public string? Website { get; set; }
     }
 
