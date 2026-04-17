@@ -6,11 +6,13 @@ namespace BrewMapAPI.DTO.Location
 {
     public class CreateLocation : IValidatableObject
     {
+
+        // MUST STAY LOWERCASE
         private static readonly string[] RequiredDays =
-{
-        "Monday", "Tuesday", "Wednesday",
-        "Thursday", "Friday", "Saturday", "Sunday"
-    };
+        {
+            "monday", "tuesday", "wednesday",
+            "thursday", "friday", "saturday", "sunday"
+        };
 
         [Required]
         public string Name { get; set; }
@@ -45,8 +47,7 @@ namespace BrewMapAPI.DTO.Location
 
             foreach (var day in RequiredDays)
             {
-                if (!OpeningHours.Keys.Any(k =>
-                    k.Equals(day, StringComparison.OrdinalIgnoreCase)))
+                if (!OpeningHours.ContainsKey(day))
                 {
                     yield return new ValidationResult(
                         $"OpeningHours must include '{day}'.",
