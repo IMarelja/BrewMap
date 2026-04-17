@@ -28,11 +28,23 @@ namespace BrewMapAPI.Data
                 drinksIndex,
                 new CreateIndexOptions { Unique = true }
             ));
+
+            var flagsIndex = Builders<Flag>.IndexKeys
+                .Ascending(x => x.ReportedByUserId)
+                .Ascending(x => x.ContentId)
+                .Ascending(x => x.ContentType);
+
+            Flags.Indexes.CreateOne(new CreateIndexModel<Flag>(
+                flagsIndex,
+                new CreateIndexOptions { Unique = true }
+            ));
         }
 
         public IMongoCollection<User> Users => _database.GetCollection<User>("users");
         public IMongoCollection<Drink> Drinks => _database.GetCollection<Drink>("products");
         public IMongoCollection<Location> Locations => _database.GetCollection<Location>("locations");
         public IMongoCollection<Review> Reviews => _database.GetCollection<Review>("reviews");
+        public IMongoCollection<Flag> Flags => _database.GetCollection<Flag>("flags");
+
     }
 }
