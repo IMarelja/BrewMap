@@ -27,7 +27,7 @@ namespace BrewMapAPI.DTO.Location
         [Required]
         public double Longitude { get; set; }
         [Required]
-        public string CategoryTag { get; set; } = "Cafe";
+        public string CategoryTag { get; set; } = "cafe";
         [Required]
         public List<string> PaymentOptionTags { get; set; } = new();
         public Contact? Contact { get; set; }
