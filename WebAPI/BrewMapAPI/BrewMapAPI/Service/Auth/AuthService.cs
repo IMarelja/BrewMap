@@ -101,8 +101,8 @@ namespace BrewMapAPI.Service.Auth
                     ReportCount = 0
                 };
                 
-                await _repo.Create(user);
                 var serializedToken = JwtTokenProvider.CreateJwtToken(user, _config, 60);
+                await _repo.Create(user);
                 return new AuthResponse()
                 {
                     Success = true,
