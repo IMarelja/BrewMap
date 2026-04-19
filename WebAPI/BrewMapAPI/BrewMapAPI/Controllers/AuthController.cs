@@ -36,7 +36,7 @@ namespace BrewMapAPI.Controllers
             try
             {
                 AuthResponse request = await _authService.Login(loginUser);
-                return StatusCode(request.StatusCode, request.Message);
+                return StatusCode(request.StatusCode, request);
             }
             catch (Exception ex)
             {
@@ -55,7 +55,7 @@ namespace BrewMapAPI.Controllers
             try
             {
                 AuthResponse request = await _authService.Register(registerUser);
-                return StatusCode(request.StatusCode, request.Message);
+                return StatusCode(request.StatusCode, request);
             }
             catch (Exception ex)
             {

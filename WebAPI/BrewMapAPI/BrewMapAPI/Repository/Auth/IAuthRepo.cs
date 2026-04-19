@@ -9,5 +9,6 @@ public interface IAuthRepo
     Task<User?> GetByEmail(string email);
     Task<User?> GetById(string id);
     Task<User> Create(User user);
+    Task<User> Update(User user);
 
 }
