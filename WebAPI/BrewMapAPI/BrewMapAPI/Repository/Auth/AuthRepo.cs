@@ -34,4 +34,10 @@ public class AuthRepo : IAuthRepo
         await _context.Users.InsertOneAsync(user);
         return user;
     }
+
+    public async Task<User> Update(User user)
+    {
+        await _context.Users.ReplaceOneAsync(x => x.Id == user.Id, user);
+        return user;
+    }
 }

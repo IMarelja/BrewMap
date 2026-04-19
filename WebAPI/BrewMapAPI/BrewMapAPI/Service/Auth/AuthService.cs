@@ -44,6 +44,8 @@ namespace BrewMapAPI.Service.Auth
                         StatusCode = 401
                     };
                 }
+                existingUser.LastLoginAt = DateTime.UtcNow;
+                await _repo.Update(existingUser);
                 var serializedToken = JwtTokenProvider.CreateJwtToken(existingUser, _config, 60);
                 return new AuthResponse()
                 {
@@ -97,6 +99,7 @@ namespace BrewMapAPI.Service.Auth
                     PasswordHash = passHash,
                     PasswordSalt = passSalt,
                     CreatedAt = DateTime.UtcNow,
+                    LastLoginAt = DateTime.UtcNow,
                     Role = "user",
                     ReportCount = 0
                 };
