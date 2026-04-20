@@ -22,7 +22,7 @@ namespace BrewMapAPI.Service.Location
 
         public async Task<ReadLocation> CreateAsync(CreateLocation dto, string userId)
         {
-            //await ValidateTagsAsync(dto.CategoryTag, dto.PaymentOptionTags);
+            await ValidateTagsAsync(dto.CategoryTag, dto.PaymentOptionTags);
 
             var location = new Models.Location
             {
@@ -32,7 +32,7 @@ namespace BrewMapAPI.Service.Location
                 CategoryTag = dto.CategoryTag,
                 PaymentOptionTags = dto.PaymentOptionTags,
                 OpeningHours = dto.OpeningHours,
-                Contact = new Contact
+                Contact = dto.Contact == null ? null : new Contact
                 {
                     Website = dto.Contact.Website
                 },
@@ -65,23 +65,39 @@ namespace BrewMapAPI.Service.Location
             var location = await _repo.GetByIdAsync(id);
             if (location == null) return false;
 
-            if (!string.IsNullOrWhiteSpace(dto.CategoryTag) ||
-                (dto.PaymentOptionTags != null && dto.PaymentOptionTags.Any()))
+            if (dto.CategoryTag != null || dto.PaymentOptionTags != null)
             {
-                //await ValidateTagsAsync(
-                //    dto.CategoryTag ?? location.CategoryTag,
-                //    dto.PaymentOptionTags ?? location.PaymentOptionTags);
+                await ValidateTagsAsync(
+                    dto.CategoryTag ?? location.CategoryTag,
+                    dto.PaymentOptionTags ?? location.PaymentOptionTags
+                );
             }
 
-            if (!string.IsNullOrWhiteSpace(dto.Name))
+            if (dto.Name != null)
                 location.Name = dto.Name;
 
-            location.Description = dto.Description ?? location.Description;
-            location.Address = dto.Address ?? location.Address;
-            location.CategoryTag = dto.CategoryTag ?? location.CategoryTag;
-            location.PaymentOptionTags = dto.PaymentOptionTags ?? location.PaymentOptionTags;
-            location.OpeningHours = dto.OpeningHours ?? location.OpeningHours;
-            location.Contact = dto.Contact ?? location.Contact;
+            if (dto.Description != null)
+                location.Description = dto.Description;
+
+            if (dto.Address != null)
+                location.Address = dto.Address;
+
+            if (dto.CategoryTag != null)
+                location.CategoryTag = dto.CategoryTag;
+
+            if (dto.PaymentOptionTags != null)
+                location.PaymentOptionTags = dto.PaymentOptionTags;
+
+            if (dto.OpeningHours != null)
+                location.OpeningHours = dto.OpeningHours;
+
+            if (dto.Contact != null)
+            {
+                location.Contact ??= new Contact();
+
+                if (dto.Contact.Website != null)
+                    location.Contact.Website = dto.Contact.Website;
+            }
 
             if (dto.Latitude.HasValue && dto.Longitude.HasValue)
             {
@@ -146,9 +162,9 @@ namespace BrewMapAPI.Service.Location
             if (string.IsNullOrWhiteSpace(categoryTag))
                 throw new ArgumentException("CategoryTag is required.");
 
-            //var category = await _categoryRepo.GetByTagAsync(categoryTag);
-            //if (category == null)
-            //    throw new ArgumentException($"Invalid CategoryTag: '{categoryTag}'.");
+            var category = await _categoryRepo.GetByTagAsync(categoryTag);
+            if (category == null || !category.IsActive)
+                throw new ArgumentException($"Invalid CategoryTag: '{categoryTag}'.");
 
             if (paymentTags == null || !paymentTags.Any())
                 return;
@@ -158,7 +174,7 @@ namespace BrewMapAPI.Service.Location
             foreach (var tag in paymentTags.Distinct(StringComparer.OrdinalIgnoreCase))
             {
                 var paymentOption = await _paymentOptionRepo.GetByTagAsync(tag);
-                if (paymentOption == null)
+                if (paymentOption == null || !paymentOption.IsActive)
                     invalidTags.Add(tag);
             }
 
