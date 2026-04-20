@@ -20,6 +20,7 @@ namespace BrewMapAPI.Data
 
         private void ApplyIndex()
         {
+            // Drink (products)
             var drinksIndex = Builders<Drink>.IndexKeys
                 .Ascending(x => x.AvailableAtLocationId)
                 .Ascending(x => x.Name);
@@ -28,6 +29,18 @@ namespace BrewMapAPI.Data
                 drinksIndex,
                 new CreateIndexOptions { Unique = true }
             ));
+
+            // Users (users)
+            Users.Indexes.CreateOne(new CreateIndexModel<User>(
+                Builders<User>.IndexKeys.Ascending(x => x.Username),
+                new CreateIndexOptions { Unique = true }
+            ));
+
+            Users.Indexes.CreateOne(new CreateIndexModel<User>(
+                Builders<User>.IndexKeys.Ascending(x => x.Email),
+                new CreateIndexOptions { Unique = true }
+            ));
+
         }
 
         public IMongoCollection<User> Users => _database.GetCollection<User>("users");
