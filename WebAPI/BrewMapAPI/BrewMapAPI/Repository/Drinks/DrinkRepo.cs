@@ -15,14 +15,25 @@ namespace BrewMapAPI.Repository.Drinks
             _context = context;
         }
 
-        public Task<Drink> CreateDrink(CreateDrink drink)
+        public async Task<Drink> CreateDrink(CreateDrink dto)
         {
-            throw new NotImplementedException();
+            var drink = new Drink
+            {
+                Name = dto.Name,
+                Description = dto.Description,
+                AvailableAtLocationId = dto.LocationId,
+                CreatedByUserId = dto.CreatedByUserId,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            await _context.Drinks.InsertOneAsync(drink);
+            return drink;
         }
 
-        public Task<bool> DeleteDrink(string id)
+        public async Task<bool> DeleteDrink(string id)
         {
-            throw new NotImplementedException();
+            var result = await _context.Drinks.DeleteOneAsync(x => x.Id == id);
+            return result.DeletedCount > 0;
         }
 
         public async Task<Drink?> GetById(string id)
@@ -30,14 +41,26 @@ namespace BrewMapAPI.Repository.Drinks
             return await _context.Drinks.Find(x => x.Id == id).FirstOrDefaultAsync();
         }
 
-        public Task<List<Drink>> GetByLocationId(string locationId)
+        public async Task<List<Drink>> GetByLocationId(string locationId)
         {
-            throw new NotImplementedException();
+            return await _context.Drinks.Find(x => x.AvailableAtLocationId == locationId).ToListAsync();
         }
 
-        public Task<Drink?> UpdateDrink(UpdateDrink drink)
+        public async Task<Drink?> UpdateDrink(UpdateDrink dto)
         {
-            throw new NotImplementedException();
+            var updates = new List<UpdateDefinition<Drink>>();
+            var builder = Builders<Drink>.Update;
+
+            if (dto.Name != null)
+                updates.Add(builder.Set(x => x.Name, dto.Name));
+            if (dto.Description != null)
+                updates.Add(builder.Set(x => x.Description, dto.Description));
+
+            updates.Add(builder.Set(x => x.UpdatedAt, DateTime.UtcNow));
+
+            var update = builder.Combine(updates);
+            var options = new FindOneAndUpdateOptions<Drink> { ReturnDocument = ReturnDocument.After };
+            return await _context.Drinks.FindOneAndUpdateAsync(x => x.Id == dto.Id, update, options);
         }
     }
 }
