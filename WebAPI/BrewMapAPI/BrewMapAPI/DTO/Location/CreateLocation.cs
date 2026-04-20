@@ -6,11 +6,13 @@ namespace BrewMapAPI.DTO.Location
 {
     public class CreateLocation : IValidatableObject
     {
+
+        // MUST STAY LOWERCASE
         private static readonly string[] RequiredDays =
-{
-        "Monday", "Tuesday", "Wednesday",
-        "Thursday", "Friday", "Saturday", "Sunday"
-    };
+        {
+            "monday", "tuesday", "wednesday",
+            "thursday", "friday", "saturday", "sunday"
+        };
 
         [Required]
         public string Name { get; set; }
@@ -25,10 +27,10 @@ namespace BrewMapAPI.DTO.Location
         [Required]
         public double Longitude { get; set; }
         [Required]
-        public string CategoryTag { get; set; } = "Cafe";
+        public string CategoryTag { get; set; } = "cafe";
         [Required]
         public List<string> PaymentOptionTags { get; set; } = new();
-        public Contact? Contact { get; set; }
+        public ContactDto? Contact { get; set; }
 
         [Required]
         public Dictionary<string, DayOpeningHours> OpeningHours { get; set; }
@@ -45,13 +47,28 @@ namespace BrewMapAPI.DTO.Location
 
             foreach (var day in RequiredDays)
             {
-                if (!OpeningHours.Keys.Any(k =>
-                    k.Equals(day, StringComparison.OrdinalIgnoreCase)))
+                if (!OpeningHours.ContainsKey(day))
                 {
                     yield return new ValidationResult(
                         $"OpeningHours must include '{day}'.",
                         new[] { nameof(OpeningHours) });
                 }
+            }
+        }
+
+        public class ContactDto
+        {
+            [OptionalUrl]
+            public string Website { get; set; } = string.Empty;
+        }
+
+        public class OptionalUrlAttribute : ValidationAttribute
+        {
+            public override bool IsValid(object? value)
+            {
+                if (value == null || string.IsNullOrWhiteSpace(value as string))
+                    return true;
+                return new UrlAttribute().IsValid(value);
             }
         }
     }

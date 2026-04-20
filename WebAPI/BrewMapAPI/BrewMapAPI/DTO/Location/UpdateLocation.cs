@@ -7,11 +7,12 @@ namespace BrewMapAPI.DTO.Location
     public class UpdateLocation : IValidatableObject
     {
 
+        // MUST STAY LOWERCASE
         private static readonly string[] RequiredDays =
-{
-        "Monday", "Tuesday", "Wednesday",
-        "Thursday", "Friday", "Saturday", "Sunday"
-    };
+        {
+            "monday", "tuesday", "wednesday",
+            "thursday", "friday", "saturday", "sunday"
+        };
 
         public string Name { get; set; }
         public string? Description { get; set; }
