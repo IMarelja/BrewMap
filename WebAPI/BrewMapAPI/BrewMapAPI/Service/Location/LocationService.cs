@@ -134,6 +134,63 @@ namespace BrewMapAPI.Service.Location
             return true;
         }
 
+        public async Task<IEnumerable<ReadLocation>> SearchAsync(SearchLocationQuery query)
+        {
+            var locations = await _repo.GetAllAsync();
+            var filtered = locations.Where(l => l.IsActive);
+
+            // TEXT SEARCH (name, city, address)
+            if (!string.IsNullOrWhiteSpace(query.Query))
+            {
+                var q = query.Query.ToLower();
+
+                filtered = filtered.Where(l =>
+                    l.Name.ToLower().Contains(q) ||
+                    l.Address.City.ToLower().Contains(q) ||
+                    l.Address.Street.ToLower().Contains(q));
+            }
+
+            // CITY FILTER
+            if (!string.IsNullOrWhiteSpace(query.City))
+            {
+                filtered = filtered.Where(l =>
+                    l.Address.City.Equals(query.City, StringComparison.OrdinalIgnoreCase));
+            }
+
+            // CATEGORY FILTER
+            if (!string.IsNullOrWhiteSpace(query.CategoryTag))
+            {
+                filtered = filtered.Where(l =>
+                    l.CategoryTag.Equals(query.CategoryTag, StringComparison.OrdinalIgnoreCase));
+            }
+
+            // PAYMENT FILTER
+            if (query.PaymentOptionTags != null && query.PaymentOptionTags.Any())
+            {
+                filtered = filtered.Where(l =>
+                    query.PaymentOptionTags.All(p =>
+                        l.PaymentOptionTags.Contains(p, StringComparer.OrdinalIgnoreCase)));
+            }
+
+            // GEO SEARCH (distance-based)
+            if (query.Latitude.HasValue && query.Longitude.HasValue)
+            {
+                filtered = filtered.Where(l =>
+                {
+                    var lat1 = query.Latitude.Value;
+                    var lon1 = query.Longitude.Value;
+
+                    var lat2 = l.LocationPoint.Coordinates[1];
+                    var lon2 = l.LocationPoint.Coordinates[0];
+
+                    var distance = Haversine(lat1, lon1, lat2, lon2);
+                    return distance <= query.RadiusMeters;
+                });
+            }
+
+            return filtered.Select(MapToReadDto);
+        }
+
         private static ReadLocation MapToReadDto(Models.Location location)
         {
             return new ReadLocation
@@ -202,10 +259,10 @@ namespace BrewMapAPI.Service.Location
         }
 
         private static readonly string[] RequiredDays =
-{
-    "monday", "tuesday", "wednesday",
-    "thursday", "friday", "saturday", "sunday"
-};
+        {
+            "monday", "tuesday", "wednesday",
+            "thursday", "friday", "saturday", "sunday"
+        };
 
         private bool IsValidOpeningHours(Dictionary<string, DayOpeningHours>? hours)
         {
@@ -241,6 +298,28 @@ namespace BrewMapAPI.Service.Location
             }
 
             return true;
+        }
+
+        private static double Haversine(double lat1, double lon1, double lat2, double lon2)
+        {
+            const double R = 6371000;
+
+            var dLat = ToRad(lat2 - lat1);
+            var dLon = ToRad(lon2 - lon1);
+
+            var a =
+                Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                Math.Cos(ToRad(lat1)) * Math.Cos(ToRad(lat2)) *
+                Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+
+            var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+
+            return R * c;
+        }
+
+        private static double ToRad(double angle)
+        {
+            return Math.PI * angle / 180.0;
         }
     }
 }

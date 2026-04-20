@@ -22,4 +22,15 @@ namespace BrewMapAPI.DTO.Location
         public int TotalReviews { get; set; }
         public DateTime CreatedAt { get; set; }
     }
+
+    public class SearchLocationQuery
+    {
+        public string? Query { get; set; }
+        public string? City { get; set; }
+        public string? CategoryTag { get; set; }
+        public List<string>? PaymentOptionTags { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
+        public double RadiusMeters { get; set; } = 3000;
+    }
 }
