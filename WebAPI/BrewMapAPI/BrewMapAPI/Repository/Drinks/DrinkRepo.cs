@@ -15,14 +15,14 @@ namespace BrewMapAPI.Repository.Drinks
             _context = context;
         }
 
-        public async Task<Drink> CreateDrink(CreateDrink dto)
+        public async Task<Drink> CreateDrink(CreateDrink dto, string userId)
         {
             var drink = new Drink
             {
                 Name = dto.Name,
                 Description = dto.Description,
                 AvailableAtLocationId = dto.LocationId,
-                CreatedByUserId = dto.CreatedByUserId,
+                CreatedByUserId = userId,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };

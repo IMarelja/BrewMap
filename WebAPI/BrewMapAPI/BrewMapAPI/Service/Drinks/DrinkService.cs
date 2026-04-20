@@ -14,14 +14,14 @@ namespace BrewMapAPI.Service.Drinks
             _repo = repo;
         }
 
-        public async Task<ReadDrink> CreateDrink(CreateDrink drink)
+        public async Task<ReadDrink> CreateDrink(CreateDrink drink, string userId)
         {
             drink.Name = (drink.Name ?? string.Empty).Trim();
             drink.Description = drink.Description?.Trim();
 
             try
             {
-                var created = await _repo.CreateDrink(drink);
+                var created = await _repo.CreateDrink(drink, userId);
                 return toReadModel(created);
             }
             catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
