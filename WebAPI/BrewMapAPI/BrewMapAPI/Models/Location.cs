@@ -51,9 +51,6 @@ namespace BrewMapAPI.Models
         [BsonElement("updatedAt")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        [BsonElement("lastEdit")]
-        public DateTime LastEdit { get; set; } = DateTime.UtcNow;
-
         [BsonElement("edits")]
         public List<EditHistory> Edits { get; set; } = new List<EditHistory>();
 

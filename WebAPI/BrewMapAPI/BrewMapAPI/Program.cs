@@ -5,13 +5,15 @@ using BrewMapAPI.Repository.Auth;
 using BrewMapAPI.Repository.Drinks;
 using BrewMapAPI.Service.Auth;
 using BrewMapAPI.Service.Drinks;
+using BrewMapAPI.Repository.Locations;
+using BrewMapAPI.Service.Location;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure strong-typed settings for MongoDB
+// Configure strong-typed settings for MongoDB.
 builder.Services.Configure<DatabaseSettings>(
     builder.Configuration.GetSection("DatabaseSettings"));
 
@@ -66,10 +68,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // Business level architecture
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDrinkService, DrinkService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
 
 // Data access level architecture
 builder.Services.AddScoped<IAuthRepo, AuthRepo>();
 builder.Services.AddScoped<IDrinkRepo, DrinkRepo>();
+builder.Services.AddScoped<ILocationRepo, LocationRepo>();
 
 var app = builder.Build();
 
