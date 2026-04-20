@@ -1,9 +1,13 @@
-using BrewMapAPI.Models;       
-using BrewMapAPI.Service.User;     
+using System.Text;
 using BrewMapAPI.Data;
-using Microsoft.Extensions.Options;
+using BrewMapAPI.Models;
+using BrewMapAPI.Repository.Auth;
 using BrewMapAPI.Repository.Drinks;
+using BrewMapAPI.Service.Auth;
 using BrewMapAPI.Service.Drinks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using BrewMapAPI.Repository.Locations;
 using BrewMapAPI.Service.Location;
 
@@ -14,18 +18,60 @@ builder.Services.Configure<DatabaseSettings>(
     builder.Configuration.GetSection("DatabaseSettings"));
 
 // Register MongoDB context
-builder.Services.AddSingleton<MongoDbContext>();  
+builder.Services.AddSingleton<MongoDbContext>();
 
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+// Swagger + JWT implementation
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+// JWT Authentication
+var secureKey = builder.Configuration["JWT:SecureKey"];
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secureKey!)),
+            ValidateIssuer = false,
+            ValidateAudience = false
+        };
+    });
 
 // Business level architecture
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDrinkService, DrinkService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 
 // Data access level architecture
+builder.Services.AddScoped<IAuthRepo, AuthRepo>();
 builder.Services.AddScoped<IDrinkRepo, DrinkRepo>();
 builder.Services.AddScoped<ILocationRepo, LocationRepo>();
 builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
@@ -39,6 +85,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
