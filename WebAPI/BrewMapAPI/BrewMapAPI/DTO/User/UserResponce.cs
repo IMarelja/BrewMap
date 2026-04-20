@@ -1,6 +1,6 @@
 namespace BrewMapAPI.DTO.User
 {
-    public class UserProfileResponce
+    public class UserResponce
     {
         public int StatusCode { get; set; } = 500;
         public bool Success { get; set; } = false;
