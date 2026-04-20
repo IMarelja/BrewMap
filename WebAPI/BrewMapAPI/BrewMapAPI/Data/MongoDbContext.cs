@@ -14,6 +14,20 @@ namespace BrewMapAPI.Data
             var dbName = configuration.GetSection("DatabaseSettings:DatabaseName").Value;
             var client = new MongoClient(connectionString);
             _database = client.GetDatabase(dbName);
+
+            ApplyIndex();
+        }
+
+        private void ApplyIndex()
+        {
+            var drinksIndex = Builders<Drink>.IndexKeys
+                .Ascending(x => x.AvailableAtLocationId)
+                .Ascending(x => x.Name);
+
+            Drinks.Indexes.CreateOne(new CreateIndexModel<Drink>(
+                drinksIndex,
+                new CreateIndexOptions { Unique = true }
+            ));
         }
 
         public IMongoCollection<User> Users => _database.GetCollection<User>("users");
