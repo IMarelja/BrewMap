@@ -1,11 +1,13 @@
 ﻿using BrewMapAPI.DTO.Drink;
 using BrewMapAPI.Service.Drinks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BrewMapAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class DrinkController : ControllerBase
     {
         private readonly IDrinkService _service;
@@ -16,6 +18,7 @@ namespace BrewMapAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> GetById(string id)
         {
             try
@@ -29,7 +32,12 @@ namespace BrewMapAPI.Controllers
             }
         }
 
+<<<<<<< zara
+        [HttpGet("location/{locationId}")]
+        [Authorize(Roles =  "admin,user")]
+=======
         [HttpGet("Locations/{locationId}")]
+>>>>>>> main
         public async Task<IActionResult> GetByLocationId(string locationId)
         {
             try
@@ -44,6 +52,7 @@ namespace BrewMapAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> CreateDrink([FromBody] CreateDrink drink)
         {
             try
@@ -61,6 +70,7 @@ namespace BrewMapAPI.Controllers
         }
 
         [HttpPut]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> UpdateDrink([FromBody] UpdateDrink drink)
         {
 
@@ -82,6 +92,7 @@ namespace BrewMapAPI.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles =  "admin")]
         public async Task<IActionResult> DeleteDrink(string id)
         {
             try
