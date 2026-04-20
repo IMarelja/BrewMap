@@ -88,8 +88,10 @@ namespace BrewMapAPI.Service.Location
             if (!IsSwaggerList(dto.PaymentOptionTags))
                 location.PaymentOptionTags = dto.PaymentOptionTags!;
 
-            if (dto.OpeningHours != null)
-                location.OpeningHours = dto.OpeningHours;
+            if (IsValidOpeningHours(dto.OpeningHours))
+            {
+                location.OpeningHours = dto.OpeningHours!;
+            }
 
             if (dto.Contact != null)
             {
@@ -197,6 +199,48 @@ namespace BrewMapAPI.Service.Location
         private bool IsSwaggerCoordinate(double? value)
         {
             return !value.HasValue || value.Value == 0;
+        }
+
+        private static readonly string[] RequiredDays =
+{
+    "monday", "tuesday", "wednesday",
+    "thursday", "friday", "saturday", "sunday"
+};
+
+        private bool IsValidOpeningHours(Dictionary<string, DayOpeningHours>? hours)
+        {
+            if (hours == null)
+                return false;
+
+            if (!RequiredDays.All(d => hours.ContainsKey(d)))
+                return false;
+
+            if (hours.Keys.Any(k => !RequiredDays.Contains(k)))
+                return false;
+
+            foreach (var day in hours.Values)
+            {
+                if (day == null) return false;
+
+                if (day.IsClosed)
+                {
+                    if (!string.IsNullOrWhiteSpace(day.Open) ||
+                        !string.IsNullOrWhiteSpace(day.Close))
+                        return false;
+                }
+                else
+                {
+                    if (string.IsNullOrWhiteSpace(day.Open) ||
+                        string.IsNullOrWhiteSpace(day.Close))
+                        return false;
+
+                    if (day.Open.ToLower() == "string" ||
+                        day.Close.ToLower() == "string")
+                        return false;
+                }
+            }
+
+            return true;
         }
     }
 }

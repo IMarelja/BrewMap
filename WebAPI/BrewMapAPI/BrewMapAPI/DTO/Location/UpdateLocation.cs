@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BrewMapAPI.DTO.Location
 {
-    public class UpdateLocation : IValidatableObject
+    public class UpdateLocation
     {
         private static readonly string[] RequiredDays =
         {
@@ -22,21 +22,5 @@ namespace BrewMapAPI.DTO.Location
         public Contact? Contact { get; set; }
         public string? EditComment { get; set; }
         public Dictionary<string, DayOpeningHours>? OpeningHours { get; set; }
-
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            if (OpeningHours == null)
-                yield break;
-
-            foreach (var day in RequiredDays)
-            {
-                if (!OpeningHours.ContainsKey(day))
-                {
-                    yield return new ValidationResult(
-                        $"OpeningHours must include '{day}'.",
-                        new[] { nameof(OpeningHours) });
-                }
-            }
-        }
     }
 }
