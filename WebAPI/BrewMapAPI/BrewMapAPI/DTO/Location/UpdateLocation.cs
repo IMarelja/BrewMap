@@ -6,12 +6,6 @@ namespace BrewMapAPI.DTO.Location
 {
     public class UpdateLocation
     {
-        private static readonly string[] RequiredDays =
-        {
-            "monday", "tuesday", "wednesday",
-            "thursday", "friday", "saturday", "sunday"
-        };
-
         public string? Name { get; set; }
         public string? Description { get; set; }
         public Address? Address { get; set; }

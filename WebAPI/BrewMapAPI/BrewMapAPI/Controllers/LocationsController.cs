@@ -130,5 +130,23 @@ namespace BrewMapAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// <summary>
+        /// Search locations by query, filters, and optional geolocation
+        /// </summary>
+        [HttpGet("search")]
+        [AllowAnonymous]
+        public async Task<ActionResult<IEnumerable<ReadLocation>>> Search([FromQuery] SearchLocationQuery query)
+        {
+            try
+            {
+                var result = await _service.SearchAsync(query);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
