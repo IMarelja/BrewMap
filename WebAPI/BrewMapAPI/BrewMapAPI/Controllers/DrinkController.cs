@@ -32,12 +32,8 @@ namespace BrewMapAPI.Controllers
             }
         }
 
-<<<<<<< zara
         [HttpGet("location/{locationId}")]
         [Authorize(Roles =  "admin,user")]
-=======
-        [HttpGet("Locations/{locationId}")]
->>>>>>> main
         public async Task<IActionResult> GetByLocationId(string locationId)
         {
             try
