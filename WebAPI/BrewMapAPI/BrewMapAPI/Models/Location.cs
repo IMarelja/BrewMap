@@ -103,16 +103,27 @@ namespace BrewMapAPI.Models
         {
             if (IsClosed)
             {
-                if (Open != null || Close != null)
+                // ignore Swagger "string"
+                if (!string.IsNullOrWhiteSpace(Open) && Open.ToLower() != "string")
                 {
                     yield return new ValidationResult(
-                        "Open and Close must be null when IsClosed is true.",
-                        new[] { nameof(Open), nameof(Close) });
+                        "Open must be null when IsClosed is true.",
+                        new[] { nameof(Open) });
                 }
+
+                if (!string.IsNullOrWhiteSpace(Close) && Close.ToLower() != "string")
+                {
+                    yield return new ValidationResult(
+                        "Close must be null when IsClosed is true.",
+                        new[] { nameof(Close) });
+                }
+
+                yield break;
             }
             else
             {
-                if (string.IsNullOrWhiteSpace(Open) || string.IsNullOrWhiteSpace(Close))
+                if (string.IsNullOrWhiteSpace(Open) || Open.ToLower() == "string" ||
+                    string.IsNullOrWhiteSpace(Close) || Close.ToLower() == "string")
                 {
                     yield return new ValidationResult(
                         "Open and Close are required when IsClosed is false.",
