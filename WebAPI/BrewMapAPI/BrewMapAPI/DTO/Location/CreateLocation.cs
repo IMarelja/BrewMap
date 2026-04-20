@@ -6,8 +6,6 @@ namespace BrewMapAPI.DTO.Location
 {
     public class CreateLocation : IValidatableObject
     {
-
-        // MUST STAY LOWERCASE
         private static readonly string[] RequiredDays =
         {
             "monday", "tuesday", "wednesday",

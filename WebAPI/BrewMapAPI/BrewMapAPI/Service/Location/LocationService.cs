@@ -65,28 +65,28 @@ namespace BrewMapAPI.Service.Location
             var location = await _repo.GetByIdAsync(id);
             if (location == null) return false;
 
-            if (dto.CategoryTag != null || dto.PaymentOptionTags != null)
+            if (!IsSwaggerString(dto.CategoryTag) || !IsSwaggerList(dto.PaymentOptionTags))
             {
                 await ValidateTagsAsync(
-                    dto.CategoryTag ?? location.CategoryTag,
-                    dto.PaymentOptionTags ?? location.PaymentOptionTags
+                    IsSwaggerString(dto.CategoryTag) ? location.CategoryTag : dto.CategoryTag!,
+                    IsSwaggerList(dto.PaymentOptionTags) ? location.PaymentOptionTags : dto.PaymentOptionTags!
                 );
             }
 
-            if (dto.Name != null)
-                location.Name = dto.Name;
+            if (!IsSwaggerString(dto.Name))
+                location.Name = dto.Name!;
 
-            if (dto.Description != null)
+            if (dto.Description != null && dto.Description.Trim().ToLower() != "string")
                 location.Description = dto.Description;
 
             if (dto.Address != null)
                 location.Address = dto.Address;
 
-            if (dto.CategoryTag != null)
-                location.CategoryTag = dto.CategoryTag;
+            if (!IsSwaggerString(dto.CategoryTag))
+                location.CategoryTag = dto.CategoryTag!;
 
-            if (dto.PaymentOptionTags != null)
-                location.PaymentOptionTags = dto.PaymentOptionTags;
+            if (!IsSwaggerList(dto.PaymentOptionTags))
+                location.PaymentOptionTags = dto.PaymentOptionTags!;
 
             if (dto.OpeningHours != null)
                 location.OpeningHours = dto.OpeningHours;
@@ -95,18 +95,18 @@ namespace BrewMapAPI.Service.Location
             {
                 location.Contact ??= new Contact();
 
-                if (dto.Contact.Website != null)
+                if (!IsSwaggerString(dto.Contact.Website))
                     location.Contact.Website = dto.Contact.Website;
             }
 
-            if (dto.Latitude.HasValue && dto.Longitude.HasValue)
+            if (!IsSwaggerCoordinate(dto.Latitude) && !IsSwaggerCoordinate(dto.Longitude))
             {
                 location.LocationPoint = new GeoJsonPoint
                 {
                     Coordinates = new List<double>
             {
-                dto.Longitude.Value,
-                dto.Latitude.Value
+                dto.Longitude!.Value,
+                dto.Latitude!.Value
             }
                 };
             }
@@ -181,6 +181,22 @@ namespace BrewMapAPI.Service.Location
             if (invalidTags.Any())
                 throw new ArgumentException(
                     $"Invalid PaymentOptionTags: {string.Join(", ", invalidTags)}.");
+        }
+
+        private bool IsSwaggerString(string? value)
+        {
+            return string.IsNullOrWhiteSpace(value) || value.Trim().ToLower() == "string";
+        }
+
+        private bool IsSwaggerList(List<string>? list)
+        {
+            return list == null || !list.Any() ||
+                   list.All(x => x.Trim().ToLower() == "string");
+        }
+
+        private bool IsSwaggerCoordinate(double? value)
+        {
+            return !value.HasValue || value.Value == 0;
         }
     }
 }
