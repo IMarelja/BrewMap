@@ -139,7 +139,6 @@ namespace BrewMapAPI.Models
     public class Contact
     {
         [BsonElement("website")]
-        [Url]
         public string? Website { get; set; }
     }
 
@@ -155,35 +154,5 @@ namespace BrewMapAPI.Models
         [BsonElement("editComment")]
         public string? EditComment { get; set; }
     }
-
-
-    public class Category
-    {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
-
-        [BsonElement("tag")]
-        public string Tag { get; set; }
-
-        [BsonElement("name")]
-        public string Name { get; set; }
-        [BsonElement("isActive")]
-        public bool IsActive { get; set; }
-    }
-
-    public class PaymentOption
-    {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
-
-        [BsonElement("_tag")]
-        public string Tag { get; set; }
-
-        [BsonElement("name")]
-        public string Name { get; set; }
-
-
-    }
+    
 }
