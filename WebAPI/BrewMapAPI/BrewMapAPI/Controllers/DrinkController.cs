@@ -1,4 +1,4 @@
-﻿using BrewMapAPI.DTO.Drink;
+using BrewMapAPI.DTO.Drink;
 using BrewMapAPI.Service.Drinks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -76,11 +76,11 @@ namespace BrewMapAPI.Controllers
 
             try
             {
-                if (!ModelState.IsValid) 
+                if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
 
-                var updated = await _service.UpdateDrink(drink);
+                var updated = await _service.UpdateDrink(id, drink);
                 if (updated == null)
                     return NotFound();
                 return Ok(updated);

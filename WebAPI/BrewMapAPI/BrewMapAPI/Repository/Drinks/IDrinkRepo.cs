@@ -9,7 +9,7 @@ namespace BrewMapAPI.Repository.Drinks
         Task<Drink?> GetById(string id);
         Task<List<Drink>> GetByLocationId(string locationId);
         Task<Drink> CreateDrink(CreateDrink drink);
-        Task<Drink?> UpdateDrink(UpdateDrink drink);
+        Task<Drink?> UpdateDrink(string id, UpdateDrink drink);
         Task<bool> DeleteDrink(string id);
     }
 }

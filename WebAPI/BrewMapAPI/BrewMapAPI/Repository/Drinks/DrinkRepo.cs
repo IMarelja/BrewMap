@@ -46,7 +46,7 @@ namespace BrewMapAPI.Repository.Drinks
             return await _context.Drinks.Find(x => x.AvailableAtLocationId == locationId).ToListAsync();
         }
 
-        public async Task<Drink?> UpdateDrink(UpdateDrink dto)
+        public async Task<Drink?> UpdateDrink(string id, UpdateDrink dto)
         {
             var updates = new List<UpdateDefinition<Drink>>();
             var builder = Builders<Drink>.Update;
@@ -60,7 +60,7 @@ namespace BrewMapAPI.Repository.Drinks
 
             var update = builder.Combine(updates);
             var options = new FindOneAndUpdateOptions<Drink> { ReturnDocument = ReturnDocument.After };
-            return await _context.Drinks.FindOneAndUpdateAsync(x => x.Id == dto.Id, update, options);
+            return await _context.Drinks.FindOneAndUpdateAsync(x => x.Id == id, update, options);
         }
     }
 }
