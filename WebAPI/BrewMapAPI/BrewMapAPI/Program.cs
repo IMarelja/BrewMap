@@ -53,17 +53,17 @@ builder.Services.AddSwaggerGen(options =>
 
 // JWT Authentication
 var secureKey = builder.Configuration["JWT:SecureKey"];
-//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//    .AddJwtBearer(options =>
-//    {
-//        options.TokenValidationParameters = new TokenValidationParameters
-//        {
-//            ValidateIssuerSigningKey = true,
-//            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secureKey!)),
-//            ValidateIssuer = false,
-//            ValidateAudience = false
-//        };
-//    }); //uncoment later, you get Argument not null exception
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secureKey!)),
+            ValidateIssuer = false,
+            ValidateAudience = false
+        };
+    });
 
 // Business level architecture
 builder.Services.AddScoped<IAuthService, AuthService>();
