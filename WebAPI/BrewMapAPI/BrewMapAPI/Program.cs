@@ -10,6 +10,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using BrewMapAPI.Repository.Locations;
 using BrewMapAPI.Service.Location;
+using BrewMapAPI.Repository.Categories;
+using BrewMapAPI.Repository.PaymentOptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
