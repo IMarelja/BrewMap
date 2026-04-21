@@ -1,5 +1,6 @@
 ﻿using BrewMapAPI.DTO.Location;
 using BrewMapAPI.Models;
+using BrewMapAPI.Repository.Drinks;
 using BrewMapAPI.Repository.Locations;
 
 namespace BrewMapAPI.Service.Location
@@ -9,15 +10,18 @@ namespace BrewMapAPI.Service.Location
         private readonly ILocationRepo _repo;
         private readonly ICategoryRepo _categoryRepo;
         private readonly IPaymentOptionRepo _paymentOptionRepo;
+        private readonly IDrinkRepo _drinkRepo;
 
         public LocationService(
             ILocationRepo repo,
             ICategoryRepo categoryRepo,
-            IPaymentOptionRepo paymentOptionRepo)
+            IPaymentOptionRepo paymentOptionRepo,
+            IDrinkRepo drinkRepo)
         {
             _repo = repo;
             _categoryRepo = categoryRepo;
             _paymentOptionRepo = paymentOptionRepo;
+            _drinkRepo = drinkRepo;
         }
 
         public async Task<ReadLocation> CreateAsync(CreateLocation dto, string userId)
@@ -103,6 +107,82 @@ namespace BrewMapAPI.Service.Location
 
             await _repo.DeleteAsync(id);
             return true;
+        }
+
+        public async Task<IEnumerable<ReadLocation>> SearchAsync(
+            string? query, double? minRating, string? drinkType, List<string>? paymentOptionTags, double? latitude, double? longitude, double radiusMeters)
+        {
+            var locations = (await _repo.GetAllAsync()).ToList();
+
+            var filtered = locations
+                .Where(l => l.IsActive)
+                .ToList();
+
+            if (!string.IsNullOrWhiteSpace(query))
+            {
+                var q = query.Trim().ToLower();
+
+                filtered = filtered.Where(l =>
+                    (!string.IsNullOrWhiteSpace(l.Name) &&
+                        l.Name.ToLower().Contains(q)) ||
+
+                    (!string.IsNullOrWhiteSpace(l.Address?.City) &&
+                        l.Address.City.ToLower().Contains(q))
+                ).ToList();
+            }
+
+            if (minRating.HasValue)
+            {
+                filtered = filtered.Where(l =>
+                    l.AggregatedRating != null &&
+                    l.AggregatedRating.Average >= minRating.Value
+                ).ToList();
+            }
+
+            if (!string.IsNullOrWhiteSpace(drinkType))
+            {
+                var dt = drinkType.Trim().ToLower();
+                var locationIds = new HashSet<string>();
+
+                foreach (var loc in locations)
+                {
+                    var drinks = await _drinkRepo.GetByLocationId(loc.Id);
+
+                    if (drinks.Any(d =>
+                        d.IsVisible &&
+                        !string.IsNullOrWhiteSpace(d.Name) &&
+                        d.Name.ToLower().Contains(dt)))
+                    {
+                        locationIds.Add(loc.Id);
+                    }
+                }
+
+                filtered = filtered
+                    .Where(l => locationIds.Contains(l.Id))
+                    .ToList();
+            }
+
+            if (paymentOptionTags != null && paymentOptionTags.Any())
+            {
+                filtered = filtered.Where(l =>
+                    paymentOptionTags.All(p =>
+                        l.PaymentOptionTags.Contains(p, StringComparer.OrdinalIgnoreCase)))
+                    .ToList();
+            }
+
+            if (latitude.HasValue && longitude.HasValue)
+            {
+                filtered = filtered.Where(l =>
+                {
+                    var lat2 = l.LocationPoint.Coordinates[1];
+                    var lon2 = l.LocationPoint.Coordinates[0];
+
+                    var distance = Haversine(latitude.Value, longitude.Value, lat2, lon2);
+                    return distance <= radiusMeters;
+                }).ToList();
+            }
+
+            return filtered.Select(MapToReadDto);
         }
 
         private static ReadLocation MapToReadDto(Models.Location location)
@@ -192,6 +272,28 @@ private static readonly string[] RequiredDays =
             }
 
             return true;
+        }
+
+        private static double Haversine(double lat1, double lon1, double lat2, double lon2)
+        {
+            const double R = 6371000;
+
+            var dLat = ToRad(lat2 - lat1);
+            var dLon = ToRad(lon2 - lon1);
+
+            var a =
+                Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                Math.Cos(ToRad(lat1)) * Math.Cos(ToRad(lat2)) *
+                Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+
+            var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+
+            return R * c;
+        }
+
+        private static double ToRad(double angle)
+        {
+            return Math.PI * angle / 180.0;
         }
     }
 }
