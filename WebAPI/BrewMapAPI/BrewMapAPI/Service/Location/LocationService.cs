@@ -1,7 +1,11 @@
 ﻿using BrewMapAPI.DTO.Location;
 using BrewMapAPI.Models;
+using BrewMapAPI.Repository;
+using BrewMapAPI.Repository.Categories;
 using BrewMapAPI.Repository.Drinks;
 using BrewMapAPI.Repository.Locations;
+using BrewMapAPI.Repository.PaymentOptions;
+using MongoDB.Driver.GeoJsonObjectModel;
 
 namespace BrewMapAPI.Service.Location
 {
@@ -41,10 +45,7 @@ namespace BrewMapAPI.Service.Location
                     Website = dto.Contact.Website
                 },
                 AddedByUserId = userId,
-                LocationPoint = new GeoJsonPoint
-                {
-                    Coordinates = new List<double> { dto.Longitude, dto.Latitude }
-                },
+                LocationPoint = GeoJson.Point(GeoJson.Geographic(dto.Longitude, dto.Latitude)),
                 IsActive = true
             };
 
@@ -110,79 +111,26 @@ namespace BrewMapAPI.Service.Location
         }
 
         public async Task<IEnumerable<ReadLocation>> SearchAsync(
-            string? query, double? minRating, string? drinkType, List<string>? paymentOptionTags, double? latitude, double? longitude, double radiusMeters)
+            string? query, double? minRating, string? drinkType, List<string>? paymentOptionTags, double? centerLatitude, double? centerLongitude, double radiusMeters)
         {
-            var locations = (await _repo.GetAllAsync()).ToList();
-
-            var filtered = locations
-                .Where(l => l.IsActive)
-                .ToList();
-
-            if (!string.IsNullOrWhiteSpace(query))
-            {
-                var q = query.Trim().ToLower();
-
-                filtered = filtered.Where(l =>
-                    (!string.IsNullOrWhiteSpace(l.Name) &&
-                        l.Name.ToLower().Contains(q)) ||
-
-                    (!string.IsNullOrWhiteSpace(l.Address?.City) &&
-                        l.Address.City.ToLower().Contains(q))
-                ).ToList();
-            }
-
-            if (minRating.HasValue)
-            {
-                filtered = filtered.Where(l =>
-                    l.AggregatedRating != null &&
-                    l.AggregatedRating.Average >= minRating.Value
-                ).ToList();
-            }
+            var locations = (await _repo.SearchAsync(query, minRating, paymentOptionTags, centerLatitude, centerLongitude, radiusMeters)).ToList();
 
             if (!string.IsNullOrWhiteSpace(drinkType))
             {
-                var dt = drinkType.Trim().ToLower();
-                var locationIds = new HashSet<string>();
+                var dt = drinkType.Trim();
+                var locationIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
                 foreach (var loc in locations)
                 {
                     var drinks = await _drinkRepo.GetByLocationId(loc.Id);
-
-                    if (drinks.Any(d =>
-                        d.IsVisible &&
-                        !string.IsNullOrWhiteSpace(d.Name) &&
-                        d.Name.ToLower().Contains(dt)))
-                    {
+                    if (drinks.Any(d => d.IsVisible && !string.IsNullOrWhiteSpace(d.Name) && d.Name.Contains(dt, StringComparison.OrdinalIgnoreCase)))
                         locationIds.Add(loc.Id);
-                    }
                 }
 
-                filtered = filtered
-                    .Where(l => locationIds.Contains(l.Id))
-                    .ToList();
+                locations = locations.Where(l => locationIds.Contains(l.Id)).ToList();
             }
 
-            if (paymentOptionTags != null && paymentOptionTags.Any())
-            {
-                filtered = filtered.Where(l =>
-                    paymentOptionTags.All(p =>
-                        l.PaymentOptionTags.Contains(p, StringComparer.OrdinalIgnoreCase)))
-                    .ToList();
-            }
-
-            if (latitude.HasValue && longitude.HasValue)
-            {
-                filtered = filtered.Where(l =>
-                {
-                    var lat2 = l.LocationPoint.Coordinates[1];
-                    var lon2 = l.LocationPoint.Coordinates[0];
-
-                    var distance = Haversine(latitude.Value, longitude.Value, lat2, lon2);
-                    return distance <= radiusMeters;
-                }).ToList();
-            }
-
-            return filtered.Select(MapToReadDto);
+            return locations.Select(MapToReadDto);
         }
 
         private static ReadLocation MapToReadDto(Models.Location location)
@@ -193,12 +141,8 @@ namespace BrewMapAPI.Service.Location
                 Name = location.Name,
                 Description = location.Description,
                 Address = location.Address,
-                Latitude = location.LocationPoint?.Coordinates?.Count > 1
-                        ? location.LocationPoint.Coordinates[1]
-                        : 0,
-                Longitude = location.LocationPoint?.Coordinates?.Count > 0
-                        ? location.LocationPoint.Coordinates[0]
-                        : 0,
+                Latitude = location.LocationPoint?.Coordinates?.Latitude ?? 0,
+                Longitude = location.LocationPoint?.Coordinates?.Longitude ?? 0,
                 CategoryTag = location.CategoryTag,
                 PaymentOptionTags = location.PaymentOptionTags,
                 OpeningHours = location.OpeningHours,
@@ -274,27 +218,6 @@ private static readonly string[] RequiredDays =
             return true;
         }
 
-        private static double Haversine(double lat1, double lon1, double lat2, double lon2)
-        {
-            const double R = 6371000;
-
-            var dLat = ToRad(lat2 - lat1);
-            var dLon = ToRad(lon2 - lon1);
-
-            var a =
-                Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-                Math.Cos(ToRad(lat1)) * Math.Cos(ToRad(lat2)) *
-                Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
-
-            var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-
-            return R * c;
-        }
-
-        private static double ToRad(double angle)
-        {
-            return Math.PI * angle / 180.0;
-        }
     }
 }
 

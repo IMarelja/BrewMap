@@ -1,6 +1,6 @@
 ﻿using BrewMapAPI.Models;
 
-namespace BrewMapAPI.Repository
+namespace BrewMapAPI.Repository.PaymentOptions
 {
     public interface IPaymentOptionRepo
     {

@@ -2,7 +2,7 @@
 using BrewMapAPI.Models;
 using MongoDB.Driver;
 
-namespace BrewMapAPI.Repository
+namespace BrewMapAPI.Repository.Categories
 {
     public class CategoryRepo : ICategoryRepo
     {
