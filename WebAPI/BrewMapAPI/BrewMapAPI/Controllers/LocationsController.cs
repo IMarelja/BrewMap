@@ -8,7 +8,7 @@ namespace BrewMapAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class LocationsController : ControllerBase
     {
         private readonly ILocationService _service;
@@ -18,10 +18,10 @@ namespace BrewMapAPI.Controllers
             _service = service;
         }
 
+        [Authorize(Roles =  "admin,user")]
         private string GetUserId()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            userId = "69de57933be4ef30b78ce5b0"; //to do remove this later
             if (string.IsNullOrWhiteSpace(userId))
                 throw new UnauthorizedAccessException("Invalid authentication token.");
 
@@ -32,6 +32,7 @@ namespace BrewMapAPI.Controllers
         /// Add a new cafe location
         /// </summary>
         [HttpPost]
+        [Authorize(Roles =  "admin,user")]
         public async Task<ActionResult<ReadLocation>> Create([FromBody] CreateLocation dto)
         {
 
@@ -51,7 +52,7 @@ namespace BrewMapAPI.Controllers
         /// Get all active locations
         /// </summary>
         [HttpGet]
-        [AllowAnonymous]
+        [Authorize(Roles =  "admin,user")]
         public async Task<ActionResult<IEnumerable<ReadLocation>>> GetAll()
         {
             try
@@ -69,7 +70,7 @@ namespace BrewMapAPI.Controllers
         /// Get a location by ID
         /// </summary>
         [HttpGet("{id}")]
-        [AllowAnonymous]
+        [Authorize(Roles =  "admin,user")]
         public async Task<ActionResult<ReadLocation>> GetById(string id)
         {
             try
@@ -90,6 +91,7 @@ namespace BrewMapAPI.Controllers
         /// Update a location
         /// </summary>
         [HttpPut("{id}")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> Update(string id, [FromBody] UpdateLocation dto)
         {
             try
@@ -113,6 +115,7 @@ namespace BrewMapAPI.Controllers
         /// Soft delete a location
         /// </summary>
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(string id)
         {
             try
