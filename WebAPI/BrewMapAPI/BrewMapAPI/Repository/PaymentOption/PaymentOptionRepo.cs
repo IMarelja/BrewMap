@@ -2,7 +2,7 @@
 using BrewMapAPI.Models;
 using MongoDB.Driver;
 
-namespace BrewMapAPI.Repository.Locations
+namespace BrewMapAPI.Repository
 {
     public class PaymentOptionRepo : IPaymentOptionRepo
     {
