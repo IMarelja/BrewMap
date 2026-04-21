@@ -1,4 +1,5 @@
-﻿using BrewMapAPI.Models;
+﻿using BrewMapAPI.Attributes;
+using BrewMapAPI.Models;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -28,7 +29,7 @@ namespace BrewMapAPI.DTO.Location
         public string CategoryTag { get; set; } = "cafe";
         [Required]
         public List<string> PaymentOptionTags { get; set; } = new();
-        public ContactDto? Contact { get; set; }
+        public CreateLocationContactDto? Contact { get; set; }
 
         [Required]
         public Dictionary<string, DayOpeningHours> OpeningHours { get; set; }
@@ -53,21 +54,11 @@ namespace BrewMapAPI.DTO.Location
                 }
             }
         }
+    }
 
-        public class ContactDto
-        {
-            [OptionalUrl]
-            public string? Website { get; set; }
-        }
-
-        public class OptionalUrlAttribute : ValidationAttribute
-        {
-            public override bool IsValid(object? value)
-            {
-                if (value == null || string.IsNullOrWhiteSpace(value as string))
-                    return true;
-                return new UrlAttribute().IsValid(value);
-            }
-        }
+    public class CreateLocationContactDto
+    {
+        [OptionalUrl]
+        public string? Website { get; set; }
     }
 }
