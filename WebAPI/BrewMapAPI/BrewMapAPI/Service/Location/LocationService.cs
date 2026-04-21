@@ -65,52 +65,23 @@ namespace BrewMapAPI.Service.Location
             var location = await _repo.GetByIdAsync(id);
             if (location == null) return false;
 
-            if (!IsSwaggerString(dto.CategoryTag) || !IsSwaggerList(dto.PaymentOptionTags))
-            {
-                await ValidateTagsAsync(
-                    IsSwaggerString(dto.CategoryTag) ? location.CategoryTag : dto.CategoryTag!,
-                    IsSwaggerList(dto.PaymentOptionTags) ? location.PaymentOptionTags : dto.PaymentOptionTags!
-                );
-            }
+            await ValidateTagsAsync(dto.CategoryTag, dto.PaymentOptionTags);
 
-            if (!IsSwaggerString(dto.Name))
-                location.Name = dto.Name!;
+            location.Name = dto.Name;
+            location.Address = dto.Address;
+            location.CategoryTag = dto.CategoryTag;
+            location.PaymentOptionTags = dto.PaymentOptionTags;
 
-            if (dto.Description != null && dto.Description.Trim().ToLower() != "string")
+            if (dto.Description != null)
                 location.Description = dto.Description;
 
-            if (dto.Address != null)
-                location.Address = dto.Address;
-
-            if (!IsSwaggerString(dto.CategoryTag))
-                location.CategoryTag = dto.CategoryTag!;
-
-            if (!IsSwaggerList(dto.PaymentOptionTags))
-                location.PaymentOptionTags = dto.PaymentOptionTags!;
-
             if (IsValidOpeningHours(dto.OpeningHours))
-            {
                 location.OpeningHours = dto.OpeningHours!;
-            }
 
             if (dto.Contact != null)
             {
                 location.Contact ??= new Contact();
-
-                if (!IsSwaggerString(dto.Contact.Website))
-                    location.Contact.Website = dto.Contact.Website;
-            }
-
-            if (!IsSwaggerCoordinate(dto.Latitude) && !IsSwaggerCoordinate(dto.Longitude))
-            {
-                location.LocationPoint = new GeoJsonPoint
-                {
-                    Coordinates = new List<double>
-            {
-                dto.Longitude!.Value,
-                dto.Latitude!.Value
-            }
-                };
+                location.Contact.Website = dto.Contact.Website;
             }
 
             location.UpdatedAt = DateTime.UtcNow;
@@ -185,23 +156,7 @@ namespace BrewMapAPI.Service.Location
                     $"Invalid PaymentOptionTags: {string.Join(", ", invalidTags)}.");
         }
 
-        private bool IsSwaggerString(string? value)
-        {
-            return string.IsNullOrWhiteSpace(value) || value.Trim().ToLower() == "string";
-        }
-
-        private bool IsSwaggerList(List<string>? list)
-        {
-            return list == null || !list.Any() ||
-                   list.All(x => x.Trim().ToLower() == "string");
-        }
-
-        private bool IsSwaggerCoordinate(double? value)
-        {
-            return !value.HasValue || value.Value == 0;
-        }
-
-        private static readonly string[] RequiredDays =
+private static readonly string[] RequiredDays =
 {
     "monday", "tuesday", "wednesday",
     "thursday", "friday", "saturday", "sunday"
@@ -232,10 +187,6 @@ namespace BrewMapAPI.Service.Location
                 {
                     if (string.IsNullOrWhiteSpace(day.Open) ||
                         string.IsNullOrWhiteSpace(day.Close))
-                        return false;
-
-                    if (day.Open.ToLower() == "string" ||
-                        day.Close.ToLower() == "string")
                         return false;
                 }
             }
