@@ -139,13 +139,7 @@ namespace BrewMapAPI.Service.Location
         }
 
         public async Task<IEnumerable<ReadLocation>> SearchAsync(
-    string? query,
-    double? minRating,
-    string? drinkType,
-    List<string>? paymentOptionTags,
-    double? latitude,
-    double? longitude,
-    double radiusMeters)
+            string? query, double? minRating, string? drinkType, List<string>? paymentOptionTags, double? latitude, double? longitude, double radiusMeters)
         {
             var locations = (await _repo.GetAllAsync()).ToList();
 
