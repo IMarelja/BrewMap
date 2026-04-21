@@ -1,4 +1,5 @@
 ﻿using BrewMapAPI.Models;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -25,12 +26,25 @@ namespace BrewMapAPI.DTO.Location
 
     public class SearchLocationQuery
     {
+        [FromQuery(Name = "query")]
         public string? Query { get; set; }
-        public string? City { get; set; }
-        public string? CategoryTag { get; set; }
+
+        [FromQuery]
         public List<string>? PaymentOptionTags { get; set; }
+
+        [FromQuery]
+        public double? MinRating { get; set; }
+
+        [FromQuery]
+        public string? DrinkType { get; set; }
+
+        [FromQuery]
         public double? Latitude { get; set; }
+
+        [FromQuery]
         public double? Longitude { get; set; }
+
+        [FromQuery]
         public double RadiusMeters { get; set; } = 3000;
     }
 }

@@ -136,11 +136,26 @@ namespace BrewMapAPI.Controllers
         /// </summary>
         [HttpGet("search")]
         [AllowAnonymous]
-        public async Task<ActionResult<IEnumerable<ReadLocation>>> Search([FromQuery] SearchLocationQuery query)
+        public async Task<ActionResult<IEnumerable<ReadLocation>>> Search(
+            [FromQuery] string? query,
+            [FromQuery] double? minRating,
+            [FromQuery] string? drinkType,
+            [FromQuery] List<string>? paymentOptionTags,
+            [FromQuery] double? latitude,
+            [FromQuery] double? longitude,
+            [FromQuery] double radiusMeters = 3000)
         {
             try
             {
-                var result = await _service.SearchAsync(query);
+                var result = await _service.SearchAsync(
+                    query,
+                    minRating,
+                    drinkType,
+                    paymentOptionTags,
+                    latitude,
+                    longitude,
+                    radiusMeters);
+
                 return Ok(result);
             }
             catch (Exception ex)

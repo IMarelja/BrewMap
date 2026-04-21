@@ -9,6 +9,6 @@ namespace BrewMapAPI.Service.Location
         Task<ReadLocation?> GetByIdAsync(string id);
         Task<bool> UpdateAsync(string id, UpdateLocation dto, string userId);
         Task<bool> DeleteAsync(string id, string userId);
-        Task<IEnumerable<ReadLocation>> SearchAsync(SearchLocationQuery query);
+        Task<IEnumerable<ReadLocation>> SearchAsync(string? query, double? minRating, string? drinkType, List<string>? paymentOptionTags, double? latitude, double? longitude, double radiusMeters);
     }
 }
