@@ -57,7 +57,7 @@ namespace BrewMapAPI.DTO.Location
         public class ContactDto
         {
             [OptionalUrl]
-            public string Website { get; set; } = string.Empty;
+            public string? Website { get; set; }
         }
 
         public class OptionalUrlAttribute : ValidationAttribute
