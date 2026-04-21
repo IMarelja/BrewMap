@@ -220,4 +220,3 @@ private static readonly string[] RequiredDays =
 
     }
 }
-
