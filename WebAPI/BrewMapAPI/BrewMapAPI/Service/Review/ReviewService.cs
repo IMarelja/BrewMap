@@ -62,9 +62,6 @@ namespace BrewMapAPI.Service.Review
                 review.Rating = dto.Rating.Value;
             if (dto.Comment != null)
                 review.Comment = dto.Comment;
-            if (dto.IsVisible.HasValue)
-                review.IsVisible = dto.IsVisible.Value;
-
             review.UpdatedAt = DateTime.UtcNow;
             await _repo.Update(review);
             return ToReadModel(review);
