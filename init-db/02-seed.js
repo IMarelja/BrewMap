@@ -7,10 +7,13 @@ const db = connect("mongodb://localhost:27017/brewmap");
 const now = new Date();
 
 // ─── Users ────────────────────────────────────────────────────────────────────
-// Passwords are all "Password1!" — hashed with bcrypt (cost 10) for realism
-// - How it is hashed (order is important) -
+// Passwords are all "Password1!" — hashed with PBKDF2 for realism
+// - PRF: HMAC-SHA256
+// - Iterations: 10,000
+// - Salt: provided as Base64, then decoded
+// - Output length: 128 bits (16 bytes)
+// ── How it is hashed (order is important) ─────────────────────────────────────
 // (PlaintextPassword + Salt)
-// "Password1!5iaGprKxBTee6r1B90t7" -(hashed)-> "$2y$10$O3P/mKQDhtlum7f1OpDhCe11JHFmb56CPdlR0nJ9MSr1RrAdAqNHW"
 // Do NOT use these in any non-development environment
 
 const adminId   = new ObjectId();
@@ -25,8 +28,8 @@ db.users.insertMany([
     _id: adminId,
     username: "admin",
     email: "admin@brewmap.dev",
-    passwordHash: "$2y$10$O3P/mKQDhtlum7f1OpDhCe11JHFmb56CPdlR0nJ9MSr1RrAdAqNHW",
-    passwordSalt: "5iaGprKxBTee6r1B90t7",
+    passwordHash: "etPpHKasXMa2tzTXRPQqbg==",
+    passwordSalt: "QeQAgDwNMIq/lNAOazZrqg==",
     role: "admin",
     isActive: true,
     isDeleted: false,
@@ -39,8 +42,8 @@ db.users.insertMany([
     _id: userId1,
     username: "ivan_m",
     email: "ivan@brewmap.dev",
-    passwordHash: "$2y$10$O3P/mKQDhtlum7f1OpDhCe11JHFmb56CPdlR0nJ9MSr1RrAdAqNHW",
-    passwordSalt: "5iaGprKxBTee6r1B90t7",
+    passwordHash: "/DjBnTndT6GL/6dBxXGSkQ==",
+    passwordSalt: "rskvlzO+a4Q99UQTpjMNuA==",
     role: "user",
     isActive: true,
     isDeleted: false,
@@ -53,8 +56,8 @@ db.users.insertMany([
     _id: userId2,
     username: "valentina_r",
     email: "valentina@brewmap.dev",
-    passwordHash: "$2y$10$O3P/mKQDhtlum7f1OpDhCe11JHFmb56CPdlR0nJ9MSr1RrAdAqNHW",
-    passwordSalt: "5iaGprKxBTee6r1B90t7",
+    passwordHash: "19McnVnb4mh5sJQOydYXew==",
+    passwordSalt: "ZklFRvVUQW4XYx7DUv85Qw==",
     role: "user",
     isActive: true,
     isDeleted: false,
@@ -67,8 +70,8 @@ db.users.insertMany([
     _id: userId3,
     username: "gonzalo_g",
     email: "gonzalo@brewmap.dev",
-    passwordHash: "$2y$10$O3P/mKQDhtlum7f1OpDhCe11JHFmb56CPdlR0nJ9MSr1RrAdAqNHW",
-    passwordSalt: "5iaGprKxBTee6r1B90t7",
+    passwordHash: "YpF1qXc9f4Qu0gDsbI1Yhg==",
+    passwordSalt: "h3dE/W0ksOFqqJspWaaJOA==",
     role: "user",
     isActive: true,
     isDeleted: false,
@@ -81,8 +84,8 @@ db.users.insertMany([
     _id: userId4,
     username: "ruva_m",
     email: "ruva@brewmap.dev",
-    passwordHash: "$2y$10$O3P/mKQDhtlum7f1OpDhCe11JHFmb56CPdlR0nJ9MSr1RrAdAqNHW",
-    passwordSalt: "5iaGprKxBTee6r1B90t7",
+    passwordHash: "liQRVG6OgILRzHSDkjPLAQ==",
+    passwordSalt: "cS3T2iJyT6gHrLNDxyghag==",
     role: "user",
     isActive: true,
     isDeleted: false,
@@ -95,8 +98,8 @@ db.users.insertMany([
     _id: userId5,
     username: "zara_c",
     email: "zara@brewmap.dev",
-    passwordHash: "$2y$10$O3P/mKQDhtlum7f1OpDhCe11JHFmb56CPdlR0nJ9MSr1RrAdAqNHW",
-    passwordSalt: "5iaGprKxBTee6r1B90t7",
+    passwordHash: "o2RBmJ1QRyUjkTDrAX6PlA==",
+    passwordSalt: "L1Mp/MlGaZ3Z3tku3Vt38w==",
     role: "user",
     isActive: true,
     isDeleted: false,
@@ -157,7 +160,7 @@ db.locations.insertMany([
     addedByUserId: userId1,
     createdAt: now,
     updatedAt: now,
-    lastEdit: null,
+    
     edits: [],
     aggregatedRating: { average: 4.7, count: 3 },
   },
@@ -176,7 +179,7 @@ db.locations.insertMany([
     addedByUserId: userId2,
     createdAt: now,
     updatedAt: now,
-    lastEdit: null,
+    
     edits: [],
     aggregatedRating: { average: 4.2, count: 2 },
   },
@@ -195,7 +198,7 @@ db.locations.insertMany([
     addedByUserId: userId1,
     createdAt: now,
     updatedAt: now,
-    lastEdit: null,
+    
     edits: [],
     aggregatedRating: { average: 4.0, count: 2 },
   },
@@ -214,7 +217,7 @@ db.locations.insertMany([
     addedByUserId: userId3,
     createdAt: now,
     updatedAt: now,
-    lastEdit: null,
+    
     edits: [],
     aggregatedRating: { average: 4.5, count: 2 },
   },
@@ -233,7 +236,7 @@ db.locations.insertMany([
     addedByUserId: userId4,
     createdAt: now,
     updatedAt: now,
-    lastEdit: null,
+    
     edits: [],
     aggregatedRating: { average: 4.8, count: 2 },
   },
@@ -252,7 +255,7 @@ db.locations.insertMany([
     addedByUserId: userId5,
     createdAt: now,
     updatedAt: now,
-    lastEdit: null,
+    
     edits: [],
     aggregatedRating: { average: 4.3, count: 2 },
   },
@@ -271,7 +274,7 @@ db.locations.insertMany([
     addedByUserId: userId2,
     createdAt: now,
     updatedAt: now,
-    lastEdit: null,
+    
     edits: [],
     aggregatedRating: { average: 3.5, count: 2 },
   },
@@ -290,7 +293,7 @@ db.locations.insertMany([
     addedByUserId: userId3,
     createdAt: now,
     updatedAt: now,
-    lastEdit: null,
+    
     edits: [],
     aggregatedRating: { average: 4.1, count: 2 },
   },
@@ -309,7 +312,7 @@ db.locations.insertMany([
     addedByUserId: userId1,
     createdAt: now,
     updatedAt: now,
-    lastEdit: null,
+    
     edits: [],
     aggregatedRating: { average: 4.6, count: 2 },
   },
@@ -328,7 +331,7 @@ db.locations.insertMany([
     addedByUserId: userId4,
     createdAt: now,
     updatedAt: now,
-    lastEdit: null,
+    
     edits: [],
     aggregatedRating: { average: 4.4, count: 2 },
   },
