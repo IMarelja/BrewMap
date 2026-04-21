@@ -1,3 +1,4 @@
+using BrewMapAPI.Attributes;
 using BrewMapAPI.Models;
 using System.ComponentModel.DataAnnotations;
 
@@ -23,7 +24,7 @@ namespace BrewMapAPI.DTO.Location
 
         [Required]
         public List<string> PaymentOptionTags { get; set; } = new();
-        public ContactDto? Contact { get; set; }
+        public UpdateLocationContactDto? Contact { get; set; }
         public string? EditComment { get; set; }
 
         [Required]
@@ -44,21 +45,11 @@ namespace BrewMapAPI.DTO.Location
                 }
             }
         }
+    }
 
-        public class ContactDto
-        {
-            [OptionalUrl]
-            public string? Website { get; set; }
-        }
-
-        public class OptionalUrlAttribute : ValidationAttribute
-        {
-            public override bool IsValid(object? value)
-            {
-                if (value == null || string.IsNullOrWhiteSpace(value as string))
-                    return true;
-                return new UrlAttribute().IsValid(value);
-            }
-        }
+    public class UpdateLocationContactDto
+    {
+        [OptionalUrl]
+        public string? Website { get; set; }
     }
 }
