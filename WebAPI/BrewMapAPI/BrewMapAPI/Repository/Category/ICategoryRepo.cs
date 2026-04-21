@@ -1,6 +1,6 @@
 ﻿using BrewMapAPI.Models;
 
-namespace BrewMapAPI.Repository.Locations
+namespace BrewMapAPI.Repository
 {
     public interface ICategoryRepo
     {
