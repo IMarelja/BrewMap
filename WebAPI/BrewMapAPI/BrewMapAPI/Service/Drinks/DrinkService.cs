@@ -1,6 +1,7 @@
 ﻿using BrewMapAPI.DTO.Drink;
 using BrewMapAPI.Models;
 using BrewMapAPI.Repository.Drinks;
+using MongoDB.Driver;
 
 namespace BrewMapAPI.Service.Drinks
 {
@@ -13,14 +14,25 @@ namespace BrewMapAPI.Service.Drinks
             _repo = repo;
         }
 
-        public Task<ReadDrink> CreateDrink(CreateDrink drink)
+        public async Task<ReadDrink> CreateDrink(CreateDrink drink)
         {
-            throw new NotImplementedException();
+            drink.Name = (drink.Name ?? string.Empty).Trim();
+            drink.Description = drink.Description?.Trim();
+
+            try
+            {
+                var created = await _repo.CreateDrink(drink);
+                return toReadModel(created);
+            }
+            catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
+            {
+                throw new InvalidOperationException("A drink with the same name already exists at this location.");
+            }
         }
 
-        public Task<bool> DeleteDrink(string id)
+        public async Task<bool> DeleteDrink(string id)
         {
-            throw new NotImplementedException();
+            return await _repo.DeleteDrink(id);
         }
 
         public async Task<ReadDrink?> GetById(string id)
@@ -31,14 +43,28 @@ namespace BrewMapAPI.Service.Drinks
             return toReadModel(drink);
         }
 
-        public Task<List<ReadDrink>> GetByLocationId(string locationId)
+        public async Task<List<ReadDrink>> GetByLocationId(string locationId)
         {
-            throw new NotImplementedException();
+            var drinks = await _repo.GetByLocationId(locationId);
+            return drinks.Select(toReadModel).ToList();
         }
 
-        public Task<ReadDrink?> UpdateDrink(UpdateDrink drink)
+        public async Task<ReadDrink?> UpdateDrink(UpdateDrink drink)
         {
-            throw new NotImplementedException();
+            drink.Name = (drink.Name ?? string.Empty).Trim();
+            drink.Description = drink.Description?.Trim();
+
+            try
+            {
+                var updated = await _repo.UpdateDrink(drink);
+                if (updated == null)
+                    return null;
+                return toReadModel(updated);
+            }
+            catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
+            {
+                throw new InvalidOperationException("A drink with the same name already exists at this location.");
+            }
         }
 
         private ReadDrink toReadModel(Drink drink)

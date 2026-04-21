@@ -1,9 +1,11 @@
-using BrewMapAPI.Models;       
-using BrewMapAPI.Service.User;     
+using System.Text;
 using BrewMapAPI.Data;
-using Microsoft.Extensions.Options;
+using BrewMapAPI.Models;
+using BrewMapAPI.Repository.Auth;
 using BrewMapAPI.Repository.Drinks;
+using BrewMapAPI.Service.Auth;
 using BrewMapAPI.Service.Drinks;
+<<<<<<< Ruva
 using BrewMapAPI.Service.Pins;
 using BrewMapAPI.Repository.Pins;
 using BrewMapAPI.Service.Review;
@@ -13,26 +15,38 @@ using BrewMapAPI.Repository.Reviews;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+=======
+using BrewMapAPI.Repository.Locations;
+using BrewMapAPI.Service.Location;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+>>>>>>> main
 
 using System.Text;
 using Microsoft.OpenApi.Models;     
 var builder = WebApplication.CreateBuilder(args);
 
+<<<<<<< Ruva
 var jwtIssuer = builder.Configuration["JWT:Issuer"];
 var jwtAudience = builder.Configuration["JWT:Audience"];
 var jwtSecretKey = builder.Configuration["JWT:SecureKey"];
 
 // Configure strong-typed settings for MongoDB
+=======
+// Configure strong-typed settings for MongoDB.
+>>>>>>> main
 builder.Services.Configure<DatabaseSettings>(
     builder.Configuration.GetSection("DatabaseSettings"));
 
 // Register MongoDB context
-builder.Services.AddSingleton<MongoDbContext>();  
+builder.Services.AddSingleton<MongoDbContext>();
 
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+<<<<<<< Ruva
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "BrewMapAPI", Version = "v1" });
@@ -47,6 +61,20 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer"
     });
     c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+=======
+// Swagger + JWT implementation
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+>>>>>>> main
     {
         {
             new OpenApiSecurityScheme
@@ -55,6 +83,7 @@ builder.Services.AddSwaggerGen(c =>
                 {
                     Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
+<<<<<<< Ruva
                 },
                 Scheme = "oauth2",
                 Name = "Bearer",
@@ -65,13 +94,42 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+=======
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+// JWT Authentication
+var secureKey = builder.Configuration["JWT:SecureKey"];
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secureKey!)),
+            ValidateIssuer = false,
+            ValidateAudience = false
+        };
+    });
+>>>>>>> main
 
 // Business level architecture
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDrinkService, DrinkService>();
+<<<<<<< Ruva
 builder.Services.AddScoped<IReviewService, ReviewService>();
+=======
+builder.Services.AddScoped<ILocationService, LocationService>();
+>>>>>>> main
 
 // Data access level architecture
+builder.Services.AddScoped<IAuthRepo, AuthRepo>();
 builder.Services.AddScoped<IDrinkRepo, DrinkRepo>();
+<<<<<<< Ruva
 builder.Services.AddScoped<IReviewRepo, ReviewRepo>();
 
 builder.Services.AddScoped<IPinRepo, PinRepo>();
@@ -90,6 +148,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey))
         };
     });
+=======
+builder.Services.AddScoped<ILocationRepo, LocationRepo>();
+>>>>>>> main
 
 var app = builder.Build();
 
@@ -99,7 +160,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+<<<<<<< Ruva
 
+=======
+>>>>>>> main
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
