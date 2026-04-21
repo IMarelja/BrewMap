@@ -2,6 +2,7 @@
 using BrewMapAPI.Service.Location;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace BrewMapAPI.Controllers
@@ -95,16 +96,16 @@ namespace BrewMapAPI.Controllers
         public async Task<ActionResult<IEnumerable<ReadLocation>>> Search(
             [FromQuery] string? query,
             [FromQuery] double? minRating,
-            [FromQuery] string? drinkType,
+            [FromQuery] string? drinkQuery,
             [FromQuery] List<string>? paymentOptionTags,
-            [FromQuery] double? latitude,
-            [FromQuery] double? longitude,
-            [FromQuery] double radiusMeters = 3000)
+            [FromQuery] [Required] double latitude,
+            [FromQuery] [Required] double longitude,
+            [FromQuery] double radiusMeters = 5000)
         {
             try
             {
                 var result = await _service.SearchAsync(
-                    query, minRating, drinkType, paymentOptionTags, latitude, longitude, radiusMeters);
+                    query, minRating, drinkQuery, paymentOptionTags, latitude, longitude, radiusMeters);
 
                 return Ok(result);
             }
