@@ -23,28 +23,4 @@ namespace BrewMapAPI.DTO.Location
         public int TotalReviews { get; set; }
         public DateTime CreatedAt { get; set; }
     }
-
-    public class SearchLocationQuery
-    {
-        [FromQuery(Name = "query")]
-        public string? Query { get; set; }
-
-        [FromQuery]
-        public List<string>? PaymentOptionTags { get; set; }
-
-        [FromQuery]
-        public double? MinRating { get; set; }
-
-        [FromQuery]
-        public string? DrinkType { get; set; }
-
-        [FromQuery]
-        public double? Latitude { get; set; }
-
-        [FromQuery]
-        public double? Longitude { get; set; }
-
-        [FromQuery]
-        public double RadiusMeters { get; set; } = 3000;
-    }
 }
