@@ -20,6 +20,7 @@ namespace BrewMapAPI.Data
 
         private void ApplyIndex()
         {
+            //index for drinks
             var drinksIndex = Builders<Drink>.IndexKeys
                 .Ascending(x => x.AvailableAtLocationId)
                 .Ascending(x => x.Name);
@@ -28,6 +29,21 @@ namespace BrewMapAPI.Data
                 drinksIndex,
                 new CreateIndexOptions { Unique = true }
             ));
+            //index for locations
+            var nameIndex = Builders<Location>.IndexKeys.Ascending(x => x.Name);
+            var cityIndex = Builders<Location>.IndexKeys.Ascending(x => x.Address.City);
+            var ratingIndex = Builders<Location>.IndexKeys.Ascending(x => x.AggregatedRating.Average);
+            var paymentIndex = Builders<Location>.IndexKeys.Ascending(x => x.PaymentOptionTags);
+            var geoIndex = Builders<Location>.IndexKeys.Geo2DSphere(x => x.LocationPoint.Coordinates);
+
+            Locations.Indexes.CreateMany(new[]
+            {
+                new CreateIndexModel<Location>(nameIndex),
+                new CreateIndexModel<Location>(cityIndex),
+                new CreateIndexModel<Location>(ratingIndex),
+                new CreateIndexModel<Location>(paymentIndex),
+                new CreateIndexModel<Location>(geoIndex)
+            });
         }
 
         public IMongoCollection<User> Users => _database.GetCollection<User>("users");

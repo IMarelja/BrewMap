@@ -88,6 +88,53 @@ namespace BrewMapAPI.Controllers
         }
 
         /// <summary>
+        /// Search locations by query, filters, and optional geolocation
+        /// </summary>
+        [HttpGet("search")]
+        [Authorize(Roles = "admin,user")]
+        public async Task<ActionResult<IEnumerable<ReadLocation>>> Search(
+            [FromQuery] string? query,
+            [FromQuery] double? minRating,
+            [FromQuery] string? drinkType,
+            [FromQuery] List<string>? paymentOptionTags,
+            [FromQuery] double? latitude,
+            [FromQuery] double? longitude,
+            [FromQuery] double radiusMeters = 3000)
+        {
+            try
+            {
+                var result = await _service.SearchAsync(
+                    query, minRating, drinkType, paymentOptionTags, latitude, longitude, radiusMeters);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Add a new cafe location
+        /// </summary>
+        [HttpPost]
+        [Authorize(Roles = "admin,user")]
+        public async Task<ActionResult<ReadLocation>> Create([FromBody] CreateLocation dto)
+        {
+
+            try
+            {
+                var userId = GetUserId();
+                var result = await _service.CreateAsync(dto, userId);
+                return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Update a location
         /// </summary>
         [HttpPut("{id}")]
