@@ -115,26 +115,6 @@ namespace BrewMapAPI.Controllers
         }
 
         /// <summary>
-        /// Add a new cafe location
-        /// </summary>
-        [HttpPost]
-        [Authorize(Roles = "admin,user")]
-        public async Task<ActionResult<ReadLocation>> Create([FromBody] CreateLocation dto)
-        {
-
-            try
-            {
-                var userId = GetUserId();
-                var result = await _service.CreateAsync(dto, userId);
-                return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        /// <summary>
         /// Update a location
         /// </summary>
         [HttpPut("{id}")]
