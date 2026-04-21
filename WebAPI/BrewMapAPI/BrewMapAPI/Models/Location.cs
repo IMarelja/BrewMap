@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.GeoJsonObjectModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -23,7 +24,7 @@ namespace BrewMapAPI.Models
         public Address Address { get; set; }
 
         [BsonElement("location")]
-        public GeoJsonPoint LocationPoint { get; set; } // GeoJSON Point object
+        public GeoJsonPoint<GeoJson2DGeographicCoordinates> LocationPoint { get; set; }
 
         [BsonElement("categoryTag")]
         public string CategoryTag { get; set; }
@@ -73,16 +74,6 @@ namespace BrewMapAPI.Models
 
         [BsonElement("postalCode")]
         public string PostalCode { get; set; }
-    }
-
-    // GeoJSON Point
-    public class GeoJsonPoint
-    {
-        [BsonElement("type")]
-        public string Type { get; set; } = "Point"; 
-
-        [BsonElement("coordinates")]
-        public List<double> Coordinates { get; set; } 
     }
 
     public class DayOpeningHours : IValidatableObject

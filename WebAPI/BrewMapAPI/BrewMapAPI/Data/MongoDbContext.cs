@@ -34,7 +34,7 @@ namespace BrewMapAPI.Data
             var cityIndex = Builders<Location>.IndexKeys.Ascending(x => x.Address.City);
             var ratingIndex = Builders<Location>.IndexKeys.Ascending(x => x.AggregatedRating.Average);
             var paymentIndex = Builders<Location>.IndexKeys.Ascending(x => x.PaymentOptionTags);
-            var geoIndex = Builders<Location>.IndexKeys.Geo2DSphere(x => x.LocationPoint.Coordinates);
+            var geoIndex = Builders<Location>.IndexKeys.Geo2DSphere(x => x.LocationPoint);
 
             Locations.Indexes.CreateMany(new[]
             {
