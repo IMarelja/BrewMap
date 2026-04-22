@@ -5,12 +5,16 @@ using BrewMapAPI.Repository.Categories;
 using BrewMapAPI.Repository.Drinks;
 using BrewMapAPI.Repository.Locations;
 using BrewMapAPI.Repository.PaymentOptions;
+using FuzzySharp;
 using MongoDB.Driver.GeoJsonObjectModel;
 
 namespace BrewMapAPI.Service.Location
 {
     public class LocationService: ILocationService
     {
+        private const int LocationQueryThreshold = 70;
+        private const int DrinkQueryThreshold = 70;
+
         private readonly ILocationRepo _repo;
         private readonly ICategoryRepo _categoryRepo;
         private readonly IPaymentOptionRepo _paymentOptionRepo;
@@ -111,26 +115,89 @@ namespace BrewMapAPI.Service.Location
         }
 
         public async Task<IEnumerable<ReadLocation>> SearchAsync(
-            string? query, double? minRating, string? drinkType, List<string>? paymentOptionTags, double? centerLatitude, double? centerLongitude, double radiusMeters)
+            string? query, double? minRating, string? drinkQuery, List<string>? paymentOptionTags, double? centerLatitude, double? centerLongitude, double radiusMeters)
         {
-            var locations = (await _repo.SearchAsync(query, minRating, paymentOptionTags, centerLatitude, centerLongitude, radiusMeters)).ToList();
+            var normalizedQuery = query?.Trim();
+            var normalizedDrinkQuery = drinkQuery?.Trim();
 
-            if (!string.IsNullOrWhiteSpace(drinkType))
+            var locations = (await _repo.SearchAsync(
+                null,
+                minRating,
+                paymentOptionTags,
+                centerLatitude,
+                centerLongitude,
+                radiusMeters)).ToList();
+
+            if (!string.IsNullOrWhiteSpace(normalizedQuery))
             {
-                var dt = drinkType.Trim();
-                var locationIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                locations = locations
+                    .Select(location => new
+                    {
+                        Location = location,
+                        Score = GetLocationScore(normalizedQuery, location)
+                    })
+                    .Where(x => x.Score >= LocationQueryThreshold)
+                    .OrderByDescending(x => x.Score)
+                    .Select(x => x.Location)
+                    .ToList();
+            }
 
-                foreach (var loc in locations)
-                {
-                    var drinks = await _drinkRepo.GetByLocationId(loc.Id);
-                    if (drinks.Any(d => d.IsVisible && !string.IsNullOrWhiteSpace(d.Name) && d.Name.Contains(dt, StringComparison.OrdinalIgnoreCase)))
-                        locationIds.Add(loc.Id);
-                }
+            if (!string.IsNullOrWhiteSpace(normalizedDrinkQuery) && locations.Count > 0)
+            {
+                var drinkScores = await Task.WhenAll(
+                    locations.Select(async location => new
+                    {
+                        Location = location,
+                        Score = await GetDrinkScoreAsync(normalizedDrinkQuery, location.Id)
+                    }));
 
-                locations = locations.Where(l => locationIds.Contains(l.Id)).ToList();
+                locations = drinkScores
+                    .Where(x => x.Score >= DrinkQueryThreshold)
+                    .OrderByDescending(x => x.Score)
+                    .Select(x => x.Location)
+                    .ToList();
             }
 
             return locations.Select(MapToReadDto);
+        }
+
+        private static int GetLocationScore(string query, Models.Location location)
+        {
+            return Math.Max(
+                CalculateFuzzyScore(query, location.Name),
+                CalculateFuzzyScore(query, location.Description));
+        }
+
+        private async Task<int> GetDrinkScoreAsync(string drinkQuery, string locationId)
+        {
+            var drinks = await _drinkRepo.GetByLocationId(locationId);
+
+            var bestScore = 0;
+            foreach (var drink in drinks)
+            {
+                if (!drink.IsVisible)
+                    continue;
+
+                bestScore = Math.Max(bestScore, CalculateFuzzyScore(drinkQuery, drink.Name));
+                bestScore = Math.Max(bestScore, CalculateFuzzyScore(drinkQuery, drink.Description));
+
+                if (bestScore == 100)
+                    break;
+            }
+
+            return bestScore;
+        }
+
+        private static int CalculateFuzzyScore(string query, string? candidate)
+        {
+            if (string.IsNullOrWhiteSpace(query) || string.IsNullOrWhiteSpace(candidate))
+                return 0;
+
+            var ratio = Fuzz.Ratio(query, candidate);
+            var partial = Fuzz.PartialRatio(query, candidate);
+            var tokenSet = Fuzz.TokenSetRatio(query, candidate);
+
+            return Math.Max(ratio, Math.Max(partial, tokenSet));
         }
 
         private static ReadLocation MapToReadDto(Models.Location location)
