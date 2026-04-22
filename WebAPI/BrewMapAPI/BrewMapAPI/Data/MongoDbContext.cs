@@ -20,7 +20,7 @@ namespace BrewMapAPI.Data
 
         private void ApplyIndex()
         {
-            //index for drinks
+            // Drink (products)
             var drinksIndex = Builders<Drink>.IndexKeys
                 .Ascending(x => x.AvailableAtLocationId)
                 .Ascending(x => x.Name);
