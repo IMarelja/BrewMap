@@ -40,7 +40,7 @@ namespace BrewMapAPI.Repository.Locations
                 var regex = new BsonRegularExpression(query.Trim(), "i");
                 filter &= Builders<Location>.Filter.Or(
                     Builders<Location>.Filter.Regex(l => l.Name, regex),
-                    Builders<Location>.Filter.Regex(l => l.Address.City, regex)
+                    Builders<Location>.Filter.Regex(l => l.Description, regex)
                 );
             }
 
