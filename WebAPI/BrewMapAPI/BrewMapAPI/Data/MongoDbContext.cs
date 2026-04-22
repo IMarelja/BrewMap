@@ -46,7 +46,7 @@ namespace BrewMapAPI.Data
             });
 
             var flagsIndex = Builders<Flag>.IndexKeys
-                .Ascending(x => x.ReportedByUserId)
+                .Ascending(x => x.Status)
                 .Ascending(x => x.Target.Id)
                 .Ascending(x => x.Target.Type);
 
