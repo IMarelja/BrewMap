@@ -1,0 +1,55 @@
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using System;
+
+namespace BrewMapAPI.Models
+{
+    public class Flag
+    {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
+
+        [BsonElement("reportedByUserId")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string ReportedByUserId { get; set; }
+
+        [BsonElement("target")]
+        public ReportTarget Target { get; set; }
+
+        [BsonElement("reason")]
+        public string Reason { get; set; }
+
+        [BsonElement("description")]
+        public string? Description { get; set; }
+
+        [BsonElement("status")]
+        public string Status { get; set; } = "pending";
+
+        [BsonElement("resolvedByAdminId")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string? ResolvedByAdminId { get; set; }
+
+        [BsonElement("resolvedAt")]
+        public DateTime? ResolvedAt { get; set; }
+
+        [BsonElement("resolutionNote")]
+        public string? ResolutionNote { get; set; }
+
+        [BsonElement("createdAt")]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [BsonElement("updatedAt")]
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    }
+
+    public class ReportTarget
+    {
+        [BsonElement("type")]
+        public string Type { get; set; } // "location", "product", "review"
+
+        [BsonElement("id")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
+    }
+}
