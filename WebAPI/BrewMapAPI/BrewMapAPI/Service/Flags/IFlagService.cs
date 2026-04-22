@@ -1,5 +1,4 @@
 using BrewMapAPI.DTO.Flag;
-using BrewMapAPI.Models;
 
 namespace BrewMapAPI.Service.Flags
 {
@@ -7,7 +6,7 @@ namespace BrewMapAPI.Service.Flags
     {
         Task<ReadFlag> CreateFlag(CreateFlag flag);
         Task<ReadFlag?> GetById(string id);
-        Task<List<ReadFlag>> GetAll(FlagStatus? status = null, ContentType? contentType = null);
+        Task<List<ReadFlag>> GetAll(string? status = null, string? targetType = null);
         Task<ReadFlag?> UpdateStatus(UpdateFlagStatus dto);
         Task<Dictionary<string, int>> GetStatistics();
     }

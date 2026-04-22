@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using BrewMapAPI.Models;
 
 namespace BrewMapAPI.DTO.Flag
 {
@@ -9,9 +8,11 @@ namespace BrewMapAPI.DTO.Flag
         public string Id { get; set; } = string.Empty;
 
         [Required]
-        public FlagStatus Status { get; set; }
+        public string Status { get; set; } = string.Empty; // "pending", "reviewed", "resolved"
 
         [Required]
-        public string ReviewedByUserId { get; set; } = string.Empty;
+        public string ResolvedByAdminId { get; set; } = string.Empty;
+
+        public string? ResolutionNote { get; set; }
     }
 }

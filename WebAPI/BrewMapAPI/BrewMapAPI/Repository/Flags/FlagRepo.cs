@@ -19,12 +19,16 @@ namespace BrewMapAPI.Repository.Flags
             var flag = new Flag
             {
                 ReportedByUserId = dto.ReportedByUserId,
-                ContentType = dto.ContentType,
-                ContentId = dto.ContentId,
+                Target = new ReportTarget
+                {
+                    Type = dto.Target.Type,
+                    Id = dto.Target.Id
+                },
                 Reason = dto.Reason,
-                Status = FlagStatus.Pending,
+                Description = dto.Description,
+                Status = "pending",
                 CreatedAt = DateTime.UtcNow,
-                ContentSnapshot = new ContentSnapshot()
+                UpdatedAt = DateTime.UtcNow
             };
 
             await _context.Flags.InsertOneAsync(flag);
@@ -36,16 +40,16 @@ namespace BrewMapAPI.Repository.Flags
             return await _context.Flags.Find(x => x.Id == id).FirstOrDefaultAsync();
         }
 
-        public async Task<List<Flag>> GetAll(FlagStatus? status = null, ContentType? contentType = null)
+        public async Task<List<Flag>> GetAll(string? status = null, string? targetType = null)
         {
             var filterBuilder = Builders<Flag>.Filter;
             var filters = new List<FilterDefinition<Flag>>();
 
-            if (status.HasValue)
-                filters.Add(filterBuilder.Eq(x => x.Status, status.Value));
+            if (!string.IsNullOrEmpty(status))
+                filters.Add(filterBuilder.Eq(x => x.Status, status));
 
-            if (contentType.HasValue)
-                filters.Add(filterBuilder.Eq(x => x.ContentType, contentType.Value));
+            if (!string.IsNullOrEmpty(targetType))
+                filters.Add(filterBuilder.Eq(x => x.Target.Type, targetType));
 
             var finalFilter = filters.Count > 0 
                 ? filterBuilder.And(filters) 
@@ -59,11 +63,18 @@ namespace BrewMapAPI.Repository.Flags
 
         public async Task<Flag?> UpdateStatus(UpdateFlagStatus dto)
         {
-            var update = Builders<Flag>.Update
-                .Set(x => x.Status, dto.Status)
-                .Set(x => x.ReviewedAt, DateTime.UtcNow)
-                .Set(x => x.ReviewedByUserId, dto.ReviewedByUserId);
+            var updates = new List<UpdateDefinition<Flag>>();
+            var builder = Builders<Flag>.Update;
 
+            updates.Add(builder.Set(x => x.Status, dto.Status));
+            updates.Add(builder.Set(x => x.ResolvedByAdminId, dto.ResolvedByAdminId));
+            updates.Add(builder.Set(x => x.ResolvedAt, DateTime.UtcNow));
+            updates.Add(builder.Set(x => x.UpdatedAt, DateTime.UtcNow));
+            
+            if (!string.IsNullOrEmpty(dto.ResolutionNote))
+                updates.Add(builder.Set(x => x.ResolutionNote, dto.ResolutionNote));
+
+            var update = builder.Combine(updates);
             var options = new FindOneAndUpdateOptions<Flag> { ReturnDocument = ReturnDocument.After };
             
             return await _context.Flags.FindOneAndUpdateAsync(
@@ -73,12 +84,12 @@ namespace BrewMapAPI.Repository.Flags
             );
         }
 
-        public async Task<Flag?> GetByUserAndContent(string userId, string contentId, ContentType contentType)
+        public async Task<Flag?> GetByUserAndTarget(string userId, string targetId, string targetType)
         {
             return await _context.Flags
                 .Find(x => x.ReportedByUserId == userId 
-                    && x.ContentId == contentId 
-                    && x.ContentType == contentType)
+                    && x.Target.Id == targetId 
+                    && x.Target.Type == targetType)
                 .FirstOrDefaultAsync();
         }
 
@@ -89,15 +100,24 @@ namespace BrewMapAPI.Repository.Flags
             var stats = new Dictionary<string, int>
             {
                 ["TotalFlags"] = allFlags.Count,
-                ["PendingFlags"] = allFlags.Count(f => f.Status == FlagStatus.Pending),
-                ["ReviewedFlags"] = allFlags.Count(f => f.Status == FlagStatus.Reviewed),
-                ["ResolvedFlags"] = allFlags.Count(f => f.Status == FlagStatus.Resolved),
-                ["LocationFlags"] = allFlags.Count(f => f.ContentType == ContentType.Location),
-                ["DrinkFlags"] = allFlags.Count(f => f.ContentType == ContentType.Drink),
-                ["ReviewFlags"] = allFlags.Count(f => f.ContentType == ContentType.Review)
+                ["PendingFlags"] = allFlags.Count(f => f.Status == "pending"),
+                ["ReviewedFlags"] = allFlags.Count(f => f.Status == "reviewed"),
+                ["ResolvedFlags"] = allFlags.Count(f => f.Status == "resolved"),
+                ["LocationFlags"] = allFlags.Count(f => f.Target.Type == "location"),
+                ["ProductFlags"] = allFlags.Count(f => f.Target.Type == "product"),
+                ["ReviewFlags"] = allFlags.Count(f => f.Target.Type == "review")
             };
 
             return stats;
+        }
+
+        //WORK IN PROGRESS: Method to increment report count on target entity
+        public async Task IncrementReportCount(string targetType, string targetId)
+        {
+            // - "location" -> LocationRepo.IncrementReportCount(targetId)
+            // - "product" -> DrinkRepo.IncrementReportCount(targetId) 
+            // - "review" -> ReviewRepo.IncrementReportCount(targetId)
+            await Task.CompletedTask;
         }
     }
 }

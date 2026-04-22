@@ -6,13 +6,14 @@ namespace BrewMapAPI.DTO.Flag
     {
         public string Id { get; set; }
         public string ReportedByUserId { get; set; }
-        public ContentType ContentType { get; set; }
-        public string ContentId { get; set; }
-        public ContentSnapshot ContentSnapshot { get; set; }
+        public ReportTarget Target { get; set; }
         public string Reason { get; set; }
-        public FlagStatus Status { get; set; }
+        public string? Description { get; set; }
+        public string Status { get; set; }
+        public string? ResolvedByAdminId { get; set; }
+        public DateTime? ResolvedAt { get; set; }
+        public string? ResolutionNote { get; set; }
         public DateTime CreatedAt { get; set; }
-        public DateTime? ReviewedAt { get; set; }
-        public string? ReviewedByUserId { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 }

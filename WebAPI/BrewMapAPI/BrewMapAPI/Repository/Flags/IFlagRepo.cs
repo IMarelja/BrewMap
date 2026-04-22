@@ -7,9 +7,9 @@ namespace BrewMapAPI.Repository.Flags
     {
         Task<Flag> CreateFlag(CreateFlag flag);
         Task<Flag?> GetById(string id);
-        Task<List<Flag>> GetAll(FlagStatus? status = null, ContentType? contentType = null);
+        Task<List<Flag>> GetAll(string? status = null, string? targetType = null);
         Task<Flag?> UpdateStatus(UpdateFlagStatus dto);
-        Task<Flag?> GetByUserAndContent(string userId, string contentId, ContentType contentType);
+        Task<Flag?> GetByUserAndTarget(string userId, string targetId, string targetType);
         Task<Dictionary<string, int>> GetStatistics();
     }
 }
