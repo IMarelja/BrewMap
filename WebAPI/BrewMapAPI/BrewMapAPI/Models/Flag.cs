@@ -14,66 +14,42 @@ namespace BrewMapAPI.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string ReportedByUserId { get; set; }
 
-        [BsonElement("contentType")]
-        public ContentType ContentType { get; set; }
-
-        [BsonElement("contentId")]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string ContentId { get; set; }
-
-        [BsonElement("contentSnapshot")]
-        public ContentSnapshot ContentSnapshot { get; set; }
+        [BsonElement("target")]
+        public ReportTarget Target { get; set; }
 
         [BsonElement("reason")]
         public string Reason { get; set; }
 
+        [BsonElement("description")]
+        public string? Description { get; set; }
+
         [BsonElement("status")]
-        public FlagStatus Status { get; set; } = FlagStatus.Pending;
+        public string Status { get; set; } = "pending";
+
+        [BsonElement("resolvedByAdminId")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string? ResolvedByAdminId { get; set; }
+
+        [BsonElement("resolvedAt")]
+        public DateTime? ResolvedAt { get; set; }
+
+        [BsonElement("resolutionNote")]
+        public string? ResolutionNote { get; set; }
 
         [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        [BsonElement("reviewedAt")]
-        public DateTime? ReviewedAt { get; set; }
+        [BsonElement("updatedAt")]
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    }
 
-        [BsonElement("reviewedByUserId")]
+    public class ReportTarget
+    {
+        [BsonElement("type")]
+        public string Type { get; set; } // "location", "product", "review"
+
+        [BsonElement("id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string? ReviewedByUserId { get; set; }
-    }
-
-    public enum ContentType
-    {
-        Location,
-        Drink,
-        Review
-    }
-
-    public enum FlagStatus
-    {
-        Pending,
-        Reviewed,
-        Resolved
-    }
-
-    public class ContentSnapshot
-    {
-        [BsonElement("name")]
-        public string? Name { get; set; }
-
-        [BsonElement("description")]
-        public string? Description { get; set; }
-
-        [BsonElement("address")]
-        public string? Address { get; set; }
-
-        [BsonElement("rating")]
-        public int? Rating { get; set; }
-
-        [BsonElement("comment")]
-        public string? Comment { get; set; }
-
-        [BsonElement("createdByUserId")]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string? CreatedByUserId { get; set; }
+        public string Id { get; set; }
     }
 }

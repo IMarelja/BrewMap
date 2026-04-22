@@ -31,8 +31,8 @@ namespace BrewMapAPI.Data
 
             var flagsIndex = Builders<Flag>.IndexKeys
                 .Ascending(x => x.ReportedByUserId)
-                .Ascending(x => x.ContentId)
-                .Ascending(x => x.ContentType);
+                .Ascending(x => x.Target.Id)
+                .Ascending(x => x.Target.Type);
 
             Flags.Indexes.CreateOne(new CreateIndexModel<Flag>(
                 flagsIndex,
@@ -44,7 +44,7 @@ namespace BrewMapAPI.Data
         public IMongoCollection<Drink> Drinks => _database.GetCollection<Drink>("products");
         public IMongoCollection<Location> Locations => _database.GetCollection<Location>("locations");
         public IMongoCollection<Review> Reviews => _database.GetCollection<Review>("reviews");
-        public IMongoCollection<Flag> Flags => _database.GetCollection<Flag>("flags");
+        public IMongoCollection<Flag> Flags => _database.GetCollection<Flag>("reports");
 
     }
 }

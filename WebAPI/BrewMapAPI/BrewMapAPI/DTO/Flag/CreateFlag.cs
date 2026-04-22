@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using BrewMapAPI.Models;
 
 namespace BrewMapAPI.DTO.Flag
 {
@@ -9,13 +8,21 @@ namespace BrewMapAPI.DTO.Flag
         public string ReportedByUserId { get; set; } = string.Empty;
 
         [Required]
-        public ContentType ContentType { get; set; }
+        public ReportTargetDto Target { get; set; }
 
         [Required]
-        public string ContentId { get; set; } = string.Empty;
-
-        [Required]
-        [MinLength(10, ErrorMessage = "Reason must be at least 10 characters")]
+        [MinLength(3, ErrorMessage = "Reason must be at least 3 characters")]
         public string Reason { get; set; } = string.Empty;
+
+        public string? Description { get; set; }
+    }
+
+    public class ReportTargetDto
+    {
+        [Required]
+        public string Type { get; set; } = string.Empty; // "location", "product", "review"
+
+        [Required]
+        public string Id { get; set; } = string.Empty;
     }
 }
