@@ -11,7 +11,7 @@ public class JwtTokenProvider
 {
     public static string CreateJwtToken(User user, IConfiguration configuration, int expiration = 60)
     {
-        var secureKey = configuration["JWT:SecureKey"];
+        var secureKey = configuration["Jwt:SecureKey"];
         var tokenKey = Encoding.UTF8.GetBytes(secureKey);
         var tokenDescriptor = new SecurityTokenDescriptor()
         {
