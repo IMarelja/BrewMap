@@ -1,6 +1,8 @@
 ﻿using BrewMapAPI.Data;
 using BrewMapAPI.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.GeoJsonObjectModel;
 
 namespace BrewMapAPI.Repository.Locations
 {
@@ -24,6 +26,38 @@ namespace BrewMapAPI.Repository.Locations
         public async Task<IEnumerable<Location>> GetAllAsync()
         {
             return await _locations.Find(l => l.IsActive).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Location>> SearchAsync(
+            string? query, double? minRating, List<string>? paymentOptionTags,
+            double? centerLatitude, double? centerLongitude,
+            double radiusMeters)
+        {
+            var filter = Builders<Location>.Filter.Eq(l => l.IsActive, true);
+
+            if (!string.IsNullOrWhiteSpace(query))
+            {
+                var regex = new BsonRegularExpression(query.Trim(), "i");
+                filter &= Builders<Location>.Filter.Or(
+                    Builders<Location>.Filter.Regex(l => l.Name, regex),
+                    Builders<Location>.Filter.Regex(l => l.Description, regex)
+                );
+            }
+
+            if (minRating.HasValue)
+                filter &= Builders<Location>.Filter.Gte(l => l.AggregatedRating.Average, minRating.Value);
+
+            if (paymentOptionTags != null && paymentOptionTags.Count > 0)
+                filter &= Builders<Location>.Filter.All(l => l.PaymentOptionTags, paymentOptionTags);
+
+            if (centerLatitude.HasValue && centerLongitude.HasValue)
+                filter &= Builders<Location>.Filter.GeoWithinCenterSphere(
+                    l => l.LocationPoint,
+                    centerLongitude.Value,
+                    centerLatitude.Value,
+                    radiusMeters / 6371000.0);
+
+            return await _locations.Find(filter).ToListAsync();
         }
 
         public async Task<Location?> GetByIdAsync(string id)

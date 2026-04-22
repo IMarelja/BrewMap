@@ -5,8 +5,6 @@ using BrewMapAPI.Repository.Auth;
 using BrewMapAPI.Repository.Drinks;
 using BrewMapAPI.Service.Auth;
 using BrewMapAPI.Service.Drinks;
-using BrewMapAPI.Repository.Locations;
-using BrewMapAPI.Service.Location;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -14,10 +12,19 @@ using BrewMapAPI.Service.Review;
 using BrewMapAPI.Service.Pins;
 using BrewMapAPI.Repository.Reviews;
 using BrewMapAPI.Repository.Pins;
+using BrewMapAPI.Repository.Locations;
+using BrewMapAPI.Service.Location;
+using BrewMapAPI.Repository.Categories;
+using BrewMapAPI.Repository.PaymentOptions;
+using BrewMapAPI.Service.Flags;
+using BrewMapAPI.Repository.Flags;
+using BrewMapAPI.Service.Moderation;
+using BrewMapAPI.Repository.Moderation;
+using BrewMapAPI.Service.User;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure strong-typed settings for MongoDB.
+// Configure strong-typed settings for MongoDB
 builder.Services.Configure<DatabaseSettings>(
     builder.Configuration.GetSection("DatabaseSettings"));
 
@@ -56,7 +63,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // JWT Authentication
-var secureKey = builder.Configuration["JWT:SecureKey"];
+var secureKey = builder.Configuration["Jwt:SecureKey"];
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -75,6 +82,9 @@ builder.Services.AddScoped<IDrinkService, DrinkService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IPinService, PinService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IFlagService, FlagService>();
+builder.Services.AddScoped<IModerationService, ModerationService>();
 
 // Data access level architecture
 builder.Services.AddScoped<IAuthRepo, AuthRepo>();
@@ -82,6 +92,10 @@ builder.Services.AddScoped<IDrinkRepo, DrinkRepo>();
 builder.Services.AddScoped<IReviewRepo, ReviewRepo>();
 builder.Services.AddScoped<ILocationRepo, LocationRepo>();
 builder.Services.AddScoped<IPinRepo, PinRepo>();
+builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
+builder.Services.AddScoped<IPaymentOptionRepo, PaymentOptionRepo>();
+builder.Services.AddScoped<IFlagRepo, FlagRepo>();
+builder.Services.AddScoped<IModerationRepo, ModerationRepo>();
 
 var app = builder.Build();
 
