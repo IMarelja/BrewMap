@@ -20,8 +20,8 @@ namespace BrewMapAPI.Repository.Pins
                 .Project(x => new Pin
                 {
                     Id = x.Id,
-                    Longitude = x.LocationPoint.Coordinates[0],
-                    Latitude = x.LocationPoint.Coordinates[1]
+                    Longitude = x.LocationPoint.Coordinates.Longitude,
+                    Latitude = x.LocationPoint.Coordinates.Latitude
                 })
                 .FirstOrDefaultAsync();
         }
@@ -29,10 +29,10 @@ namespace BrewMapAPI.Repository.Pins
         public async Task<List<Pin>> GetByRange(double minLat, double maxLat, double minLon, double maxLon)
         {
             var filter = Builders<Location>.Filter.And(
-                Builders<Location>.Filter.Gte(x => x.LocationPoint.Coordinates[1], minLat),
-                Builders<Location>.Filter.Lte(x => x.LocationPoint.Coordinates[1], maxLat),
-                Builders<Location>.Filter.Gte(x => x.LocationPoint.Coordinates[0], minLon),
-                Builders<Location>.Filter.Lte(x => x.LocationPoint.Coordinates[0], maxLon)
+                Builders<Location>.Filter.Gte(x => x.LocationPoint.Coordinates.Latitude, minLat),
+                Builders<Location>.Filter.Lte(x => x.LocationPoint.Coordinates.Latitude, maxLat),
+                Builders<Location>.Filter.Gte(x => x.LocationPoint.Coordinates.Longitude, minLon),
+                Builders<Location>.Filter.Lte(x => x.LocationPoint.Coordinates.Longitude, maxLon)
             );
 
             return await _context.Locations
@@ -40,8 +40,8 @@ namespace BrewMapAPI.Repository.Pins
                 .Project(x => new Pin
                 {
                     Id = x.Id,
-                    Longitude = x.LocationPoint.Coordinates[0],
-                    Latitude = x.LocationPoint.Coordinates[1]
+                    Longitude = x.LocationPoint.Coordinates.Longitude,
+                    Latitude = x.LocationPoint.Coordinates.Latitude
                 })
                 .ToListAsync();
         }
