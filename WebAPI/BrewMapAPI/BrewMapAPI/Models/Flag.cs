@@ -51,6 +51,6 @@ namespace BrewMapAPI.Models
 
         [BsonElement("id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; } = string.Empty;
+        public string TargetId { get; set; } = String.Empty;
     }
 }

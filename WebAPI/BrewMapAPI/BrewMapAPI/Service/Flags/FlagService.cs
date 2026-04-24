@@ -57,7 +57,11 @@ namespace BrewMapAPI.Service.Flags
             {
                 Id = flag.Id,
                 ReportedByUserId = flag.ReportedByUserId,
-                Target = flag.Target,
+                Target = new ReadReportTarget
+                {
+                    Id = flag.Target.TargetId,
+                    Type = flag.Target.Type
+                },
                 Reason = flag.Reason,
                 Description = flag.Description,
                 Status = flag.Status,
