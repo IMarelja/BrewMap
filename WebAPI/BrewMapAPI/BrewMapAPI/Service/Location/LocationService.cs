@@ -208,8 +208,10 @@ namespace BrewMapAPI.Service.Location
                 Name = location.Name,
                 Description = location.Description,
                 Address = location.Address,
-                Latitude = location.LocationPoint?.Coordinates?.Latitude ?? 0,
+
                 Longitude = location.LocationPoint?.Coordinates?.Longitude ?? 0,
+                Latitude = location.LocationPoint?.Coordinates?.Latitude ?? 0,
+                
                 CategoryTag = location.CategoryTag,
                 PaymentOptionTags = location.PaymentOptionTags,
                 OpeningHours = location.OpeningHours,

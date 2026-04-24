@@ -98,8 +98,8 @@ namespace BrewMapAPI.Controllers
             [FromQuery] double? minRating,
             [FromQuery] string? drinkQuery,
             [FromQuery] List<string>? paymentOptionTags,
-            [FromQuery] [Required] double latitude,
             [FromQuery] [Required] double longitude,
+            [FromQuery] [Required] double latitude,
             [FromQuery] double radiusMeters = 5000)
         {
             try
