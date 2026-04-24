@@ -8,14 +8,14 @@ namespace BrewMapAPI.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string Id { get; set; } = String.Empty;
 
         [BsonElement("userId")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string UserId { get; set; }
+        public string UserId { get; set; } = String.Empty;
 
         [BsonElement("target")]
-        public ReviewTarget Target { get; set; }
+        public ReviewTarget Target { get; set; } = new ReviewTarget();
 
         [BsonElement("rating")]
         public int Rating { get; set; } // 1-5
@@ -41,10 +41,10 @@ namespace BrewMapAPI.Models
     {
         [BsonElement("type")]
         [AllowedValues("location", "product")]
-        public string Type { get; set; }
+        public string Type { get; set; } = String.Empty;
 
         [BsonElement("id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string TargetId { get; set; }
+        public string TargetId { get; set; } = String.Empty;
     }
 }
