@@ -2,6 +2,8 @@ using BrewMapAPI.DTO.Flag;
 using BrewMapAPI.Service.Flags;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 
 namespace BrewMapAPI.Controllers
@@ -63,7 +65,17 @@ namespace BrewMapAPI.Controllers
         // GET: api/flag - Get all reports with optional filters (Admin)
         // Query params: ?status=pending&targetType=location
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] string? status, [FromQuery] string? targetType)
+        public async Task<IActionResult> GetAll(
+            [FromQuery] 
+            [AllowNull]
+            [AllowedValues("pending", "reviewed", "resolved")]
+            string? status, 
+            
+            [FromQuery] 
+            [AllowNull]
+            [AllowedValues("location", "product", "review", "user")] 
+            string? targetType
+        )
         {
             try
             {
