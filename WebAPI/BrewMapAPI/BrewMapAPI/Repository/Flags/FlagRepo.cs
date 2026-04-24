@@ -22,7 +22,7 @@ namespace BrewMapAPI.Repository.Flags
                 Target = new ReportTarget
                 {
                     Type = dto.Target.Type,
-                    Id = dto.Target.Id
+                    TargetId = dto.Target.Id
                 },
                 Reason = dto.Reason,
                 Description = dto.Description,
@@ -88,7 +88,7 @@ namespace BrewMapAPI.Repository.Flags
         {
             return await _context.Flags
                 .Find(x => x.ReportedByUserId == userId 
-                    && x.Target.Id == targetId 
+                    && x.Target.TargetId == targetId 
                     && x.Target.Type == targetType)
                 .FirstOrDefaultAsync();
         }
