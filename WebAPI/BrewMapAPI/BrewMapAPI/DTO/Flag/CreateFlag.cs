@@ -6,9 +6,6 @@ namespace BrewMapAPI.DTO.Flag
     public class CreateFlag
     {
         [Required]
-        public string ReportedByUserId { get; set; } = string.Empty;
-
-        [Required]
         public ReportTargetDto Target { get; set; }
 
         [Required]
