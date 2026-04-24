@@ -15,7 +15,7 @@ namespace BrewMapAPI.Models
         public string ReportedByUserId { get; set; } = String.Empty;
 
         [BsonElement("target")]
-        public ReportTarget? Target { get; set; }
+        public ReportTarget Target { get; set; } = new ReportTarget();
 
         [BsonElement("reason")]
         public string Reason { get; set; } = String.Empty;
@@ -51,6 +51,6 @@ namespace BrewMapAPI.Models
 
         [BsonElement("id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; } = String.Empty;
+        public string Id { get; set; } = string.Empty;
     }
 }
