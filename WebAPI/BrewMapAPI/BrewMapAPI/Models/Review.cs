@@ -1,6 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace BrewMapAPI.Models
 {
@@ -40,7 +40,8 @@ namespace BrewMapAPI.Models
     public class ReviewTarget
     {
         [BsonElement("type")]
-        public string Type { get; set; } // E.g. "location" or "product"
+        [AllowedValues("location", "product")]
+        public string Type { get; set; }
 
         [BsonElement("id")]
         [BsonRepresentation(BsonType.ObjectId)]
