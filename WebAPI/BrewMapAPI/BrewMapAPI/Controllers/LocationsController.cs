@@ -1,5 +1,7 @@
 ﻿using BrewMapAPI.DTO.Location;
+using BrewMapAPI.DTO.Pin;
 using BrewMapAPI.Service.Location;
+using BrewMapAPI.Service.Pins;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -13,10 +15,12 @@ namespace BrewMapAPI.Controllers
     public class LocationsController : ControllerBase
     {
         private readonly ILocationService _service;
+        private readonly IPinService _pinService;
 
-        public LocationsController(ILocationService service)
+        public LocationsController(ILocationService service, IPinService pinService)
         {
             _service = service;
+            _pinService = pinService;
         }
 
         [Authorize(Roles =  "admin,user")]
@@ -155,6 +159,29 @@ namespace BrewMapAPI.Controllers
                     return NotFound(new { message = "Location not found or access denied." });
 
                 return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Get map pins within a coordinate range
+        /// </summary>
+        [HttpGet("pins")]
+        [Authorize(Roles = "admin,user")]
+        public async Task<IActionResult> GetPinsByRange(
+            [FromQuery] double minLon = 0,
+            [FromQuery] double maxLon = 0,
+            [FromQuery] double minLat = 0,
+            [FromQuery] double maxLat = 0
+            )
+        {
+            try
+            {
+                var pins = await _pinService.GetByRange(minLat, maxLat, minLon, maxLon);
+                return Ok(pins);
             }
             catch (Exception ex)
             {
