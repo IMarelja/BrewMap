@@ -1,6 +1,7 @@
 using BrewMapAPI.Data;
 using BrewMapAPI.Models;
 using MongoDB.Driver;
+using MongoDB.Driver.GeoJsonObjectModel;
 
 namespace BrewMapAPI.Repository.Pins
 {
@@ -31,14 +32,20 @@ namespace BrewMapAPI.Repository.Pins
 
         public async Task<List<Pin>> GetByRange(double minLat, double maxLat, double minLon, double maxLon)
         {
-            // GeoJSON coordinates are stored as [longitude, latitude]
-            // coordinates.0 = longitude, coordinates.1 = latitude
-            var filter = Builders<Location>.Filter.And(
-                Builders<Location>.Filter.Gte("location.coordinates.1", minLat),
-                Builders<Location>.Filter.Lte("location.coordinates.1", maxLat),
-                Builders<Location>.Filter.Gte("location.coordinates.0", minLon),
-                Builders<Location>.Filter.Lte("location.coordinates.0", maxLon)
+            var bbox = new GeoJsonPolygon<GeoJson2DGeographicCoordinates>(
+                new GeoJsonPolygonCoordinates<GeoJson2DGeographicCoordinates>(
+                    new GeoJsonLinearRingCoordinates<GeoJson2DGeographicCoordinates>(
+                    [
+                        new(minLon, minLat),
+                        new(maxLon, minLat),
+                        new(maxLon, maxLat),
+                        new(minLon, maxLat),
+                        new(minLon, minLat)
+                    ])
+                )
             );
+
+            var filter = Builders<Location>.Filter.GeoWithin(x => x.LocationPoint, bbox);
 
             var locations = await _context.Locations.Find(filter).ToListAsync();
 
