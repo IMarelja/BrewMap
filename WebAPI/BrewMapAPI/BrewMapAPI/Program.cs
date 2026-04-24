@@ -21,6 +21,7 @@ using BrewMapAPI.Repository.Flags;
 using BrewMapAPI.Service.Moderation;
 using BrewMapAPI.Repository.Moderation;
 using BrewMapAPI.Service.User;
+using BrewMapAPI.Repository.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -92,10 +93,11 @@ builder.Services.AddScoped<IDrinkRepo, DrinkRepo>();
 builder.Services.AddScoped<IReviewRepo, ReviewRepo>();
 builder.Services.AddScoped<ILocationRepo, LocationRepo>();
 builder.Services.AddScoped<IPinRepo, PinRepo>();
-builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
-builder.Services.AddScoped<IPaymentOptionRepo, PaymentOptionRepo>();
+builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<IFlagRepo, FlagRepo>();
 builder.Services.AddScoped<IModerationRepo, ModerationRepo>();
+builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
+builder.Services.AddScoped<IPaymentOptionRepo, PaymentOptionRepo>();
 
 var app = builder.Build();
 
