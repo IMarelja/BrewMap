@@ -13,10 +13,10 @@ namespace BrewMapAPI.Service.Flags
             _repo = repo;
         }
 
-        public async Task<ReadFlag> CreateFlag(CreateFlag flag)
+        public async Task<ReadFlag> CreateFlag(CreateFlag flag, string userId)
         {
 
-            var created = await _repo.CreateFlag(flag);
+            var created = await _repo.CreateFlag(flag, userId);
 
             //WORK IN PROGRESS: Increment report count on target entity
             //await _repo.IncrementReportCount(flag.Target.Type, flag.Target.Id);

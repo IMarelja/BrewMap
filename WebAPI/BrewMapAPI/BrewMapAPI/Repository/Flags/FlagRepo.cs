@@ -14,11 +14,11 @@ namespace BrewMapAPI.Repository.Flags
             _context = context;
         }
 
-        public async Task<Flag> CreateFlag(CreateFlag dto)
+        public async Task<Flag> CreateFlag(CreateFlag dto, string userId)
         {
             var flag = new Flag
             {
-                ReportedByUserId = dto.ReportedByUserId,
+                ReportedByUserId = userId,
                 Target = new ReportTarget
                 {
                     Type = dto.Target.Type,
