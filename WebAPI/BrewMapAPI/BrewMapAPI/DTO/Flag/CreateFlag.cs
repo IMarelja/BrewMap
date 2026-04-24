@@ -6,7 +6,7 @@ namespace BrewMapAPI.DTO.Flag
     public class CreateFlag
     {
         [Required]
-        public ReportTargetDto Target { get; set; }
+        public ReportTargetDto Target { get; set; } = new ReportTargetDto();
 
         [Required]
         [MinLength(3, ErrorMessage = "Reason must be at least 3 characters")]
