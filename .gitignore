@@ -3,6 +3,7 @@
 **/bin/
 **/obj/
 .vs
+.vscode
 
 # Database specific
 brewmap_data/
