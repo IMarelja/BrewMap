@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using BrewMapAPI.Attributes;
 
 namespace BrewMapAPI.DTO.Flag
 {
@@ -20,7 +21,8 @@ namespace BrewMapAPI.DTO.Flag
     public class ReportTargetDto
     {
         [Required]
-        public string Type { get; set; } = string.Empty; // "location", "product", "review"
+        [AllowedValues("location", "product", "review", "user")]
+        public string Type { get; set; } = string.Empty;
 
         [Required]
         public string Id { get; set; } = string.Empty;
