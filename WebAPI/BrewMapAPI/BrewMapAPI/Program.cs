@@ -22,6 +22,7 @@ using BrewMapAPI.Service.Moderation;
 using BrewMapAPI.Repository.Moderation;
 using BrewMapAPI.Service.User;
 using BrewMapAPI.Repository.Users;
+using BrewMapAPI.Service.PaymentOption;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -86,6 +87,7 @@ builder.Services.AddScoped<IPinService, PinService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFlagService, FlagService>();
 builder.Services.AddScoped<IModerationService, ModerationService>();
+builder.Services.AddScoped<IPaymentOptionService, PaymentOptionService>();
 
 // Data access level architecture
 builder.Services.AddScoped<IAuthRepo, AuthRepo>();
