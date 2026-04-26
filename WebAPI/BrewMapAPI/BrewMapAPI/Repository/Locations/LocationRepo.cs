@@ -78,5 +78,13 @@ namespace BrewMapAPI.Repository.Locations
             var result = await _locations.UpdateOneAsync(l => l.Id == id, update);
             return result.ModifiedCount > 0;
         }
+
+        public async Task UpdateAggregatedRatingAsync(string id, double average, int count)
+        {
+            var update = Builders<Location>.Update
+                .Set(l => l.AggregatedRating.Average, average)
+                .Set(l => l.AggregatedRating.Count, count);
+            await _locations.UpdateOneAsync(l => l.Id == id, update);
+        }
     }
 }
