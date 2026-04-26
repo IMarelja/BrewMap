@@ -23,6 +23,7 @@ public class ApiClient
     public string ValidUserPassword { get; }
     public string ValidUserEmail { get; }
 
+    public string ValidLocationId { get; }
     public string ValidDrinkId { get; }
     public string ValidPaymentOptionTag { get; }
     public string ValidCategoryTag { get; }
@@ -45,6 +46,7 @@ public class ApiClient
         ValidUserPassword =     config["ApiSettings:ValidCredentialsUser:Password"]     ?? "Password1!";
         ValidUserEmail =        config["ApiSettings:ValidCredentialsUser:Email"]        ?? "admin@brewmap.dev";
 
+        ValidLocationId =           config["ApiSettings:TestData:ValidLocationId"]          ?? string.Empty;
         ValidDrinkId =              config["ApiSettings:TestData:ValidDrinkId"]             ?? string.Empty;
         ValidPaymentOptionTag =     config["ApiSettings:TestData:ValidPaymentOptionTag"]    ?? "cash";
         ValidCategoryTag =          config["ApiSettings:TestData:ValidCategoryTag"]         ?? "coffee";
