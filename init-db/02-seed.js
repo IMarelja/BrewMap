@@ -162,7 +162,7 @@ db.locations.insertMany([
     updatedAt: now,
     
     edits: [],
-    aggregatedRating: { average: 4.7, count: 3 },
+    aggregatedRating: { average: 0, count: 0 },
   },
   {
     _id: loc2,
@@ -181,7 +181,7 @@ db.locations.insertMany([
     updatedAt: now,
     
     edits: [],
-    aggregatedRating: { average: 4.2, count: 2 },
+    aggregatedRating: { average: 0, count: 0 },
   },
   {
     _id: loc3,
@@ -200,7 +200,7 @@ db.locations.insertMany([
     updatedAt: now,
     
     edits: [],
-    aggregatedRating: { average: 4.0, count: 2 },
+    aggregatedRating: { average: 0, count: 0 },
   },
   {
     _id: loc4,
@@ -219,7 +219,7 @@ db.locations.insertMany([
     updatedAt: now,
     
     edits: [],
-    aggregatedRating: { average: 4.5, count: 2 },
+    aggregatedRating: { average: 0, count: 0 },
   },
   {
     _id: loc5,
@@ -238,7 +238,7 @@ db.locations.insertMany([
     updatedAt: now,
     
     edits: [],
-    aggregatedRating: { average: 4.8, count: 2 },
+    aggregatedRating: { average: 0, count: 0 },
   },
   {
     _id: loc6,
@@ -257,7 +257,7 @@ db.locations.insertMany([
     updatedAt: now,
     
     edits: [],
-    aggregatedRating: { average: 4.3, count: 2 },
+    aggregatedRating: { average: 0, count: 0 },
   },
   {
     _id: loc7,
@@ -276,7 +276,7 @@ db.locations.insertMany([
     updatedAt: now,
     
     edits: [],
-    aggregatedRating: { average: 3.5, count: 2 },
+    aggregatedRating: { average: 0, count: 0 },
   },
   {
     _id: loc8,
@@ -295,7 +295,7 @@ db.locations.insertMany([
     updatedAt: now,
     
     edits: [],
-    aggregatedRating: { average: 4.1, count: 2 },
+    aggregatedRating: { average: 0, count: 0 },
   },
   {
     _id: loc9,
@@ -314,7 +314,7 @@ db.locations.insertMany([
     updatedAt: now,
     
     edits: [],
-    aggregatedRating: { average: 4.6, count: 2 },
+    aggregatedRating: { average: 0, count: 0 },
   },
   {
     _id: loc10,
@@ -333,7 +333,7 @@ db.locations.insertMany([
     updatedAt: now,
     
     edits: [],
-    aggregatedRating: { average: 4.4, count: 2 },
+    aggregatedRating: { average: 0, count: 0 },
   },
 ]);
 
@@ -406,7 +406,7 @@ db.products.insertMany(products);
 // ─── Reviews ─────────────────────────────────────────────────────────────────
 // Each location gets 2 reviews from different users
 
-db.reviews.insertMany([
+const reviewDocs = [
   // Cogito
   { _id: new ObjectId(), userId: userId2, target: { type: "location", id: loc1 }, rating: 5, comment: "Best specialty coffee in Zagreb, hands down.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
   { _id: new ObjectId(), userId: userId3, target: { type: "location", id: loc1 }, rating: 4, comment: "Great beans and skilled baristas. Gets busy on weekends.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
@@ -447,7 +447,49 @@ db.reviews.insertMany([
   // Soft Spot
   { _id: new ObjectId(), userId: userId1, target: { type: "location", id: loc10 }, rating: 4, comment: "My go-to for remote work days. Fast WiFi and good coffee.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
   { _id: new ObjectId(), userId: userId5, target: { type: "location", id: loc10 }, rating: 5, comment: "Avocado toast is the best in the city.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
-]);
+];
+
+function refreshTargetAggregatedRating(targetType, targetId) {
+  const normalizedType = targetType === "drink" ? "product" : targetType;
+  const [aggregation] = db.reviews.aggregate([
+    { $match: { "target.type": normalizedType, "target.id": targetId, isVisible: true } },
+    {
+      $group: {
+        _id: null,
+        average: { $avg: "$rating" },
+        count: { $sum: 1 },
+      },
+    },
+  ]).toArray();
+
+  const aggregatedRating = aggregation
+    ? { average: Number(aggregation.average.toFixed(2)), count: aggregation.count }
+    : { average: 0, count: 0 };
+
+  if (normalizedType === "location") {
+    db.locations.updateOne(
+      { _id: targetId },
+      { $set: { aggregatedRating } }
+    );
+    return;
+  }
+
+  if (normalizedType === "product") {
+    db.products.updateOne(
+      { _id: targetId },
+      { $set: { aggregatedRating } }
+    );
+  }
+}
+
+function insertReviewAndRefresh(reviewDoc) {
+  db.reviews.insertOne(reviewDoc);
+  refreshTargetAggregatedRating(reviewDoc.target.type, reviewDoc.target.id);
+}
+
+for (const reviewDoc of reviewDocs) {
+  insertReviewAndRefresh(reviewDoc);
+}
 
 // Categories
 db.categories.insertMany([
