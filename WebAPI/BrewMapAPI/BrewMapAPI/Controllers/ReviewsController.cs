@@ -82,6 +82,20 @@ namespace BrewMapAPI.Controllers
             }
         }
 
+        [HttpGet("byUser/{userId}")]
+        public async Task<IActionResult> GetByUserIdReviews(string userId)
+        {
+            try
+            {
+                var reviews = await _service.GetByUserId(userId);
+                return Ok(reviews);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPost("location/{locationId}")]
         public async Task<IActionResult> CreateLocationReview(string locationId, [FromBody] CreateReviewBody body)
         {
