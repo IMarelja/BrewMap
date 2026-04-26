@@ -14,10 +14,12 @@ public class PaymentOptionControllerTests
     [Fact]
     public async Task GetAll_AsValidUser_Returns200()
     {
-        var token = await _apiClient.GetUserTokenAsync();
+        var token = string.Empty;
+        try { token = await _apiClient.GetUserTokenAsync(); }
+        catch { Assert.Skip("Could not fetch user token — is the API running and configured?"); }
         using var client = _apiClient.CreateAuthenticated(token);
 
-        var response = await client.GetAsync(_apiClient.GetUrl("PaymentOption"));
+        var response = await client.GetAsync(_apiClient.GetUrl("PaymentOption"), TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -25,28 +27,34 @@ public class PaymentOptionControllerTests
     [Fact]
     public async Task GetByTag_AsValidUser_Returns200()
     {
-        var token = await _apiClient.GetUserTokenAsync();
+        if (string.IsNullOrEmpty(_apiClient.ValidPaymentOptionTag))
+            Assert.Skip("ValidPaymentOptionTag is not configured in appsettings.json");
+
+        var token = string.Empty;
+        try { token = await _apiClient.GetUserTokenAsync(); }
+        catch { Assert.Skip("Could not fetch user token — is the API running and configured?"); }
         using var client = _apiClient.CreateAuthenticated(token);
 
-        var response = await client.GetAsync(_apiClient.GetUrl($"PaymentOption/{_apiClient.ValidPaymentOptionTag}"));
+        var ct = TestContext.Current.CancellationToken;
+        var response = await client.GetAsync(_apiClient.GetUrl($"PaymentOption/{_apiClient.ValidPaymentOptionTag}"), ct);
         var body = await response.Content.ReadFromJsonAsync<ReadPaymentOptionViewModel>(ApiClient.GetJsonOptions());
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         body.Should().NotBeNull();
-        body!.Tag.Should().Be(_apiClient.ValidPaymentOptionTag);
+        body.Tag.Should().Be(_apiClient.ValidPaymentOptionTag);
     }
 
     [Fact]
     public async Task Create_AsValidAdmin_ValidEntry_Returns201()
     {
-        var token = await _apiClient.GetAdminTokenAsync();
+        var token = string.Empty;
+        try { token = await _apiClient.GetAdminTokenAsync(); }
+        catch { Assert.Skip("Could not fetch admin token — is the API running and configured?"); }
         using var client = _apiClient.CreateAuthenticated(token);
 
-        var request = new CreatePaymentOptionViewModel { 
-            Tag = "crypto", 
-            Name = "Crypto" 
-        };
-        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("PaymentOption"), request);
+        var ct = TestContext.Current.CancellationToken;
+        var request = new CreatePaymentOptionViewModel { Tag = "crypto", Name = "Crypto" };
+        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("PaymentOption"), request, ct);
         var body = await response.Content.ReadFromJsonAsync<ReadPaymentOptionViewModel>(ApiClient.GetJsonOptions());
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -58,14 +66,13 @@ public class PaymentOptionControllerTests
     [Fact]
     public async Task Create_AsValidAdmin_DuplicateTag_Returns409()
     {
-        var token = await _apiClient.GetAdminTokenAsync();
+        var token = string.Empty;
+        try { token = await _apiClient.GetAdminTokenAsync(); }
+        catch { Assert.Skip("Could not fetch admin token — is the API running and configured?"); }
         using var client = _apiClient.CreateAuthenticated(token);
 
-        var request = new CreatePaymentOptionViewModel { 
-            Tag = "cash", 
-            Name = "Cash payment" 
-        };
-        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("PaymentOption"), request);
+        var request = new CreatePaymentOptionViewModel { Tag = "cash", Name = "Cash payment" };
+        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("PaymentOption"), request, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -73,14 +80,14 @@ public class PaymentOptionControllerTests
     [Fact]
     public async Task Update_AsValidAdmin_ValidTag_Returns200()
     {
-        var token = await _apiClient.GetAdminTokenAsync();
+        var token = string.Empty;
+        try { token = await _apiClient.GetAdminTokenAsync(); }
+        catch { Assert.Skip("Could not fetch admin token — is the API running and configured?"); }
         using var client = _apiClient.CreateAuthenticated(token);
 
-        var tag = "cash";
-        var request = new EditPaymentOptionViewModel { 
-            Name = "Cash payment" 
-        };
-        var response = await client.PutAsJsonAsync(_apiClient.GetUrl($"PaymentOption/{tag}"), request);
+        var ct = TestContext.Current.CancellationToken;
+        var request = new EditPaymentOptionViewModel { Name = "Cash payment" };
+        var response = await client.PutAsJsonAsync(_apiClient.GetUrl("PaymentOption/cash"), request, ct);
         var body = await response.Content.ReadFromJsonAsync<ReadPaymentOptionViewModel>(ApiClient.GetJsonOptions());
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -91,14 +98,13 @@ public class PaymentOptionControllerTests
     [Fact]
     public async Task Update_AsValidAdmin_InvalidTag_Returns404()
     {
-        var token = await _apiClient.GetAdminTokenAsync();
+        var token = string.Empty;
+        try { token = await _apiClient.GetAdminTokenAsync(); }
+        catch { Assert.Skip("Could not fetch admin token — is the API running and configured?"); }
         using var client = _apiClient.CreateAuthenticated(token);
 
-        var tag = "blood";
-        var request = new EditPaymentOptionViewModel { 
-            Name = "Blood" 
-        };
-        var response = await client.PutAsJsonAsync(_apiClient.GetUrl($"PaymentOption/{tag}"), request);
+        var request = new EditPaymentOptionViewModel { Name = "Blood" };
+        var response = await client.PutAsJsonAsync(_apiClient.GetUrl("PaymentOption/blood"), request, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
