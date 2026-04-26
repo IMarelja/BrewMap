@@ -23,15 +23,7 @@ namespace BrewMapAPI.Controllers
             _pinService = pinService;
         }
 
-        [Authorize(Roles =  "admin,user")]
-        private string GetUserId()
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId))
-                throw new UnauthorizedAccessException("Invalid authentication token.");
-
-            return userId;
-        }
+        private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
         /// <summary>
         /// Add a new cafe location
