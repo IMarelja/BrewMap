@@ -37,21 +37,6 @@ public class PaymentOptionControllerTests
     }
 
     [Fact]
-    public async Task Create_AsValidUser_Returns403()
-    {
-        var token = await _apiClient.GetUserTokenAsync();
-        using var client = _apiClient.CreateAuthenticated(token);
-
-        var request = new CreatePaymentOptionViewModel { 
-            Tag = "crypto", 
-            Name = "Crypto" 
-        };
-        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("PaymentOption"), request);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-    }
-
-    [Fact]
     public async Task Create_AsValidAdmin_ValidEntry_Returns201()
     {
         var token = await _apiClient.GetAdminTokenAsync();

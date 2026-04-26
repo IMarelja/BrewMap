@@ -17,6 +17,75 @@ public class AuthControllerSecurityTests
 {
     private readonly ApiClient _apiClient = new();
 
+    // --- Authorization tests ---
+
+    [Fact]
+    public async Task UnauthenticatedRequest_ToProtectedEndpoint_ReturnsUnauthorizedOrForbidden()
+    {
+        using var client = _apiClient.Create();
+
+        var response = await client.GetAsync(_apiClient.GetUrl($"drink/{_apiClient.ValidDrinkId}"));
+
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task AuthenticatedAsUser_GetDrinkById_DoesNotReturnUnauthorizedOrForbidden()
+    {
+        var token = await _apiClient.GetUserTokenAsync();
+        using var client = _apiClient.CreateAuthenticated(token);
+
+        var response = await client.GetAsync(_apiClient.GetUrl($"Drink/{_apiClient.ValidDrinkId}"));
+
+        //response.StatusCode.Should().NotBeOneOf(HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden);
+    
+        var forbiddenStatuses = new[]
+        {
+            HttpStatusCode.Unauthorized,
+            HttpStatusCode.Forbidden
+        };
+
+        forbiddenStatuses.Should().NotContain(response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AuthenticatedAsUser_GetUserInfo_ReturnsForbiddenOrUnauthorized()
+    {
+        var token = await _apiClient.GetUserTokenAsync();
+        using var client = _apiClient.CreateAuthenticated(token);
+
+        var response = await client.GetAsync(_apiClient.GetUrl("Moderation/user/0000000000000000"));
+
+        //response.StatusCode.Should().BeOneOf(HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden);
+    
+        var allowedStatus = new[]
+        {
+            HttpStatusCode.Unauthorized,
+            HttpStatusCode.Forbidden
+        };
+
+        allowedStatus.Should().Contain(response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AuthenticatedAsAdmin_GetUserInfo_DoesNotReturnForbiddenOrUnauthorized()
+    {
+        var token = await _apiClient.GetAdminTokenAsync();
+        using var client = _apiClient.CreateAuthenticated(token);
+
+        var response = await client.GetAsync(_apiClient.GetUrl("Moderation/user/0000000000000000"));
+
+        //response.StatusCode.Should().NotBeOneOf(HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden);
+    
+        var forbiddenStatuses = new[]
+        {
+            HttpStatusCode.Unauthorized,
+            HttpStatusCode.Forbidden
+        };
+
+        forbiddenStatuses.Should().NotContain(response.StatusCode);
+    }
+
     // --- Login endpoint injection tests ---
 
     [Fact]

@@ -1,4 +1,5 @@
 using BrewMapAPI.Service.Moderation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BrewMapAPI.Controllers
@@ -73,6 +74,7 @@ namespace BrewMapAPI.Controllers
 
         /// GET: api/moderation/user/{id}
         [HttpGet("user/{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> GetUserInfo(string id)
         {
             try

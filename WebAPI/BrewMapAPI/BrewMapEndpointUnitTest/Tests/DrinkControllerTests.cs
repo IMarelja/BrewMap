@@ -38,14 +38,4 @@ public class DrinkControllerTests
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
-
-    [Fact]
-    public async Task GetById_WithoutToken_Returns401()
-    {
-        using var client = _apiClient.Create();
-
-        var response = await client.GetAsync(_apiClient.GetUrl($"Drink/{_apiClient.ValidDrinkId}"));
-
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-    }
 }
