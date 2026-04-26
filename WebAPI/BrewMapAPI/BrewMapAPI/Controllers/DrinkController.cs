@@ -18,11 +18,7 @@ namespace BrewMapAPI.Controllers
             _service = service;
         }
 
-        private string GetUserId() {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-            
-            return userId;
-        }
+        private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
         [HttpGet("{id}")]
         [Authorize(Roles =  "admin,user")]

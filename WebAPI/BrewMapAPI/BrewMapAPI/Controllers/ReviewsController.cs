@@ -18,13 +18,7 @@ namespace BrewMapAPI.Controllers
             _service = service;
         }
 
-        // Helper to extract userId from JWT claims
-        private string? GetUserId()
-        {
-            return User.FindFirstValue("sub")
-                ?? User.FindFirstValue("id")
-                ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
-        }
+        private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
         // Get a review by its ID (single review detail)
         [HttpGet("{id}")]
