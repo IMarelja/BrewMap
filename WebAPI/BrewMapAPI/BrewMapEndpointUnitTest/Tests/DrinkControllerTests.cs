@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using BrewMapEndpointUnitTest.Infrastructure;
-using BrewMapEndpointUnitTest.ViewModels.Auth;
 using BrewMapEndpointUnitTest.ViewModels.Drinks;
 using FluentAssertions;
 using Xunit;
@@ -12,23 +11,10 @@ public class DrinkControllerTests
 {
     private readonly ApiClient _apiClient = new();
 
-    private async Task<string> GetTokenAsync()
-    {
-        using var client = _apiClient.Create();
-        var loginRequest = new LoginRequestViewModel
-        {
-            Username = _apiClient.ValidAdminUsername,
-            Password = _apiClient.ValidAdminPassword
-        };
-        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("auth/login"), loginRequest);
-        var body = await response.Content.ReadFromJsonAsync<AuthResponseViewModel>(ApiClient.GetJsonOptions());
-        return body!.Token!;
-    }
-
     [Fact]
     public async Task GetById_ValidIdWithToken_Returns200WithDrink()
     {
-        var token = await GetTokenAsync();
+        var token = await _apiClient.GetAdminTokenAsync();
         using var client = _apiClient.CreateAuthenticated(token);
 
         var response = await client.GetAsync(_apiClient.GetUrl($"Drink/{_apiClient.ValidDrinkId}"));
@@ -43,10 +29,12 @@ public class DrinkControllerTests
     [Fact]
     public async Task GetById_InvalidId_Returns400()
     {
-        var token = await GetTokenAsync();
+        var token = await _apiClient.GetAdminTokenAsync();
         using var client = _apiClient.CreateAuthenticated(token);
 
-        var response = await client.GetAsync(_apiClient.GetUrl("drink/invalid-id-format"));
+        var invalid_id = "invalid_id";
+
+        var response = await client.GetAsync(_apiClient.GetUrl($"Drink/{invalid_id}"));
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -56,7 +44,7 @@ public class DrinkControllerTests
     {
         using var client = _apiClient.Create();
 
-        var response = await client.GetAsync(_apiClient.GetUrl($"drink/{_apiClient.ValidDrinkId}"));
+        var response = await client.GetAsync(_apiClient.GetUrl($"Drink/{_apiClient.ValidDrinkId}"));
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
