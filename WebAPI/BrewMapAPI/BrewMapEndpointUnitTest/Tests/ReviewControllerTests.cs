@@ -45,7 +45,7 @@ public class ReviewControllerTests(ITestOutputHelper output)
             ApiClient.GetJsonOptions(),
             ct);
         createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
-        var created = await createResponse.Content.ReadFromJsonAsync<ReadReviewViewModel>(ApiClient.GetJsonOptions());
+        var created = await createResponse.Content.ReadFromJsonAsync<ReadReviewViewModel>(ApiClient.GetJsonOptions(), ct);
 
         created.Should().NotBeNull();
         created.Rating.Should().Be(5);
@@ -55,7 +55,7 @@ public class ReviewControllerTests(ITestOutputHelper output)
         // 4. Get the location again
         var afterResponse = await client.GetAsync(_apiClient.GetUrl($"Locations/{_apiClient.ValidLocationId}"), ct);
         afterResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        var after = await afterResponse.Content.ReadFromJsonAsync<ReadLocationViewModel>(ApiClient.GetJsonOptions());
+        var after = await afterResponse.Content.ReadFromJsonAsync<ReadLocationViewModel>(ApiClient.GetJsonOptions(), ct);
         after.Should().NotBeNull();
 
         // 5. Verify aggregated score matches expectation
@@ -102,7 +102,7 @@ public class ReviewControllerTests(ITestOutputHelper output)
             ApiClient.GetJsonOptions(),
             ct);
         createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
-        var created = await createResponse.Content.ReadFromJsonAsync<ReadReviewViewModel>(ApiClient.GetJsonOptions());
+        var created = await createResponse.Content.ReadFromJsonAsync<ReadReviewViewModel>(ApiClient.GetJsonOptions(), ct);
         created.Should().NotBeNull();
         created.Rating.Should().Be(5);
         created.TargetType.Should().Be("product");
@@ -111,7 +111,7 @@ public class ReviewControllerTests(ITestOutputHelper output)
         // 4. Get the drink again
         var afterResponse = await client.GetAsync(_apiClient.GetUrl($"Drink/{_apiClient.ValidDrinkId}"), ct);
         afterResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        var after = await afterResponse.Content.ReadFromJsonAsync<ReadDrinkViewModel>(ApiClient.GetJsonOptions());
+        var after = await afterResponse.Content.ReadFromJsonAsync<ReadDrinkViewModel>(ApiClient.GetJsonOptions(), ct);
         after.Should().NotBeNull();
 
         // 5. Verify aggregated score matches expectation
@@ -124,5 +124,96 @@ public class ReviewControllerTests(ITestOutputHelper output)
 
         after.AggregatedRating.Count.Should().Be(expectedCount);
         after.AggregatedRating.Average.Should().BeApproximately(expectedAverage, 0.001);
+    }
+
+    [Fact]
+    public async Task UpdateReview_To1StarNoComment_UpdatesAggregatedScoreAndClearsComment()
+    {
+        var token = string.Empty;
+        try { token = await _apiClient.GetUserTokenAsync(); }
+        catch { Assert.Skip("Could not fetch user token — is the API running and configured?"); }
+        using var client = _apiClient.CreateAuthenticated(token);
+
+        var ct = TestContext.Current.CancellationToken;
+
+        // 1. Get the user's own reviews and pick the first one
+        var mineResponse = await client.GetAsync(_apiClient.GetUrl("Review/mine"), ct);
+        mineResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var myReviews = await mineResponse.Content.ReadFromJsonAsync<List<ReadReviewViewModel>>(ApiClient.GetJsonOptions(), ct);
+        myReviews.Should().NotBeNull();
+
+        if (myReviews.Count == 0)
+            Assert.Skip("No reviews found for this user — nothing to update");
+
+        var review = myReviews.First();
+
+        // 2. Fetch the target's current aggregated score
+        double currentAverage;
+        int currentCount;
+
+        if (review.TargetType == "location")
+        {
+            var res = await client.GetAsync(_apiClient.GetUrl($"Locations/{review.TargetId}"), ct);
+            if (res.StatusCode != HttpStatusCode.OK)
+                Assert.Skip($"Could not fetch location {review.TargetId}: {res.StatusCode}");
+            var loc = await res.Content.ReadFromJsonAsync<ReadLocationViewModel>(ApiClient.GetJsonOptions(), ct);
+            if (loc is null) Assert.Skip("Location response could not be deserialized");
+            currentAverage = loc.AverageRating;
+            currentCount   = loc.TotalReviews;
+        }
+        else
+        {
+            var res = await client.GetAsync(_apiClient.GetUrl($"Drink/{review.TargetId}"), ct);
+            if (res.StatusCode != HttpStatusCode.OK)
+                Assert.Skip($"Could not fetch drink {review.TargetId}: {res.StatusCode}");
+            var drink = await res.Content.ReadFromJsonAsync<ReadDrinkViewModel>(ApiClient.GetJsonOptions(), ct);
+            if (drink is null) Assert.Skip("Drink response could not be deserialized");
+            currentAverage = drink.AggregatedRating.Average;
+            currentCount   = drink.AggregatedRating.Count;
+        }
+
+        // 3. Calculate expected aggregate after swapping this review's rating to 1
+        //    Count stays the same; only the sum changes by (1 - oldRating)
+        var expectedAverage = (currentAverage * currentCount - review.Rating + 1.0) / currentCount;
+
+        // 4. Update the review: rating = 1, clear the comment
+        var updateResponse = await client.PutAsJsonAsync(
+            _apiClient.GetUrl($"Review/{review.Id}"),
+            new UpdateReviewViewModel { Rating = 1, Comment = "" },
+            ApiClient.GetJsonOptions(),
+            ct);
+        updateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var updated = await updateResponse.Content.ReadFromJsonAsync<ReadReviewViewModel>(ApiClient.GetJsonOptions(), ct);
+
+        // 5. Verify the review itself
+        updated.Should().NotBeNull();
+        updated.Rating.Should().Be(1);
+        updated.Comment.Should().BeNullOrEmpty();
+
+        // 6. Fetch the target again and verify the aggregated score
+        double newAverage;
+        int newCount;
+
+        if (review.TargetType == "location")
+        {
+            var res = await client.GetAsync(_apiClient.GetUrl($"Locations/{review.TargetId}"), ct);
+            res.StatusCode.Should().Be(HttpStatusCode.OK);
+            var after = await res.Content.ReadFromJsonAsync<ReadLocationViewModel>(ApiClient.GetJsonOptions(), ct);
+            after.Should().NotBeNull();
+            newAverage = after.AverageRating;
+            newCount   = after.TotalReviews;
+        }
+        else
+        {
+            var res = await client.GetAsync(_apiClient.GetUrl($"Drink/{review.TargetId}"), ct);
+            res.StatusCode.Should().Be(HttpStatusCode.OK);
+            var after = await res.Content.ReadFromJsonAsync<ReadDrinkViewModel>(ApiClient.GetJsonOptions(), ct);
+            after.Should().NotBeNull();
+            newAverage = after.AggregatedRating.Average;
+            newCount   = after.AggregatedRating.Count;
+        }
+
+        newCount.Should().Be(currentCount);
+        newAverage.Should().BeApproximately(expectedAverage, 0.001);
     }
 }
