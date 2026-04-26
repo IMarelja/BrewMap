@@ -25,6 +25,7 @@ public class ApiClient
 
     public string ValidDrinkId { get; }
     public string ValidPaymentOptionTag { get; }
+    public string ValidCategoryTag { get; }
 
     public ApiClient()
     {
@@ -45,7 +46,8 @@ public class ApiClient
         ValidUserEmail =        config["ApiSettings:ValidCredentialsUser:Email"]        ?? "admin@brewmap.dev";
 
         ValidDrinkId =              config["ApiSettings:TestData:ValidDrinkId"]             ?? string.Empty;
-        ValidPaymentOptionTag =     config["ApiSettings:TestData:ValidPaymentOptionTag"]    ?? "cafe";
+        ValidPaymentOptionTag =     config["ApiSettings:TestData:ValidPaymentOptionTag"]    ?? "cash";
+        ValidCategoryTag =          config["ApiSettings:TestData:ValidCategoryTag"]         ?? "coffee";
     }
 
     public string GetUrl(string path) => $"{BaseUrl.TrimEnd('/')}/{path.TrimStart('/')}";
