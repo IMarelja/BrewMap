@@ -72,10 +72,11 @@ namespace BrewMapAPI.Repository.Locations
             await _locations.ReplaceOneAsync(l => l.Id == location.Id, location);
         }
 
-        public async Task DeleteAsync(string id)
+        public async Task<bool> DeleteAsync(string id)
         {
             var update = Builders<Location>.Update.Set(l => l.IsActive, false);
-            await _locations.UpdateOneAsync(l => l.Id == id, update);
+            var result = await _locations.UpdateOneAsync(l => l.Id == id, update);
+            return result.ModifiedCount > 0;
         }
     }
 }

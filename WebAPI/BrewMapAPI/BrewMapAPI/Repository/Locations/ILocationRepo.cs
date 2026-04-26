@@ -9,6 +9,6 @@ namespace BrewMapAPI.Repository.Locations
         Task<IEnumerable<Location>> GetAllAsync();
         Task<IEnumerable<Location>> SearchAsync(string? query, double? minRating, List<string>? paymentOptionTags, double? centerLatitude, double? centerLongitude, double radiusMeters);
         Task UpdateAsync(Location location);
-        Task DeleteAsync(string id);
+        Task<bool> DeleteAsync(string id);
     }
 }
