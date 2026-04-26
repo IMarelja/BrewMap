@@ -1,5 +1,7 @@
-﻿using BrewMapAPI.DTO.Review;
+using BrewMapAPI.DTO.Review;
 using BrewMapAPI.Models;
+using BrewMapAPI.Repository.Drinks;
+using BrewMapAPI.Repository.Locations;
 using BrewMapAPI.Repository.Reviews;
 
 namespace BrewMapAPI.Service.Review
@@ -7,10 +9,14 @@ namespace BrewMapAPI.Service.Review
     public class ReviewService : IReviewService
     {
         private readonly IReviewRepo _repo;
+        private readonly ILocationRepo _locationRepo;
+        private readonly IDrinkRepo _drinkRepo;
 
-        public ReviewService(IReviewRepo repo)
+        public ReviewService(IReviewRepo repo, ILocationRepo locationRepo, IDrinkRepo drinkRepo)
         {
             _repo = repo;
+            _locationRepo = locationRepo;
+            _drinkRepo = drinkRepo;
         }
 
         public async Task<ReadReview?> GetById(string id)
@@ -31,16 +37,12 @@ namespace BrewMapAPI.Service.Review
             return reviews.Select(ToReadModel).ToList();
         }
 
-        public async Task<ReadReview> CreateReview(CreateReview dto, string userId)
+        public async Task<ReadReview> CreateLocationReview(string locationId, CreateReviewBody dto, string userId)
         {
             var review = new Models.Review
             {
                 UserId = userId,
-                Target = new ReviewTarget
-                {
-                    Type = dto.TargetType,
-                    TargetId = dto.TargetId
-                },
+                Target = new ReviewTarget { Type = "location", TargetId = locationId },
                 Rating = dto.Rating,
                 Comment = dto.Comment,
                 IsVisible = true,
@@ -49,6 +51,25 @@ namespace BrewMapAPI.Service.Review
                 UpdatedAt = DateTime.UtcNow
             };
             await _repo.Create(review);
+            await RefreshLocationRating(locationId);
+            return ToReadModel(review);
+        }
+
+        public async Task<ReadReview> CreateDrinkReview(string drinkId, CreateReviewBody dto, string userId)
+        {
+            var review = new Models.Review
+            {
+                UserId = userId,
+                Target = new ReviewTarget { Type = "product", TargetId = drinkId },
+                Rating = dto.Rating,
+                Comment = dto.Comment,
+                IsVisible = true,
+                ReportCount = 0,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            await _repo.Create(review);
+            await RefreshDrinkRating(drinkId);
             return ToReadModel(review);
         }
 
@@ -64,6 +85,7 @@ namespace BrewMapAPI.Service.Review
                 review.Comment = dto.Comment;
             review.UpdatedAt = DateTime.UtcNow;
             await _repo.Update(review);
+            await RefreshTargetRating(review.Target.Type, review.Target.TargetId);
             return ToReadModel(review);
         }
 
@@ -72,10 +94,36 @@ namespace BrewMapAPI.Service.Review
             var review = await _repo.GetById(id);
             if (review == null || review.UserId != userId)
                 return false;
-            return await _repo.Delete(id);
+
+            var targetType = review.Target.Type;
+            var targetId = review.Target.TargetId;
+
+            var deleted = await _repo.Delete(id);
+            if (deleted)
+                await RefreshTargetRating(targetType, targetId);
+            return deleted;
         }
 
-        // Helper function for mapping
+        private async Task RefreshTargetRating(string targetType, string targetId)
+        {
+            if (targetType == "location")
+                await RefreshLocationRating(targetId);
+            else if (targetType == "product")
+                await RefreshDrinkRating(targetId);
+        }
+
+        private async Task RefreshLocationRating(string locationId)
+        {
+            var (average, count) = await _repo.GetAggregatedRating("location", locationId);
+            await _locationRepo.UpdateAggregatedRatingAsync(locationId, average, count);
+        }
+
+        private async Task RefreshDrinkRating(string drinkId)
+        {
+            var (average, count) = await _repo.GetAggregatedRating("product", drinkId);
+            await _drinkRepo.UpdateAggregatedRating(drinkId, average, count);
+        }
+
         private ReadReview ToReadModel(Models.Review review)
         {
             return new ReadReview
