@@ -51,6 +51,12 @@ namespace BrewMapAPI.Data
                 new CreateIndexOptions { Unique = true }
             ));
 
+            var categoryTagIndex = Builders<Category>.IndexKeys.Ascending(x => x.Tag);
+            Categories.Indexes.CreateOne(new CreateIndexModel<Category>(
+                categoryTagIndex,
+                new CreateIndexOptions { Unique = true }
+            ));
+
             var flagsIndex = Builders<Flag>.IndexKeys
                 .Ascending(x => x.Status)
                 .Ascending(x => x.Target.TargetId)
