@@ -1,5 +1,8 @@
 using BrewMapAPI.DTO.Moderation;
+using BrewMapAPI.Repository.Drinks;
+using BrewMapAPI.Repository.Locations;
 using BrewMapAPI.Repository.Moderation;
+using BrewMapAPI.Repository.Reviews;
 
 namespace BrewMapAPI.Service.Moderation
 {
@@ -7,70 +10,11 @@ namespace BrewMapAPI.Service.Moderation
     {
         private readonly IModerationRepo _repo;
 
-        public ModerationService(IModerationRepo repo)
+        public ModerationService(
+            IModerationRepo repo)
         {
             _repo = repo;
-        }
 
-        // COntent management
-        public async Task<ModerationResult> DeleteLocation(string id)
-        {
-            var deleted = await _repo.DeleteLocation(id);
-            
-            if (!deleted)
-            {
-                return new ModerationResult
-                {
-                    Success = false,
-                    Message = $"Location with ID {id} not found or could not be deleted."
-                };
-            }
-
-            return new ModerationResult
-            {
-                Success = true,
-                Message = $"Location with ID {id} has been permanently deleted."
-            };
-        }
-
-        public async Task<ModerationResult> DeleteDrink(string id)
-        {
-            var deleted = await _repo.DeleteDrink(id);
-            
-            if (!deleted)
-            {
-                return new ModerationResult
-                {
-                    Success = false,
-                    Message = $"Drink with ID {id} not found or could not be deleted."
-                };
-            }
-
-            return new ModerationResult
-            {
-                Success = true,
-                Message = $"Drink with ID {id} has been permanently deleted."
-            };
-        }
-
-        public async Task<ModerationResult> DeleteReview(string id)
-        {
-            var deleted = await _repo.DeleteReview(id);
-            
-            if (!deleted)
-            {
-                return new ModerationResult
-                {
-                    Success = false,
-                    Message = $"Review with ID {id} not found or could not be deleted."
-                };
-            }
-
-            return new ModerationResult
-            {
-                Success = true,
-                Message = $"Review with ID {id} has been permanently deleted."
-            };
         }
 
         //User management

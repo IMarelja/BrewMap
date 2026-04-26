@@ -6,6 +6,7 @@ namespace BrewMapAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "admin")]
     public class ModerationController : ControllerBase
     {
         private readonly IModerationService _service;
@@ -15,66 +16,9 @@ namespace BrewMapAPI.Controllers
             _service = service;
         }
 
-        /// DELETE: api/moderation/location/{id}
-        [HttpDelete("location/{id}")]
-        public async Task<IActionResult> DeleteLocation(string id)
-        {
-            try
-            {
-                var result = await _service.DeleteLocation(id);
-                
-                if (!result.Success)
-                    return NotFound(result);
-                
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { success = false, message = ex.Message });
-            }
-        }
 
-        /// DELETE: api/moderation/drink/{id}
-        [HttpDelete("drink/{id}")]
-        public async Task<IActionResult> DeleteDrink(string id)
-        {
-            try
-            {
-                var result = await _service.DeleteDrink(id);
-                
-                if (!result.Success)
-                    return NotFound(result);
-                
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { success = false, message = ex.Message });
-            }
-        }
-
-        /// DELETE: api/moderation/review/{id}
-        [HttpDelete("review/{id}")]
-        public async Task<IActionResult> DeleteReview(string id)
-        {
-            try
-            {
-                var result = await _service.DeleteReview(id);
-                
-                if (!result.Success)
-                    return NotFound(result);
-                
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { success = false, message = ex.Message });
-            }
-        }
-
-        /// GET: api/moderation/user/{id}
-        [HttpGet("user/{id}")]
-        [Authorize(Roles = "admin")]
+        /// GET: api/Moderation/User/{id}
+        [HttpGet("User/{id}")]
         public async Task<IActionResult> GetUserInfo(string id)
         {
             try
@@ -92,8 +36,8 @@ namespace BrewMapAPI.Controllers
             }
         }
 
-        /// PUT: api/moderation/user/{id}/suspend
-        [HttpPut("user/{id}/suspend")]
+        /// PUT: api/Moderation/User/{id}/suspend
+        [HttpPut("User/{id}/suspend")]
         public async Task<IActionResult> SuspendUser(string id)
         {
             try
@@ -111,8 +55,8 @@ namespace BrewMapAPI.Controllers
             }
         }
 
-        /// PUT: api/moderation/user/{id}/unsuspend
-        [HttpPut("user/{id}/unsuspend")]
+        /// PUT: api/Moderation/User/{id}/unsuspend
+        [HttpPut("User/{id}/unsuspend")]
         public async Task<IActionResult> UnsuspendUser(string id)
         {
             try
@@ -130,8 +74,8 @@ namespace BrewMapAPI.Controllers
             }
         }
 
-        /// PUT: api/moderation/user/{id}/grant-admin
-        [HttpPut("user/{id}/grant-admin")]
+        /// PUT: api/Moderation/User/{id}/grant-admin
+        [HttpPut("User/{id}/grant-admin")]
         public async Task<IActionResult> GrantAdminRole(string id)
         {
             try
@@ -149,7 +93,7 @@ namespace BrewMapAPI.Controllers
             }
         }
 
-        /// PUT: api/moderation/user/{id}/revoke-admin
+        /// PUT: api/Moderation/User/{id}/revoke-admin
         [HttpPut("user/{id}/revoke-admin")]
         public async Task<IActionResult> RevokeAdminRole(string id)
         {
