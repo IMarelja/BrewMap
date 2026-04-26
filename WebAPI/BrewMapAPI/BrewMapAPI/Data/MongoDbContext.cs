@@ -45,6 +45,12 @@ namespace BrewMapAPI.Data
                 new CreateIndexModel<Location>(geoIndex)
             });
 
+            var paymentOptionTagIndex = Builders<PaymentOption>.IndexKeys.Ascending(x => x.Tag);
+            PaymentOptions.Indexes.CreateOne(new CreateIndexModel<PaymentOption>(
+                paymentOptionTagIndex,
+                new CreateIndexOptions { Unique = true }
+            ));
+
             var flagsIndex = Builders<Flag>.IndexKeys
                 .Ascending(x => x.Status)
                 .Ascending(x => x.Target.TargetId)
