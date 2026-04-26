@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using BrewMapEndpointUnitTest.Infrastructure;
-using BrewMapEndpointUnitTest.ViewModels.Auth;
 using BrewMapEndpointUnitTest.ViewModels.PaymentOption;
 using FluentAssertions;
 using Xunit;
@@ -12,34 +11,10 @@ public class PaymentOptionControllerTests
 {
     private readonly ApiClient _apiClient = new();
 
-    private async Task<string> GetAdminTokenAsync()
-    {
-        using var client = _apiClient.Create();
-        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("auth/login"), new LoginRequestViewModel
-        {
-            Username = _apiClient.ValidAdminUsername,
-            Password = _apiClient.ValidAdminPassword
-        });
-        var body = await response.Content.ReadFromJsonAsync<AuthResponseViewModel>(ApiClient.GetJsonOptions());
-        return body!.Token!;
-    }
-
-    private async Task<string> GetUserTokenAsync()
-    {
-        using var client = _apiClient.Create();
-        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("auth/login"), new LoginRequestViewModel
-        {
-            Username = _apiClient.ValidUserUsername,
-            Password = _apiClient.ValidUserPassword
-        });
-        var body = await response.Content.ReadFromJsonAsync<AuthResponseViewModel>(ApiClient.GetJsonOptions());
-        return body!.Token!;
-    }
-
     [Fact]
     public async Task GetAll_AsValidUser_Returns200()
     {
-        var token = await GetUserTokenAsync();
+        var token = await _apiClient.GetUserTokenAsync();
         using var client = _apiClient.CreateAuthenticated(token);
 
         var response = await client.GetAsync(_apiClient.GetUrl("PaymentOption"));
@@ -50,7 +25,7 @@ public class PaymentOptionControllerTests
     [Fact]
     public async Task GetByTag_AsValidUser_Returns200()
     {
-        var token = await GetUserTokenAsync();
+        var token = await _apiClient.GetUserTokenAsync();
         using var client = _apiClient.CreateAuthenticated(token);
 
         var response = await client.GetAsync(_apiClient.GetUrl($"PaymentOption/{_apiClient.ValidPaymentOptionTag}"));
@@ -64,7 +39,7 @@ public class PaymentOptionControllerTests
     [Fact]
     public async Task Create_AsValidUser_Returns403()
     {
-        var token = await GetUserTokenAsync();
+        var token = await _apiClient.GetUserTokenAsync();
         using var client = _apiClient.CreateAuthenticated(token);
 
         var request = new CreatePaymentOptionViewModel { 
@@ -79,7 +54,7 @@ public class PaymentOptionControllerTests
     [Fact]
     public async Task Create_AsValidAdmin_ValidEntry_Returns201()
     {
-        var token = await GetAdminTokenAsync();
+        var token = await _apiClient.GetAdminTokenAsync();
         using var client = _apiClient.CreateAuthenticated(token);
 
         var request = new CreatePaymentOptionViewModel { 
@@ -91,14 +66,14 @@ public class PaymentOptionControllerTests
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         body.Should().NotBeNull();
-        body!.Tag.Should().Be("crypto");
+        body.Tag.Should().Be("crypto");
         body.Name.Should().Be("Crypto");
     }
 
     [Fact]
     public async Task Create_AsValidAdmin_DuplicateTag_Returns409()
     {
-        var token = await GetAdminTokenAsync();
+        var token = await _apiClient.GetAdminTokenAsync();
         using var client = _apiClient.CreateAuthenticated(token);
 
         var request = new CreatePaymentOptionViewModel { 
@@ -113,7 +88,7 @@ public class PaymentOptionControllerTests
     [Fact]
     public async Task Update_AsValidAdmin_ValidTag_Returns200()
     {
-        var token = await GetAdminTokenAsync();
+        var token = await _apiClient.GetAdminTokenAsync();
         using var client = _apiClient.CreateAuthenticated(token);
 
         var tag = "cash";
@@ -125,13 +100,13 @@ public class PaymentOptionControllerTests
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         body.Should().NotBeNull();
-        body!.Name.Should().Be("Cash payment");
+        body.Name.Should().Be("Cash payment");
     }
 
     [Fact]
     public async Task Update_AsValidAdmin_InvalidTag_Returns404()
     {
-        var token = await GetAdminTokenAsync();
+        var token = await _apiClient.GetAdminTokenAsync();
         using var client = _apiClient.CreateAuthenticated(token);
 
         var tag = "blood";

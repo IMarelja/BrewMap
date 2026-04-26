@@ -1,5 +1,7 @@
+using BrewMapEndpointUnitTest.ViewModels.Auth;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace BrewMapEndpointUnitTest.Infrastructure;
@@ -47,6 +49,30 @@ public class ApiClient
     }
 
     public string GetUrl(string path) => $"{BaseUrl.TrimEnd('/')}/{path.TrimStart('/')}";
+
+    public async Task<string> GetAdminTokenAsync()
+    {
+        using var client = Create();
+        var response = await client.PostAsJsonAsync(GetUrl("auth/login"), new LoginRequestViewModel
+        {
+            Username = ValidAdminUsername,
+            Password = ValidAdminPassword
+        });
+        var body = await response.Content.ReadFromJsonAsync<AuthResponseViewModel>(GetJsonOptions());
+        return body!.Token!;
+    }
+
+    public async Task<string> GetUserTokenAsync()
+    {
+        using var client = Create();
+        var response = await client.PostAsJsonAsync(GetUrl("auth/login"), new LoginRequestViewModel
+        {
+            Username = ValidUserUsername,
+            Password = ValidUserPassword
+        });
+        var body = await response.Content.ReadFromJsonAsync<AuthResponseViewModel>(GetJsonOptions());
+        return body!.Token!;
+    }
 
     public HttpClient Create() => new();
 
