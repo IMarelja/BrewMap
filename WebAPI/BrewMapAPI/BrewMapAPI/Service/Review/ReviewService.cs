@@ -73,9 +73,9 @@ namespace BrewMapAPI.Service.Review
             return ToReadModel(review);
         }
 
-        public async Task<ReadReview?> UpdateReview(UpdateReview dto, string userId)
+        public async Task<ReadReview?> UpdateReview(string Id, UpdateReview dto, string userId)
         {
-            var review = await _repo.GetById(dto.Id);
+            var review = await _repo.GetById(Id);
             if (review == null || review.UserId != userId)
                 return null;
 

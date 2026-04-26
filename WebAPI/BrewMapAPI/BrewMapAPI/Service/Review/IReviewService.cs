@@ -9,7 +9,7 @@ namespace BrewMapAPI.Service.Review
         Task<List<ReadReview>> GetByUserId(string userId);
         Task<ReadReview> CreateLocationReview(string locationId, CreateReviewBody dto, string userId);
         Task<ReadReview> CreateDrinkReview(string drinkId, CreateReviewBody dto, string userId);
-        Task<ReadReview?> UpdateReview(UpdateReview review, string userId);
+        Task<ReadReview?> UpdateReview(string id, UpdateReview review, string userId);
         Task<bool> DeleteReview(string id, string userId);
     }
 }

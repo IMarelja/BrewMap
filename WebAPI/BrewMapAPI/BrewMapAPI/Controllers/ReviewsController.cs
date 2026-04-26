@@ -127,8 +127,7 @@ namespace BrewMapAPI.Controllers
                 if (string.IsNullOrEmpty(userId))
                     return Unauthorized();
 
-                update.Id = id;
-                var updated = await _service.UpdateReview(update, userId);
+                var updated = await _service.UpdateReview(id, update, userId);
                 if (updated == null)
                     return NotFound();
                 return Ok(updated);

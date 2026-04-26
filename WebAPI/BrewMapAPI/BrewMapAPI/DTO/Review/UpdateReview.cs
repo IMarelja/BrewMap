@@ -4,8 +4,6 @@ namespace BrewMapAPI.DTO.Review
 {
     public class UpdateReview
     {
-        [Required]
-        public string Id { get; set; } = string.Empty;
 
         [Range(1, 5, ErrorMessage = "Rating must be between 1 and 5.")]
         public int? Rating { get; set; }
