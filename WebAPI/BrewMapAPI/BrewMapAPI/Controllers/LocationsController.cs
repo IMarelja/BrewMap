@@ -94,6 +94,7 @@ namespace BrewMapAPI.Controllers
             [FromQuery] string? query,
             [FromQuery] double? minRating,
             [FromQuery] string? drinkQuery,
+            [FromQuery] List<string>? categoryTags,
             [FromQuery] List<string>? paymentOptionTags,
             [FromQuery] [Required] double longitude,
             [FromQuery] [Required] double latitude,
@@ -102,7 +103,7 @@ namespace BrewMapAPI.Controllers
             try
             {
                 var result = await _service.SearchAsync(
-                    query, minRating, drinkQuery, paymentOptionTags, latitude, longitude, radiusMeters);
+                    query, minRating, drinkQuery, categoryTags, paymentOptionTags, latitude, longitude, radiusMeters);
 
                 return Ok(result);
             }

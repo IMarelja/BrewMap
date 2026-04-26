@@ -29,7 +29,7 @@ namespace BrewMapAPI.Repository.Locations
         }
 
         public async Task<IEnumerable<Location>> SearchAsync(
-            string? query, double? minRating, List<string>? paymentOptionTags,
+            string? query, double? minRating, List<string>? categoryTags, List<string>? paymentOptionTags,
             double? centerLatitude, double? centerLongitude,
             double radiusMeters)
         {
@@ -43,6 +43,9 @@ namespace BrewMapAPI.Repository.Locations
                     Builders<Location>.Filter.Regex(l => l.Description, regex)
                 );
             }
+
+            if (categoryTags != null && categoryTags.Count > 0)
+                filter &= Builders<Location>.Filter.In(l => l.CategoryTag, categoryTags);
 
             if (minRating.HasValue)
                 filter &= Builders<Location>.Filter.Gte(l => l.AggregatedRating.Average, minRating.Value);
