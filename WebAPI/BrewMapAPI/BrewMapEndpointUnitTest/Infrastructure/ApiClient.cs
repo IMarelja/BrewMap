@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Globalization;
 
 namespace BrewMapEndpointUnitTest.Infrastructure;
 
@@ -27,6 +28,12 @@ public class ApiClient
     public string ValidDrinkId { get; }
     public string ValidPaymentOptionTag { get; }
     public string ValidCategoryTag { get; }
+    public double SearchLongitude { get; }
+    public double SearchLatitude { get; }
+    public double SearchRadiusMeters { get; }
+    public bool HasSearchLongitude { get; }
+    public bool HasSearchLatitude { get; }
+    public bool HasSearchRadiusMeters { get; }
 
     public ApiClient()
     {
@@ -50,6 +57,18 @@ public class ApiClient
         ValidDrinkId =              config["ApiSettings:TestData:ValidDrinkId"]             ?? string.Empty;
         ValidPaymentOptionTag =     config["ApiSettings:TestData:ValidPaymentOptionTag"]    ?? "cash";
         ValidCategoryTag =          config["ApiSettings:TestData:ValidCategoryTag"]         ?? "coffee";
+
+        var searchLongitudeRaw = config["ApiSettings:TestData:Coordinates:0"];
+        var searchLatitudeRaw = config["ApiSettings:TestData:Coordinates:1"];
+        var searchRadiusMetersRaw = config["ApiSettings:TestData:SearchRadiusMeters"];
+
+        HasSearchLongitude = !string.IsNullOrWhiteSpace(searchLongitudeRaw);
+        HasSearchLatitude = !string.IsNullOrWhiteSpace(searchLatitudeRaw);
+        HasSearchRadiusMeters = !string.IsNullOrWhiteSpace(searchRadiusMetersRaw);
+
+        SearchLongitude = ReadDouble(searchLongitudeRaw, 15.9819);
+        SearchLatitude = ReadDouble(searchLatitudeRaw, 45.8150);
+        SearchRadiusMeters = ReadDouble(searchRadiusMetersRaw, 3000);
     }
 
     public string GetUrl(string path) => $"{BaseUrl.TrimEnd('/')}/{path.TrimStart('/')}";
@@ -88,4 +107,12 @@ public class ApiClient
     }
 
     public static JsonSerializerOptions GetJsonOptions() => JsonOptions;
+
+    private static double ReadDouble(string? rawValue, double fallback)
+    {
+        if (double.TryParse(rawValue, NumberStyles.Float, CultureInfo.InvariantCulture, out var value))
+            return value;
+
+        return fallback;
+    }
 }
