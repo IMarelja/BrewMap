@@ -22,6 +22,7 @@ public class ApiClient
     public string ValidUserEmail { get; }
 
     public string ValidDrinkId { get; }
+    public string ValidPaymentOptionTag { get; }
 
     public ApiClient()
     {
@@ -32,16 +33,17 @@ public class ApiClient
 
         BaseUrl = config["ApiSettings:BaseUrl"]
             ?? throw new InvalidOperationException("ApiSettings:BaseUrl is not configured");
-        
+
         ValidAdminUsername =    config["ApiSettings:ValidCredentialsAdmin:Username"]    ?? "admin";
         ValidAdminPassword =    config["ApiSettings:ValidCredentialsAdmin:Password"]    ?? "Password1!";
         ValidAdminEmail =       config["ApiSettings:ValidCredentialsAdmin:Email"]       ?? "admin@brewmap.dev";
-        
+
         ValidUserUsername =     config["ApiSettings:ValidCredentialsUser:Username"]     ?? "user";
         ValidUserPassword =     config["ApiSettings:ValidCredentialsUser:Password"]     ?? "Password1!";
         ValidUserEmail =        config["ApiSettings:ValidCredentialsUser:Email"]        ?? "admin@brewmap.dev";
 
-        ValidDrinkId =          config["ApiSettings:TestData:ValidDrinkId"]             ?? string.Empty;
+        ValidDrinkId =              config["ApiSettings:TestData:ValidDrinkId"]             ?? string.Empty;
+        ValidPaymentOptionTag =     config["ApiSettings:TestData:ValidPaymentOptionTag"]    ?? "cafe";
     }
 
     public string GetUrl(string path) => $"{BaseUrl.TrimEnd('/')}/{path.TrimStart('/')}";
