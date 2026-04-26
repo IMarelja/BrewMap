@@ -48,6 +48,7 @@ namespace BrewMapAPI.Controllers
         /// <summary>
         /// Get all active locations
         /// </summary>
+        /*
         [HttpGet]
         [Authorize(Roles =  "admin,user")]
         public async Task<ActionResult<IEnumerable<ReadLocation>>> GetAll()
@@ -61,7 +62,7 @@ namespace BrewMapAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
+        }*/
 
         /// <summary>
         /// Get a location by ID
