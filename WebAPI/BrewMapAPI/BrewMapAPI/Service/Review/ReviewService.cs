@@ -3,6 +3,9 @@ using BrewMapAPI.Models;
 using BrewMapAPI.Repository.Drinks;
 using BrewMapAPI.Repository.Locations;
 using BrewMapAPI.Repository.Reviews;
+using BrewMapAPI.Repository.Users;
+using BrewMapAPI.Service.User;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace BrewMapAPI.Service.Review
 {
@@ -11,12 +14,14 @@ namespace BrewMapAPI.Service.Review
         private readonly IReviewRepo _repo;
         private readonly ILocationRepo _locationRepo;
         private readonly IDrinkRepo _drinkRepo;
+        private readonly IUserRepo _userRepo;
 
-        public ReviewService(IReviewRepo repo, ILocationRepo locationRepo, IDrinkRepo drinkRepo)
+        public ReviewService(IReviewRepo repo, ILocationRepo locationRepo, IDrinkRepo drinkRepo, IUserRepo userRepo)
         {
             _repo = repo;
             _locationRepo = locationRepo;
             _drinkRepo = drinkRepo;
+            _userRepo = userRepo;
         }
 
         public async Task<ReadReview?> GetById(string id)
@@ -92,8 +97,19 @@ namespace BrewMapAPI.Service.Review
         public async Task<bool> DeleteReview(string id, string userId)
         {
             var review = await _repo.GetById(id);
-            if (review == null || review.UserId != userId)
+
+            if (review == null)
                 return false;
+
+            var isOwner = review.UserId == userId;
+            if (!isOwner)
+            {
+                var user = await _userRepo.GetUserById(userId);
+                var isAdmin = string.Equals(user?.Role, "admin", StringComparison.OrdinalIgnoreCase);
+
+                if (!isAdmin)
+                    return false;
+            }
 
             var targetType = review.Target.Type;
             var targetId = review.Target.TargetId;
