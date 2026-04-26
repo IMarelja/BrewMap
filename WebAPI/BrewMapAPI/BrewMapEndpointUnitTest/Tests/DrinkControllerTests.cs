@@ -31,7 +31,7 @@ public class DrinkControllerTests
         var token = await GetTokenAsync();
         using var client = _apiClient.CreateAuthenticated(token);
 
-        var response = await client.GetAsync(_apiClient.GetUrl($"drink/{_apiClient.ValidDrinkId}"));
+        var response = await client.GetAsync(_apiClient.GetUrl($"Drink/{_apiClient.ValidDrinkId}"));
         var body = await response.Content.ReadFromJsonAsync<ReadDrinkViewModel>(ApiClient.GetJsonOptions());
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
