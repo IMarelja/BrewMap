@@ -13,25 +13,6 @@ namespace BrewMapAPI.Repository.Moderation
             _context = context;
         }
 
-        //Content management
-
-        public async Task<bool> DeleteLocation(string id)
-        {
-            var result = await _context.Locations.DeleteOneAsync(x => x.Id == id);
-            return result.DeletedCount > 0;
-        }
-
-        public async Task<bool> DeleteDrink(string id)
-        {
-            var result = await _context.Drinks.DeleteOneAsync(x => x.Id == id);
-            return result.DeletedCount > 0;
-        }
-
-        public async Task<bool> DeleteReview(string id)
-        {
-            var result = await _context.Reviews.DeleteOneAsync(x => x.Id == id);
-            return result.DeletedCount > 0;
-        }
 
         //User management
 
