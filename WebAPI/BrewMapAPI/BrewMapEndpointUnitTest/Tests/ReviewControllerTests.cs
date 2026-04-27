@@ -9,6 +9,18 @@ using Xunit;
 
 namespace BrewMapEndpointUnitTest.Tests;
 
+// Review tested/non-tested endpoints
+// ✅ Tested
+// - PUT /api/Review/{id}
+// - DELETE /api/Review/{id}
+// - POST /api/Review/location/{locationId}
+// - POST /api/Review/drink/{drinkId}
+// - GET /api/Review/mine
+// 🚫 Not tested
+// - GET /api/Review/{id}
+// - GET /api/Review/location/{locationId}
+// - GET /api/Review/drink/{drinkId}
+// - GET /api/Review/byUser/{userId}
 public class ReviewControllerTests(ITestOutputHelper output)
 {
     private readonly ApiClient _apiClient = new();

@@ -7,6 +7,14 @@ using Xunit;
 
 namespace BrewMapEndpointUnitTest.Tests;
 
+// Drink tested/non-tested endpoints
+// ✅ Tested
+// - GET /api/Drink/{id}
+// 🚫 Not tested
+// - PUT /api/Drink/{id}
+// - DELETE /api/Drink/{id}
+// - GET /api/Drink/location/{locationId}
+// - POST /api/Drink
 public class DrinkControllerTests
 {
     private readonly ApiClient _apiClient = new();
