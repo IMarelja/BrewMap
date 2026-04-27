@@ -7,6 +7,12 @@ using Xunit;
 
 namespace BrewMapEndpointUnitTest.Tests;
 
+// Auth tested/non-tested endpoints
+// ✅ Tested
+// - POST /api/Auth/login
+// - POST /api/Auth/register
+// 🚫 Not tested
+// - None
 public class AuthControllerTests
 {
     private readonly ApiClient _apiClient = new();

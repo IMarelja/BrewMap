@@ -7,6 +7,14 @@ using Xunit;
 
 namespace BrewMapEndpointUnitTest.Tests;
 
+// Category tested/non-tested endpoints
+// ✅ Tested
+// - GET /api/Category
+// - POST /api/Category
+// - GET /api/Category/{tag}
+// - PUT /api/Category/{tag}
+// 🚫 Not tested
+// - None
 public class CategoryControllerTests
 {
     private readonly ApiClient _apiClient = new();

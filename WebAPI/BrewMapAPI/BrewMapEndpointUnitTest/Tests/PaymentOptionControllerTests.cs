@@ -7,6 +7,14 @@ using Xunit;
 
 namespace BrewMapEndpointUnitTest.Tests;
 
+// PaymentOption tested/non-tested endpoints
+// ✅ Tested
+// - GET /api/PaymentOption
+// - POST /api/PaymentOption
+// - GET /api/PaymentOption/{tag}
+// - PUT /api/PaymentOption/{tag}
+// 🚫 Not tested
+// - None
 public class PaymentOptionControllerTests
 {
     private readonly ApiClient _apiClient = new();

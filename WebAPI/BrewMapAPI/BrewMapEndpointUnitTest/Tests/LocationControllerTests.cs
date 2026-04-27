@@ -8,6 +8,15 @@ using Xunit;
 
 namespace BrewMapEndpointUnitTest.Tests;
 
+// Locations tested/non-tested endpoints
+// ✅ Tested
+// - GET /api/Locations/search
+// 🚫 Not tested
+// - POST /api/Locations
+// - GET /api/Locations/{id}
+// - PUT /api/Locations/{id}
+// - DELETE /api/Locations/{id}
+// - GET /api/Locations/pins
 public class LocationControllerTests
 {
     private readonly ApiClient _apiClient = new();
