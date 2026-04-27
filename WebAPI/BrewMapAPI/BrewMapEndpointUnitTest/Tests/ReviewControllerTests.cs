@@ -48,7 +48,7 @@ public class ReviewControllerTests(ITestOutputHelper output)
 
         // 2. Calculate expected result after adding a 5-star review
         var expectedCount = before.TotalReviews + 1;
-        var expectedAverage = (before.AverageRating * before.TotalReviews + 5.0) / expectedCount;
+        var expectedAverage = Math.Round((before.AverageRating * before.TotalReviews + 5.0) / expectedCount, 2);
 
         // 3. Post a 5-star review for the location
         var createResponse = await client.PostAsJsonAsync(
@@ -105,7 +105,7 @@ public class ReviewControllerTests(ITestOutputHelper output)
 
         // 2. Calculate expected result after adding a 5-star review
         var expectedCount = before.AggregatedRating.Count + 1;
-        var expectedAverage = (before.AggregatedRating.Average * before.AggregatedRating.Count + 5.0) / expectedCount;
+        var expectedAverage = Math.Round((before.AggregatedRating.Average * before.AggregatedRating.Count + 5.0) / expectedCount, 2);
 
         // 3. Post a 5-star review for the drink
         var createResponse = await client.PostAsJsonAsync(
