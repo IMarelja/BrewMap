@@ -24,6 +24,7 @@ public class ApiClient
     public string? ValidUserPassword { get; }
     public string? ValidUserEmail { get; }
 
+    public string? ValidUserId { get; }
     public string? ValidLocationId { get; }
     public string? ValidDrinkId { get; }
     public string? ValidPaymentOptionTag { get; }
@@ -53,6 +54,7 @@ public class ApiClient
         ValidUserPassword =     config["ApiSettings:ValidCredentialsUser:Password"];
         ValidUserEmail =        config["ApiSettings:ValidCredentialsUser:Email"];;
 
+        ValidUserId =               config["ApiSettings:TestData:ValidUserId"];
         ValidLocationId =           config["ApiSettings:TestData:ValidLocationId"];
         ValidDrinkId =              config["ApiSettings:TestData:ValidDrinkId"];
         ValidPaymentOptionTag =     config["ApiSettings:TestData:ValidPaymentOptionTag"];
