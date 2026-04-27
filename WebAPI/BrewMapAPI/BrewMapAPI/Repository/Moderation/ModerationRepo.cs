@@ -25,10 +25,22 @@ namespace BrewMapAPI.Repository.Moderation
         {
             var update = Builders<User>.Update.Set(x => x.Role, newRole);
             var options = new FindOneAndUpdateOptions<User> { ReturnDocument = ReturnDocument.After };
-            
+
             return await _context.Users.FindOneAndUpdateAsync(
-                x => x.Id == userId, 
-                update, 
+                x => x.Id == userId,
+                update,
+                options
+            );
+        }
+
+        public async Task<User?> UpdateUserIsActive(string userId, bool isActive)
+        {
+            var update = Builders<User>.Update.Set(x => x.IsActive, isActive);
+            var options = new FindOneAndUpdateOptions<User> { ReturnDocument = ReturnDocument.After };
+
+            return await _context.Users.FindOneAndUpdateAsync(
+                x => x.Id == userId,
+                update,
                 options
             );
         }
