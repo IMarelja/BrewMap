@@ -37,7 +37,7 @@ public class PaymentOptionControllerTests
 
         var ct = TestContext.Current.CancellationToken;
         var response = await client.GetAsync(_apiClient.GetUrl($"PaymentOption/{_apiClient.ValidPaymentOptionTag}"), ct);
-        var body = await response.Content.ReadFromJsonAsync<ReadPaymentOptionViewModel>(ApiClient.GetJsonOptions());
+        var body = await response.Content.ReadFromJsonAsync<ReadPaymentOptionViewModel>(ApiClient.GetJsonOptions(), cancellationToken: TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         body.Should().NotBeNull();
@@ -55,7 +55,7 @@ public class PaymentOptionControllerTests
         var ct = TestContext.Current.CancellationToken;
         var request = new CreatePaymentOptionViewModel { Tag = "crypto", Name = "Crypto" };
         var response = await client.PostAsJsonAsync(_apiClient.GetUrl("PaymentOption"), request, ct);
-        var body = await response.Content.ReadFromJsonAsync<ReadPaymentOptionViewModel>(ApiClient.GetJsonOptions());
+        var body = await response.Content.ReadFromJsonAsync<ReadPaymentOptionViewModel>(ApiClient.GetJsonOptions(), cancellationToken: TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         body.Should().NotBeNull();
@@ -88,7 +88,7 @@ public class PaymentOptionControllerTests
         var ct = TestContext.Current.CancellationToken;
         var request = new EditPaymentOptionViewModel { Name = "Cash payment" };
         var response = await client.PutAsJsonAsync(_apiClient.GetUrl("PaymentOption/cash"), request, ct);
-        var body = await response.Content.ReadFromJsonAsync<ReadPaymentOptionViewModel>(ApiClient.GetJsonOptions());
+        var body = await response.Content.ReadFromJsonAsync<ReadPaymentOptionViewModel>(ApiClient.GetJsonOptions(), cancellationToken: TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         body.Should().NotBeNull();

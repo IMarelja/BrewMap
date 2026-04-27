@@ -47,9 +47,8 @@ public class LocationControllerTests
             TestContext.Current.CancellationToken
         );
 
-        var body = await response.Content.ReadFromJsonAsync<List<ReadLocationViewModel>>(
-            ApiClient.GetJsonOptions()
-        );
+        var body = await response.Content.ReadFromJsonAsync<List<ReadLocationViewModel>>(ApiClient.GetJsonOptions()
+, cancellationToken: TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         body.Should().NotBeNull();
