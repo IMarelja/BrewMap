@@ -7,5 +7,6 @@ namespace BrewMapAPI.Repository.Moderation
         //User management
         Task<User?> GetUserById(string id);
         Task<User?> UpdateUserRole(string userId, string newRole);
+        Task<User?> UpdateUserIsActive(string userId, bool isActive);
     }
 }
