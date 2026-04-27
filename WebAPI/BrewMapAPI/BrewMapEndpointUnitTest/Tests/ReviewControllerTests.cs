@@ -30,7 +30,7 @@ public class ReviewControllerTests(ITestOutputHelper output)
         var beforeResponse = await client.GetAsync(_apiClient.GetUrl($"Locations/{_apiClient.ValidLocationId}"), ct);
         if (beforeResponse.StatusCode != HttpStatusCode.OK)
             Assert.Skip($"Could not fetch location {_apiClient.ValidLocationId}: {beforeResponse.StatusCode}");
-        var before = await beforeResponse.Content.ReadFromJsonAsync<ReadLocationViewModel>(ApiClient.GetJsonOptions());
+        var before = await beforeResponse.Content.ReadFromJsonAsync<ReadLocationViewModel>(ApiClient.GetJsonOptions(), cancellationToken: TestContext.Current.CancellationToken);
         if (before is null)
             Assert.Skip("Location response could not be deserialized");
 
@@ -87,7 +87,7 @@ public class ReviewControllerTests(ITestOutputHelper output)
         var beforeResponse = await client.GetAsync(_apiClient.GetUrl($"Drink/{_apiClient.ValidDrinkId}"), ct);
         if (beforeResponse.StatusCode != HttpStatusCode.OK)
             Assert.Skip($"Could not fetch drink {_apiClient.ValidDrinkId}: {beforeResponse.StatusCode}");
-        var before = await beforeResponse.Content.ReadFromJsonAsync<ReadDrinkViewModel>(ApiClient.GetJsonOptions());
+        var before = await beforeResponse.Content.ReadFromJsonAsync<ReadDrinkViewModel>(ApiClient.GetJsonOptions(), cancellationToken: TestContext.Current.CancellationToken);
         if (before is null)
             Assert.Skip("Drink response could not be deserialized");
 

@@ -24,7 +24,7 @@ public class AuthControllerSecurityTests
     {
         using var client = _apiClient.Create();
 
-        var response = await client.GetAsync(_apiClient.GetUrl($"drink/{_apiClient.ValidDrinkId}"));
+        var response = await client.GetAsync(_apiClient.GetUrl($"drink/{_apiClient.ValidDrinkId}"), TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().BeOneOf(HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden);
     }
@@ -35,7 +35,7 @@ public class AuthControllerSecurityTests
         var token = await _apiClient.GetUserTokenAsync();
         using var client = _apiClient.CreateAuthenticated(token);
 
-        var response = await client.GetAsync(_apiClient.GetUrl($"Drink/{_apiClient.ValidDrinkId}"));
+        var response = await client.GetAsync(_apiClient.GetUrl($"Drink/{_apiClient.ValidDrinkId}"), TestContext.Current.CancellationToken);
 
         //response.StatusCode.Should().NotBeOneOf(HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden);
     
@@ -54,7 +54,7 @@ public class AuthControllerSecurityTests
         var token = await _apiClient.GetUserTokenAsync();
         using var client = _apiClient.CreateAuthenticated(token);
 
-        var response = await client.GetAsync(_apiClient.GetUrl("Moderation/user/0000000000000000"));
+        var response = await client.GetAsync(_apiClient.GetUrl("Moderation/user/0000000000000000"), TestContext.Current.CancellationToken);
 
         //response.StatusCode.Should().BeOneOf(HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden);
     
@@ -73,7 +73,7 @@ public class AuthControllerSecurityTests
         var token = await _apiClient.GetAdminTokenAsync();
         using var client = _apiClient.CreateAuthenticated(token);
 
-        var response = await client.GetAsync(_apiClient.GetUrl("Moderation/user/0000000000000000"));
+        var response = await client.GetAsync(_apiClient.GetUrl("Moderation/user/0000000000000000"), TestContext.Current.CancellationToken);
 
         //response.StatusCode.Should().NotBeOneOf(HttpStatusCode.Unauthorized, HttpStatusCode.Forbidden);
     
@@ -97,7 +97,7 @@ public class AuthControllerSecurityTests
         var payload = """{"username": {"$where": "db.dropDatabase()"}, "password": "anything"}""";
         var content = new StringContent(payload, Encoding.UTF8, "application/json");
 
-        var response = await client.PostAsync(_apiClient.GetUrl("auth/login"), content);
+        var response = await client.PostAsync(_apiClient.GetUrl("auth/login"), content, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -111,7 +111,7 @@ public class AuthControllerSecurityTests
         var payload = """{"username": {"$ne": null}, "password": {"$ne": null}}""";
         var content = new StringContent(payload, Encoding.UTF8, "application/json");
 
-        var response = await client.PostAsync(_apiClient.GetUrl("auth/login"), content);
+        var response = await client.PostAsync(_apiClient.GetUrl("auth/login"), content, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -125,7 +125,7 @@ public class AuthControllerSecurityTests
         var payload = """{"username": {"$gt": ""}, "password": {"$gt": ""}}""";
         var content = new StringContent(payload, Encoding.UTF8, "application/json");
 
-        var response = await client.PostAsync(_apiClient.GetUrl("auth/login"), content);
+        var response = await client.PostAsync(_apiClient.GetUrl("auth/login"), content, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -143,7 +143,7 @@ public class AuthControllerSecurityTests
             Password = """{"$ne": null}"""
         };
 
-        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("auth/login"), request);
+        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("auth/login"), request, cancellationToken: TestContext.Current.CancellationToken);
 
         ((int)response.StatusCode).Should().NotBe(500);
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
@@ -160,7 +160,7 @@ public class AuthControllerSecurityTests
             Password = "Password1!"
         };
 
-        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("auth/login"), request);
+        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("auth/login"), request, cancellationToken: TestContext.Current.CancellationToken);
 
         ((int)response.StatusCode).Should().NotBe(500);
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
@@ -177,7 +177,7 @@ public class AuthControllerSecurityTests
         var payload = """{"email": {"$gt": ""}, "username": "hacker", "password": "Password1!"}""";
         var content = new StringContent(payload, Encoding.UTF8, "application/json");
 
-        var response = await client.PostAsync(_apiClient.GetUrl("auth/register"), content);
+        var response = await client.PostAsync(_apiClient.GetUrl("auth/register"), content, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -190,7 +190,7 @@ public class AuthControllerSecurityTests
         var payload = """{"email": "test@test.com", "username": ["admin", "hacker"], "password": "Password1!"}""";
         var content = new StringContent(payload, Encoding.UTF8, "application/json");
 
-        var response = await client.PostAsync(_apiClient.GetUrl("auth/register"), content);
+        var response = await client.PostAsync(_apiClient.GetUrl("auth/register"), content, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -208,7 +208,7 @@ public class AuthControllerSecurityTests
             Password = "Password1!"
         };
 
-        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("auth/register"), request);
+        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("auth/register"), request, cancellationToken: TestContext.Current.CancellationToken);
 
         ((int)response.StatusCode).Should().NotBe(500);
     }

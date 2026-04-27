@@ -37,7 +37,7 @@ public class CategoryControllerTests
 
         var ct = TestContext.Current.CancellationToken;
         var response = await client.GetAsync(_apiClient.GetUrl($"Category/{_apiClient.ValidCategoryTag}"), ct);
-        var body = await response.Content.ReadFromJsonAsync<ReadCategoryViewModel>(ApiClient.GetJsonOptions());
+        var body = await response.Content.ReadFromJsonAsync<ReadCategoryViewModel>(ApiClient.GetJsonOptions(), cancellationToken: TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         body.Should().NotBeNull();
@@ -68,7 +68,7 @@ public class CategoryControllerTests
         var ct = TestContext.Current.CancellationToken;
         var request = new CreateCategoryViewModel { Tag = "cocktails", Name = "Cocktails" };
         var response = await client.PostAsJsonAsync(_apiClient.GetUrl("Category"), request, ct);
-        var body = await response.Content.ReadFromJsonAsync<ReadCategoryViewModel>(ApiClient.GetJsonOptions());
+        var body = await response.Content.ReadFromJsonAsync<ReadCategoryViewModel>(ApiClient.GetJsonOptions(), cancellationToken: TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         body.Should().NotBeNull();
@@ -121,7 +121,7 @@ public class CategoryControllerTests
         var ct = TestContext.Current.CancellationToken;
         var request = new EditCategoryViewModel { Name = "Coffee & Espresso" };
         var response = await client.PutAsJsonAsync(_apiClient.GetUrl($"Category/{_apiClient.ValidCategoryTag}"), request, ct);
-        var body = await response.Content.ReadFromJsonAsync<ReadCategoryViewModel>(ApiClient.GetJsonOptions());
+        var body = await response.Content.ReadFromJsonAsync<ReadCategoryViewModel>(ApiClient.GetJsonOptions(), cancellationToken: TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         body.Should().NotBeNull();

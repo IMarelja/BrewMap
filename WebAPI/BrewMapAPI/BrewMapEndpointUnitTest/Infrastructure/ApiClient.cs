@@ -16,18 +16,18 @@ public class ApiClient
 
     public string BaseUrl { get; }
 
-    public string ValidAdminUsername { get; }
-    public string ValidAdminPassword { get; }
-    public string ValidAdminEmail { get; }
+    public string? ValidAdminUsername { get; }
+    public string? ValidAdminPassword { get; }
+    public string? ValidAdminEmail { get; }
 
-    public string ValidUserUsername { get; }
-    public string ValidUserPassword { get; }
-    public string ValidUserEmail { get; }
+    public string? ValidUserUsername { get; }
+    public string? ValidUserPassword { get; }
+    public string? ValidUserEmail { get; }
 
-    public string ValidLocationId { get; }
-    public string ValidDrinkId { get; }
-    public string ValidPaymentOptionTag { get; }
-    public string ValidCategoryTag { get; }
+    public string? ValidLocationId { get; }
+    public string? ValidDrinkId { get; }
+    public string? ValidPaymentOptionTag { get; }
+    public string? ValidCategoryTag { get; }
     public double SearchLongitude { get; }
     public double SearchLatitude { get; }
     public double SearchRadiusMeters { get; }
@@ -45,18 +45,18 @@ public class ApiClient
         BaseUrl = config["ApiSettings:BaseUrl"]
             ?? throw new InvalidOperationException("ApiSettings:BaseUrl is not configured");
 
-        ValidAdminUsername =    config["ApiSettings:ValidCredentialsAdmin:Username"]    ?? "admin";
-        ValidAdminPassword =    config["ApiSettings:ValidCredentialsAdmin:Password"]    ?? "Password1!";
-        ValidAdminEmail =       config["ApiSettings:ValidCredentialsAdmin:Email"]       ?? "admin@brewmap.dev";
+        ValidAdminUsername =    config["ApiSettings:ValidCredentialsAdmin:Username"];
+        ValidAdminPassword =    config["ApiSettings:ValidCredentialsAdmin:Password"];
+        ValidAdminEmail =       config["ApiSettings:ValidCredentialsAdmin:Email"];
 
-        ValidUserUsername =     config["ApiSettings:ValidCredentialsUser:Username"]     ?? "user";
-        ValidUserPassword =     config["ApiSettings:ValidCredentialsUser:Password"]     ?? "Password1!";
-        ValidUserEmail =        config["ApiSettings:ValidCredentialsUser:Email"]        ?? "admin@brewmap.dev";
+        ValidUserUsername =     config["ApiSettings:ValidCredentialsUser:Username"];
+        ValidUserPassword =     config["ApiSettings:ValidCredentialsUser:Password"];
+        ValidUserEmail =        config["ApiSettings:ValidCredentialsUser:Email"];;
 
-        ValidLocationId =           config["ApiSettings:TestData:ValidLocationId"]          ?? string.Empty;
-        ValidDrinkId =              config["ApiSettings:TestData:ValidDrinkId"]             ?? string.Empty;
-        ValidPaymentOptionTag =     config["ApiSettings:TestData:ValidPaymentOptionTag"]    ?? "cash";
-        ValidCategoryTag =          config["ApiSettings:TestData:ValidCategoryTag"]         ?? "coffee";
+        ValidLocationId =           config["ApiSettings:TestData:ValidLocationId"];
+        ValidDrinkId =              config["ApiSettings:TestData:ValidDrinkId"];
+        ValidPaymentOptionTag =     config["ApiSettings:TestData:ValidPaymentOptionTag"];
+        ValidCategoryTag =          config["ApiSettings:TestData:ValidCategoryTag"];
 
         var searchLongitudeRaw = config["ApiSettings:TestData:Coordinates:0"];
         var searchLatitudeRaw = config["ApiSettings:TestData:Coordinates:1"];
