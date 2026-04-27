@@ -216,4 +216,133 @@ public class ReviewControllerTests(ITestOutputHelper output)
         newCount.Should().Be(currentCount);
         newAverage.Should().BeApproximately(expectedAverage, 0.001);
     }
+
+    [Fact]
+    public async Task DeleteOwnReview_UpdatesAggregatedScoreAsExpected()
+    {
+        var token = string.Empty;
+        try { token = await _apiClient.GetUserTokenAsync(); }
+        catch { Assert.Skip("Could not fetch user token — is the API running and configured?"); }
+        using var client = _apiClient.CreateAuthenticated(token);
+
+        var ct = TestContext.Current.CancellationToken;
+
+        var mineResponse = await client.GetAsync(_apiClient.GetUrl("Review/mine"), ct);
+        mineResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var myReviews = await mineResponse.Content.ReadFromJsonAsync<List<ReadReviewViewModel>>(ApiClient.GetJsonOptions(), ct);
+        myReviews.Should().NotBeNull();
+
+        if (myReviews!.Count == 0)
+            Assert.Skip("No reviews found for this user — nothing to delete");
+
+        var reviewToDelete = myReviews.First();
+        var (beforeAverage, beforeCount) = await GetTargetAggregate(client, reviewToDelete.TargetType, reviewToDelete.TargetId, ct);
+
+        if (beforeCount <= 0)
+            Assert.Skip("Target has no reviews in aggregate, cannot validate delete calculation.");
+
+        var expectedCount = beforeCount - 1;
+        var expectedAverage = expectedCount == 0
+            ? 0
+            : (beforeAverage * beforeCount - reviewToDelete.Rating) / expectedCount;
+
+        var deleteResponse = await client.DeleteAsync(_apiClient.GetUrl($"Review/{reviewToDelete.Id}"), ct);
+        deleteResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        var (afterAverage, afterCount) = await GetTargetAggregate(client, reviewToDelete.TargetType, reviewToDelete.TargetId, ct);
+
+        afterCount.Should().Be(expectedCount);
+        afterAverage.Should().BeApproximately(expectedAverage, 0.001);
+    }
+
+    [Fact]
+    public async Task AdminCanDeleteReviewCreatedByValidUser()
+    {
+        if (string.IsNullOrWhiteSpace(_apiClient.ValidLocationId))
+            Assert.Skip("ValidLocationId is not configured in appsettings.json");
+
+        var userToken = string.Empty;
+        try { userToken = await _apiClient.GetUserTokenAsync(); }
+        catch { Assert.Skip("Could not fetch user token — is the API running and configured?"); }
+        using var userClient = _apiClient.CreateAuthenticated(userToken);
+
+        var ct = TestContext.Current.CancellationToken;
+
+        var createResponse = await userClient.PostAsJsonAsync(
+            _apiClient.GetUrl($"Review/location/{_apiClient.ValidLocationId}"),
+            new CreateReviewBodyViewModel { Rating = 5, Comment = "Delete by admin test" },
+            ApiClient.GetJsonOptions(),
+            ct);
+
+        if (createResponse.StatusCode != HttpStatusCode.Created)
+            Assert.Skip($"Could not create review for valid location {_apiClient.ValidLocationId}: {createResponse.StatusCode}");
+
+        var createdReview = await createResponse.Content.ReadFromJsonAsync<ReadReviewViewModel>(ApiClient.GetJsonOptions(), ct);
+        if (createdReview is null)
+            Assert.Skip("Created review could not be deserialized");
+
+        var (beforeDeleteAverage, beforeDeleteCount) = await GetTargetAggregate(
+            userClient,
+            createdReview.TargetType,
+            createdReview.TargetId,
+            ct);
+
+        var expectedCount = beforeDeleteCount - 1;
+        var expectedAverage = expectedCount == 0
+            ? 0
+            : (beforeDeleteAverage * beforeDeleteCount - createdReview.Rating) / expectedCount;
+
+        var adminToken = string.Empty;
+        try { adminToken = await _apiClient.GetAdminTokenAsync(); }
+        catch { Assert.Skip("Could not fetch admin token — is the API running and configured?"); }
+        using var adminClient = _apiClient.CreateAuthenticated(adminToken);
+
+        var deleteResponse = await adminClient.DeleteAsync(_apiClient.GetUrl($"Review/{createdReview.Id}"), ct);
+        deleteResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        var (afterDeleteAverage, afterDeleteCount) = await GetTargetAggregate(
+            adminClient,
+            createdReview.TargetType,
+            createdReview.TargetId,
+            ct);
+
+        afterDeleteCount.Should().Be(expectedCount);
+        afterDeleteAverage.Should().BeApproximately(expectedAverage, 0.001);
+    }
+
+    private async Task<(double average, int count)> GetTargetAggregate(
+        HttpClient client,
+        string targetType,
+        string targetId,
+        CancellationToken ct)
+    {
+        if (targetType == "location")
+        {
+            var response = await client.GetAsync(_apiClient.GetUrl($"Locations/{targetId}"), ct);
+            if (response.StatusCode != HttpStatusCode.OK)
+                Assert.Skip($"Could not fetch location {targetId}: {response.StatusCode}");
+
+            var location = await response.Content.ReadFromJsonAsync<ReadLocationViewModel>(ApiClient.GetJsonOptions(), ct);
+            if (location is null)
+                Assert.Skip("Location response could not be deserialized");
+
+            return (location.AverageRating, location.TotalReviews);
+        }
+
+        if (targetType == "product")
+        {
+            var response = await client.GetAsync(_apiClient.GetUrl($"Drink/{targetId}"), ct);
+            if (response.StatusCode != HttpStatusCode.OK)
+                Assert.Skip($"Could not fetch drink {targetId}: {response.StatusCode}");
+
+            var drink = await response.Content.ReadFromJsonAsync<ReadDrinkViewModel>(ApiClient.GetJsonOptions(), ct);
+            if (drink is null)
+                Assert.Skip("Drink response could not be deserialized");
+
+            return (drink.AggregatedRating.Average, drink.AggregatedRating.Count);
+        }
+
+        Assert.Skip($"Unsupported review target type: {targetType}");
+        return (0, 0);
+    }
 }
