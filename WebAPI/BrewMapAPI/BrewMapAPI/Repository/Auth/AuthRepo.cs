@@ -40,4 +40,15 @@ public class AuthRepo : IAuthRepo
         await _context.Users.ReplaceOneAsync(x => x.Id == user.Id, user);
         return user;
     }
+
+    public async Task<TempToken?> GetToken(string token)
+    {
+        return await _context.TempTokens.Find(x => x.Token == token).FirstOrDefaultAsync();
+    }
+
+    public async Task<TempToken> CreateToken(TempToken token)
+    {
+        await _context.TempTokens.InsertOneAsync(token);
+        return token;
+    }
 }
