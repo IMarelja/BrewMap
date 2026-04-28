@@ -10,5 +10,7 @@ public interface IAuthRepo
     Task<User?> GetById(string id);
     Task<User> Create(User user);
     Task<User> Update(User user);
+    Task<TempToken?> GetToken(string token);
+    Task<TempToken> CreateToken(TempToken token);
 
 }
