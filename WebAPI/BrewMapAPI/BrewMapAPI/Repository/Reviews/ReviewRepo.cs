@@ -46,5 +46,16 @@ namespace BrewMapAPI.Repository.Reviews
             var result = await _context.Reviews.DeleteOneAsync(x => x.Id == id);
             return result.DeletedCount > 0;
         }
+
+        public async Task<(double average, int count)> GetAggregatedRating(string targetType, string targetId)
+        {
+            var reviews = await GetByTarget(targetType, targetId);
+            var visible = reviews.Where(r => r.IsVisible).ToList();
+
+            if (visible.Count == 0) 
+                return (0, 0);
+                
+            return (visible.Average(r => r.Rating), visible.Count);
+        }
     }
 }

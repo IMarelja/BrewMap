@@ -14,11 +14,11 @@ namespace BrewMapAPI.DTO.Location
         };
 
         [Required]
-        public string Name { get; set; }
+        public string Name { get; set; } = String.Empty;
         public string? Description { get; set; }
 
         [Required]
-        public Address Address { get; set; }
+        public Address Address { get; set; } = new Address();
 
         [Required]
         public double Latitude { get; set; }
@@ -32,7 +32,7 @@ namespace BrewMapAPI.DTO.Location
         public CreateLocationContactDto? Contact { get; set; }
 
         [Required]
-        public Dictionary<string, DayOpeningHours> OpeningHours { get; set; }
+        public Dictionary<string, DayOpeningHours> OpeningHours { get; set; } = new Dictionary<string, DayOpeningHours>();
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

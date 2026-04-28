@@ -1,16 +1,27 @@
-﻿using BrewMapAPI.DTO.Review;
+using BrewMapAPI.DTO.Review;
 using BrewMapAPI.Models;
+using BrewMapAPI.Repository.Drinks;
+using BrewMapAPI.Repository.Locations;
 using BrewMapAPI.Repository.Reviews;
+using BrewMapAPI.Repository.Users;
+using BrewMapAPI.Service.User;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace BrewMapAPI.Service.Review
 {
     public class ReviewService : IReviewService
     {
         private readonly IReviewRepo _repo;
+        private readonly ILocationRepo _locationRepo;
+        private readonly IDrinkRepo _drinkRepo;
+        private readonly IUserRepo _userRepo;
 
-        public ReviewService(IReviewRepo repo)
+        public ReviewService(IReviewRepo repo, ILocationRepo locationRepo, IDrinkRepo drinkRepo, IUserRepo userRepo)
         {
             _repo = repo;
+            _locationRepo = locationRepo;
+            _drinkRepo = drinkRepo;
+            _userRepo = userRepo;
         }
 
         public async Task<ReadReview?> GetById(string id)
@@ -31,16 +42,12 @@ namespace BrewMapAPI.Service.Review
             return reviews.Select(ToReadModel).ToList();
         }
 
-        public async Task<ReadReview> CreateReview(CreateReview dto, string userId)
+        public async Task<ReadReview> CreateLocationReview(string locationId, CreateReviewBody dto, string userId)
         {
             var review = new Models.Review
             {
                 UserId = userId,
-                Target = new ReviewTarget
-                {
-                    Type = dto.TargetType,
-                    TargetId = dto.TargetId
-                },
+                Target = new ReviewTarget { Type = "location", TargetId = locationId },
                 Rating = dto.Rating,
                 Comment = dto.Comment,
                 IsVisible = true,
@@ -49,12 +56,31 @@ namespace BrewMapAPI.Service.Review
                 UpdatedAt = DateTime.UtcNow
             };
             await _repo.Create(review);
+            await RefreshLocationRating(locationId);
             return ToReadModel(review);
         }
 
-        public async Task<ReadReview?> UpdateReview(UpdateReview dto, string userId)
+        public async Task<ReadReview> CreateDrinkReview(string drinkId, CreateReviewBody dto, string userId)
         {
-            var review = await _repo.GetById(dto.Id);
+            var review = new Models.Review
+            {
+                UserId = userId,
+                Target = new ReviewTarget { Type = "product", TargetId = drinkId },
+                Rating = dto.Rating,
+                Comment = dto.Comment,
+                IsVisible = true,
+                ReportCount = 0,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            await _repo.Create(review);
+            await RefreshDrinkRating(drinkId);
+            return ToReadModel(review);
+        }
+
+        public async Task<ReadReview?> UpdateReview(string Id, UpdateReview dto, string userId)
+        {
+            var review = await _repo.GetById(Id);
             if (review == null || review.UserId != userId)
                 return null;
 
@@ -64,18 +90,56 @@ namespace BrewMapAPI.Service.Review
                 review.Comment = dto.Comment;
             review.UpdatedAt = DateTime.UtcNow;
             await _repo.Update(review);
+            await RefreshTargetRating(review.Target.Type, review.Target.TargetId);
             return ToReadModel(review);
         }
 
         public async Task<bool> DeleteReview(string id, string userId)
         {
             var review = await _repo.GetById(id);
-            if (review == null || review.UserId != userId)
+
+            if (review == null)
                 return false;
-            return await _repo.Delete(id);
+
+            var isOwner = review.UserId == userId;
+            if (!isOwner)
+            {
+                var user = await _userRepo.GetUserById(userId);
+                var isAdmin = string.Equals(user?.Role, "admin", StringComparison.OrdinalIgnoreCase);
+
+                if (!isAdmin)
+                    return false;
+            }
+
+            var targetType = review.Target.Type;
+            var targetId = review.Target.TargetId;
+
+            var deleted = await _repo.Delete(id);
+            if (deleted)
+                await RefreshTargetRating(targetType, targetId);
+            return deleted;
         }
 
-        // Helper function for mapping
+        private async Task RefreshTargetRating(string targetType, string targetId)
+        {
+            if (targetType == "location")
+                await RefreshLocationRating(targetId);
+            else if (targetType == "product")
+                await RefreshDrinkRating(targetId);
+        }
+
+        private async Task RefreshLocationRating(string locationId)
+        {
+            var (average, count) = await _repo.GetAggregatedRating("location", locationId);
+            await _locationRepo.UpdateAggregatedRatingAsync(locationId, average, count);
+        }
+
+        private async Task RefreshDrinkRating(string drinkId)
+        {
+            var (average, count) = await _repo.GetAggregatedRating("product", drinkId);
+            await _drinkRepo.UpdateAggregatedRating(drinkId, average, count);
+        }
+
         private ReadReview ToReadModel(Models.Review review)
         {
             return new ReadReview

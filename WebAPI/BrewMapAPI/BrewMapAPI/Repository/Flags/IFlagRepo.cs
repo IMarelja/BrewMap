@@ -5,7 +5,7 @@ namespace BrewMapAPI.Repository.Flags
 {
     public interface IFlagRepo
     {
-        Task<Flag> CreateFlag(CreateFlag flag);
+        Task<Flag> CreateFlag(CreateFlag flag, string userId);
         Task<Flag?> GetById(string id);
         Task<List<Flag>> GetAll(string? status = null, string? targetType = null);
         Task<Flag?> UpdateStatus(UpdateFlagStatus dto);
