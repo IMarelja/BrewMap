@@ -78,9 +78,9 @@ public class ApiClient
     public async Task<string> GetAdminTokenAsync()
     {
         using var client = Create();
-        var response = await client.PostAsJsonAsync(GetUrl("auth/login"), new LoginRequestViewModel
+        var response = await client.PatchAsJsonAsync(GetUrl("auth/login"), new LoginRequestViewModel
         {
-            Username = ValidAdminUsername,
+            User = ValidAdminUsername,
             Password = ValidAdminPassword
         });
         var body = await response.Content.ReadFromJsonAsync<AuthResponseViewModel>(GetJsonOptions());
@@ -90,9 +90,9 @@ public class ApiClient
     public async Task<string> GetUserTokenAsync()
     {
         using var client = Create();
-        var response = await client.PostAsJsonAsync(GetUrl("auth/login"), new LoginRequestViewModel
+        var response = await client.PatchAsJsonAsync(GetUrl("auth/login"), new LoginRequestViewModel
         {
-            Username = ValidUserUsername,
+            User = ValidUserUsername,
             Password = ValidUserPassword
         });
         var body = await response.Content.ReadFromJsonAsync<AuthResponseViewModel>(GetJsonOptions());

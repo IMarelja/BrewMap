@@ -9,9 +9,11 @@ namespace BrewMapEndpointUnitTest.Tests;
 
 // Auth tested/non-tested endpoints
 // ✅ Tested
-// - POST /api/Auth/login
+// - PATCH /api/Auth/login
 // - POST /api/Auth/register
 // 🚫 Not tested
+// - POST /api/Auth/send-reset-email
+// - PATCH /api/Auth/change-password 
 // - None
 public class AuthControllerTests
 {
@@ -26,11 +28,12 @@ public class AuthControllerTests
         using var client = _apiClient.Create();
         var request = new LoginRequestViewModel
         {
-            Username = _apiClient.ValidAdminUsername,
-            Password = _apiClient.ValidAdminPassword
+            User = _apiClient.ValidAdminUsername,
+            Password = _apiClient.ValidAdminPassword,
+            RememberMe = true
         };
 
-        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("auth/Login"), request, cancellationToken: TestContext.Current.CancellationToken);
+        var response = await client.PatchAsJsonAsync(_apiClient.GetUrl("Auth/login"), request, cancellationToken: TestContext.Current.CancellationToken);
         var body = await response.Content.ReadFromJsonAsync<AuthResponseViewModel>(ApiClient.GetJsonOptions(), cancellationToken: TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -48,11 +51,11 @@ public class AuthControllerTests
         using var client = _apiClient.Create();
         var request = new LoginRequestViewModel
         {
-            Username = _apiClient.ValidAdminUsername,
+            User = _apiClient.ValidAdminUsername,
             Password = "wrongpassword"
         };
 
-        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("auth/Login"), request, cancellationToken: TestContext.Current.CancellationToken);
+        var response = await client.PatchAsJsonAsync(_apiClient.GetUrl("Auth/login"), request, cancellationToken: TestContext.Current.CancellationToken);
         var body = await response.Content.ReadFromJsonAsync<AuthResponseViewModel>(ApiClient.GetJsonOptions(), cancellationToken: TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
@@ -67,11 +70,11 @@ public class AuthControllerTests
         using var client = _apiClient.Create();
         var request = new LoginRequestViewModel
         {
-            Username = $"ghost_{Guid.NewGuid():N}",
+            User = $"ghost_{Guid.NewGuid():N}",
             Password = "anypassword"
         };
 
-        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("auth/login"), request, cancellationToken: TestContext.Current.CancellationToken);
+        var response = await client.PatchAsJsonAsync(_apiClient.GetUrl("auth/login"), request, cancellationToken: TestContext.Current.CancellationToken);
         var body = await response.Content.ReadFromJsonAsync<AuthResponseViewModel>(ApiClient.GetJsonOptions(), cancellationToken: TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
@@ -91,7 +94,7 @@ public class AuthControllerTests
             Password = "Token check"
         };
 
-        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("auth/register"), request, cancellationToken: TestContext.Current.CancellationToken);
+        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("Auth/register"), request, cancellationToken: TestContext.Current.CancellationToken);
         var body = await response.Content.ReadFromJsonAsync<AuthResponseViewModel>(ApiClient.GetJsonOptions(), cancellationToken: TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -114,7 +117,7 @@ public class AuthControllerTests
             Username = username,
             Password = "validPassowrd"
         };
-        await client.PostAsJsonAsync(_apiClient.GetUrl("auth/register"), firstRequest, cancellationToken: TestContext.Current.CancellationToken);
+        await client.PostAsJsonAsync(_apiClient.GetUrl("Auth/register"), firstRequest, cancellationToken: TestContext.Current.CancellationToken);
 
         var secondRequest = new RegisterRequestViewModel
         {
@@ -122,7 +125,7 @@ public class AuthControllerTests
             Username = username,
             Password = "validPassowrd"
         };
-        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("auth/register"), secondRequest, cancellationToken: TestContext.Current.CancellationToken);
+        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("Auth/register"), secondRequest, cancellationToken: TestContext.Current.CancellationToken);
         var body = await response.Content.ReadFromJsonAsync<AuthResponseViewModel>(ApiClient.GetJsonOptions(), cancellationToken: TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
@@ -142,7 +145,7 @@ public class AuthControllerTests
             Password = "_apiClient"
         };
 
-        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("auth/register"), request, cancellationToken: TestContext.Current.CancellationToken);
+        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("Auth/register"), request, cancellationToken: TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }

@@ -97,7 +97,7 @@ public class AuthControllerSecurityTests
         var payload = """{"username": {"$where": "db.dropDatabase()"}, "password": "anything"}""";
         var content = new StringContent(payload, Encoding.UTF8, "application/json");
 
-        var response = await client.PostAsync(_apiClient.GetUrl("auth/login"), content, TestContext.Current.CancellationToken);
+        var response = await client.PatchAsync(_apiClient.GetUrl("Auth/login"), content, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -111,7 +111,7 @@ public class AuthControllerSecurityTests
         var payload = """{"username": {"$ne": null}, "password": {"$ne": null}}""";
         var content = new StringContent(payload, Encoding.UTF8, "application/json");
 
-        var response = await client.PostAsync(_apiClient.GetUrl("auth/login"), content, TestContext.Current.CancellationToken);
+        var response = await client.PatchAsync(_apiClient.GetUrl("Auth/login"), content, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -125,7 +125,7 @@ public class AuthControllerSecurityTests
         var payload = """{"username": {"$gt": ""}, "password": {"$gt": ""}}""";
         var content = new StringContent(payload, Encoding.UTF8, "application/json");
 
-        var response = await client.PostAsync(_apiClient.GetUrl("auth/login"), content, TestContext.Current.CancellationToken);
+        var response = await client.PatchAsync(_apiClient.GetUrl("Auth/login"), content, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -139,11 +139,11 @@ public class AuthControllerSecurityTests
         using var client = _apiClient.Create();
         var request = new LoginRequestViewModel
         {
-            Username = """{"$where": "db.dropDatabase()"}""",
+            User = """{"$where": "db.dropDatabase()"}""",
             Password = """{"$ne": null}"""
         };
 
-        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("auth/login"), request, cancellationToken: TestContext.Current.CancellationToken);
+        var response = await client.PatchAsJsonAsync(_apiClient.GetUrl("Auth/login"), request, cancellationToken: TestContext.Current.CancellationToken);
 
         ((int)response.StatusCode).Should().NotBe(500);
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
@@ -156,11 +156,11 @@ public class AuthControllerSecurityTests
         using var client = _apiClient.Create();
         var request = new LoginRequestViewModel
         {
-            Username = """{"$eval": "db.dropDatabase()"}""",
+            User = """{"$eval": "db.dropDatabase()"}""",
             Password = "Password1!"
         };
 
-        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("auth/login"), request, cancellationToken: TestContext.Current.CancellationToken);
+        var response = await client.PatchAsJsonAsync(_apiClient.GetUrl("Auth/login"), request, cancellationToken: TestContext.Current.CancellationToken);
 
         ((int)response.StatusCode).Should().NotBe(500);
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
@@ -177,7 +177,7 @@ public class AuthControllerSecurityTests
         var payload = """{"email": {"$gt": ""}, "username": "hacker", "password": "Password1!"}""";
         var content = new StringContent(payload, Encoding.UTF8, "application/json");
 
-        var response = await client.PostAsync(_apiClient.GetUrl("auth/register"), content, TestContext.Current.CancellationToken);
+        var response = await client.PostAsync(_apiClient.GetUrl("Auth/register"), content, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -190,7 +190,7 @@ public class AuthControllerSecurityTests
         var payload = """{"email": "test@test.com", "username": ["admin", "hacker"], "password": "Password1!"}""";
         var content = new StringContent(payload, Encoding.UTF8, "application/json");
 
-        var response = await client.PostAsync(_apiClient.GetUrl("auth/register"), content, TestContext.Current.CancellationToken);
+        var response = await client.PostAsync(_apiClient.GetUrl("Auth/register"), content, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -208,7 +208,7 @@ public class AuthControllerSecurityTests
             Password = "Password1!"
         };
 
-        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("auth/register"), request, cancellationToken: TestContext.Current.CancellationToken);
+        var response = await client.PostAsJsonAsync(_apiClient.GetUrl("Auth/register"), request, cancellationToken: TestContext.Current.CancellationToken);
 
         ((int)response.StatusCode).Should().NotBe(500);
     }
