@@ -16,7 +16,6 @@ namespace BrewMapEndpointUnitTest.Tests;
 // - POST /api/Review/location/{locationId}
 // - POST /api/Review/drink/{drinkId}
 // - GET /api/Review/mine
-// 🚫 Not tested
 // - GET /api/Review/{id}
 // - GET /api/Review/location/{locationId}
 // - GET /api/Review/drink/{drinkId}
@@ -24,6 +23,119 @@ namespace BrewMapEndpointUnitTest.Tests;
 public class ReviewControllerTests(ITestOutputHelper output)
 {
     private readonly ApiClient _apiClient = new();
+
+    [Fact]
+    public async Task GetReviewById_ReturnsReview_WhenReviewExists()
+    {
+        var token = string.Empty;
+        try { token = await _apiClient.GetUserTokenAsync(); }
+        catch { Assert.Skip("Could not fetch user token — is the API running and configured?"); }
+        using var client = _apiClient.CreateAuthenticated(token);
+
+        var ct = TestContext.Current.CancellationToken;
+
+        // Fetch the user's own reviews to guarantee a valid review ID
+        var mineResponse = await client.GetAsync(_apiClient.GetUrl("Review/mine"), ct);
+        mineResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var myReviews = await mineResponse.Content.ReadFromJsonAsync<List<ReadReviewViewModel>>(ApiClient.GetJsonOptions(), ct);
+        myReviews.Should().NotBeNull();
+
+        if (myReviews.Count == 0)
+            Assert.Skip("No reviews found for this user — cannot test GetById");
+
+        var reviewId = myReviews.First().Id;
+
+        var response = await client.GetAsync(_apiClient.GetUrl($"Review/{reviewId}"), ct);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var review = await response.Content.ReadFromJsonAsync<ReadReviewViewModel>(ApiClient.GetJsonOptions(), ct);
+
+        review.Should().NotBeNull();
+        review.Id.Should().Be(reviewId);
+        review.Rating.Should().BeInRange(1, 5);
+    }
+
+    [Fact]
+    public async Task GetReviewsByLocation_ReturnsReviews_WhenLocationHasReviews()
+    {
+        if (string.IsNullOrEmpty(_apiClient.ValidLocationId))
+            Assert.Skip("ValidLocationId is not configured in appsettings.json");
+
+        var token = string.Empty;
+        try { token = await _apiClient.GetUserTokenAsync(); }
+        catch { Assert.Skip("Could not fetch user token — is the API running and configured?"); }
+        using var client = _apiClient.CreateAuthenticated(token);
+
+        var ct = TestContext.Current.CancellationToken;
+
+        var response = await client.GetAsync(_apiClient.GetUrl($"Review/location/{_apiClient.ValidLocationId}"), ct);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var reviews = await response.Content.ReadFromJsonAsync<List<ReadReviewViewModel>>(ApiClient.GetJsonOptions(), ct);
+
+        reviews.Should().NotBeNull();
+
+        if (reviews.Count == 0)
+            Assert.Skip($"Location {_apiClient.ValidLocationId} has no reviews — theory cannot be validated");
+
+        reviews.Should().AllSatisfy(r =>
+        {
+            r.TargetType.Should().Be("location");
+            r.TargetId.Should().Be(_apiClient.ValidLocationId);
+        });
+    }
+
+    [Fact]
+    public async Task GetReviewsByDrink_ReturnsReviews_WhenDrinkHasReviews()
+    {
+        if (string.IsNullOrEmpty(_apiClient.ValidDrinkId))
+            Assert.Skip("ValidDrinkId is not configured in appsettings.json");
+
+        var token = string.Empty;
+        try { token = await _apiClient.GetUserTokenAsync(); }
+        catch { Assert.Skip("Could not fetch user token — is the API running and configured?"); }
+        using var client = _apiClient.CreateAuthenticated(token);
+
+        var ct = TestContext.Current.CancellationToken;
+
+        var response = await client.GetAsync(_apiClient.GetUrl($"Review/drink/{_apiClient.ValidDrinkId}"), ct);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var reviews = await response.Content.ReadFromJsonAsync<List<ReadReviewViewModel>>(ApiClient.GetJsonOptions(), ct);
+
+        reviews.Should().NotBeNull();
+
+        if (reviews.Count == 0)
+            Assert.Skip($"Drink {_apiClient.ValidDrinkId} has no reviews — theory cannot be validated");
+
+        reviews.Should().AllSatisfy(r =>
+        {
+            r.TargetType.Should().Be("product");
+            r.TargetId.Should().Be(_apiClient.ValidDrinkId);
+        });
+    }
+
+    [Fact]
+    public async Task GetReviewsByUser_ReturnsReviews_WhenUserHasReviews()
+    {
+        if (string.IsNullOrEmpty(_apiClient.ValidUserId))
+            Assert.Skip("ValidUserId is not configured in appsettings.json");
+
+        var token = string.Empty;
+        try { token = await _apiClient.GetUserTokenAsync(); }
+        catch { Assert.Skip("Could not fetch user token — is the API running and configured?"); }
+        using var client = _apiClient.CreateAuthenticated(token);
+
+        var ct = TestContext.Current.CancellationToken;
+
+        var response = await client.GetAsync(_apiClient.GetUrl($"Review/byUser/{_apiClient.ValidUserId}"), ct);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var reviews = await response.Content.ReadFromJsonAsync<List<ReadReviewViewModel>>(ApiClient.GetJsonOptions(), ct);
+
+        reviews.Should().NotBeNull();
+
+        if (reviews.Count == 0)
+            Assert.Skip($"User {_apiClient.ValidUserId} has no reviews — theory cannot be validated");
+
+        reviews.Should().AllSatisfy(r => r.UserId.Should().Be(_apiClient.ValidUserId));
+    }
 
     [Fact]
     public async Task CreateLocationReview_5Stars_UpdatesAggregatedScore()
