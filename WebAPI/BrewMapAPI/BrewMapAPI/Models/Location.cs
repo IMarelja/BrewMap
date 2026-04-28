@@ -1,7 +1,10 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.GeoJsonObjectModel;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 
 namespace BrewMapAPI.Models
 {
@@ -21,7 +24,7 @@ namespace BrewMapAPI.Models
         public Address Address { get; set; }
 
         [BsonElement("location")]
-        public GeoJsonPoint LocationPoint { get; set; } // GeoJSON Point object
+        public GeoJsonPoint<GeoJson2DGeographicCoordinates> LocationPoint { get; set; }
 
         [BsonElement("categoryTag")]
         public string CategoryTag { get; set; }
@@ -33,7 +36,7 @@ namespace BrewMapAPI.Models
         public Dictionary<string, DayOpeningHours> OpeningHours { get; set; }
 
         [BsonElement("contact")]
-        public Contact Contact { get; set; }
+        public Contact? Contact { get; set; }
 
         [BsonElement("reportCount")]
         public int ReportCount { get; set; } = 0;
@@ -50,9 +53,6 @@ namespace BrewMapAPI.Models
 
         [BsonElement("updatedAt")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
-        [BsonElement("lastEdit")]
-        public DateTime LastEdit { get; set; } = DateTime.UtcNow;
 
         [BsonElement("edits")]
         public List<EditHistory> Edits { get; set; } = new List<EditHistory>();
@@ -76,27 +76,66 @@ namespace BrewMapAPI.Models
         public string PostalCode { get; set; }
     }
 
-    // GeoJSON Point
-    public class GeoJsonPoint
+    public class DayOpeningHours : IValidatableObject
     {
-        [BsonElement("type")]
-        public string Type { get; set; } = "Point"; 
+        private static readonly Regex TimeRegex =
+            new(@"^([01]\d|2[0-3]):([0-5]\d)$", RegexOptions.Compiled);
 
-        [BsonElement("coordinates")]
-        public List<double> Coordinates { get; set; } 
-    }
-
-   
-    public class DayOpeningHours
-    {
         [BsonElement("open")]
-        public string Open { get; set; } 
+        public string? Open { get; set; }
 
         [BsonElement("close")]
-        public string Close { get; set; } 
+        public string? Close { get; set; }
 
         [BsonElement("isClosed")]
         public bool IsClosed { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (IsClosed)
+            {
+                // ignore Swagger "string"
+                if (!string.IsNullOrWhiteSpace(Open) && Open.ToLower() != "string")
+                {
+                    yield return new ValidationResult(
+                        "Open must be null when IsClosed is true.",
+                        new[] { nameof(Open) });
+                }
+
+                if (!string.IsNullOrWhiteSpace(Close) && Close.ToLower() != "string")
+                {
+                    yield return new ValidationResult(
+                        "Close must be null when IsClosed is true.",
+                        new[] { nameof(Close) });
+                }
+
+                yield break;
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(Open) || Open.ToLower() == "string" ||
+                    string.IsNullOrWhiteSpace(Close) || Close.ToLower() == "string")
+                {
+                    yield return new ValidationResult(
+                        "Open and Close are required when IsClosed is false.",
+                        new[] { nameof(Open), nameof(Close) });
+                }
+
+                if (!TimeRegex.IsMatch(Open ?? ""))
+                {
+                    yield return new ValidationResult(
+                        "Open time must be in HH:mm format.",
+                        new[] { nameof(Open) });
+                }
+
+                if (!TimeRegex.IsMatch(Close ?? ""))
+                {
+                    yield return new ValidationResult(
+                        "Close time must be in HH:mm format.",
+                        new[] { nameof(Close) });
+                }
+            }
+        }
     }
 
     public class Contact
@@ -118,5 +157,4 @@ namespace BrewMapAPI.Models
         public string? EditComment { get; set; }
     }
 
- 
 }

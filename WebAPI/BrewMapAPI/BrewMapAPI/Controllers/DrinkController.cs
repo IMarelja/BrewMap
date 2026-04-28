@@ -1,4 +1,5 @@
-﻿using BrewMapAPI.DTO.Drink;
+using System.Security.Claims;
+using BrewMapAPI.DTO.Drink;
 using BrewMapAPI.Service.Drinks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,12 @@ namespace BrewMapAPI.Controllers
             _service = service;
         }
 
+        private string GetUserId() {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            
+            return userId;
+        }
+
         [HttpGet("{id}")]
         [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> GetById(string id)
@@ -32,12 +39,8 @@ namespace BrewMapAPI.Controllers
             }
         }
 
-<<<<<<< zara
         [HttpGet("location/{locationId}")]
         [Authorize(Roles =  "admin,user")]
-=======
-        [HttpGet("Locations/{locationId}")]
->>>>>>> main
         public async Task<IActionResult> GetByLocationId(string locationId)
         {
             try
@@ -57,10 +60,10 @@ namespace BrewMapAPI.Controllers
         {
             try
             {
-                if (!ModelState.IsValid) 
+                if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                var created = await _service.CreateDrink(drink);
+                var created = await _service.CreateDrink(drink, GetUserId());
                 return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
             }
             catch (Exception ex)
@@ -69,18 +72,17 @@ namespace BrewMapAPI.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPut("{id}")]
         [Authorize(Roles =  "admin,user")]
-        public async Task<IActionResult> UpdateDrink([FromBody] UpdateDrink drink)
+        public async Task<IActionResult> UpdateDrink(string id, [FromBody] UpdateDrink drink)
         {
-
             try
             {
-                if (!ModelState.IsValid) 
+                if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
 
-                var updated = await _service.UpdateDrink(drink);
+                var updated = await _service.UpdateDrink(id, drink);
                 if (updated == null)
                     return NotFound();
                 return Ok(updated);

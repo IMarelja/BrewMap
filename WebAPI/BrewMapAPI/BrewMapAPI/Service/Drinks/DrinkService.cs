@@ -14,14 +14,14 @@ namespace BrewMapAPI.Service.Drinks
             _repo = repo;
         }
 
-        public async Task<ReadDrink> CreateDrink(CreateDrink drink)
+        public async Task<ReadDrink> CreateDrink(CreateDrink drink, string userId)
         {
             drink.Name = (drink.Name ?? string.Empty).Trim();
             drink.Description = drink.Description?.Trim();
 
             try
             {
-                var created = await _repo.CreateDrink(drink);
+                var created = await _repo.CreateDrink(drink, userId);
                 return toReadModel(created);
             }
             catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
@@ -49,14 +49,16 @@ namespace BrewMapAPI.Service.Drinks
             return drinks.Select(toReadModel).ToList();
         }
 
-        public async Task<ReadDrink?> UpdateDrink(UpdateDrink drink)
+        public async Task<ReadDrink?> UpdateDrink(string id, UpdateDrink drink)
         {
-            drink.Name = (drink.Name ?? string.Empty).Trim();
+            drink.Name = drink.Name?.Trim();
+            if (drink.Name != null && drink.Name.Length == 0)
+                throw new ArgumentException("Name must not be empty.");
             drink.Description = drink.Description?.Trim();
 
             try
             {
-                var updated = await _repo.UpdateDrink(drink);
+                var updated = await _repo.UpdateDrink(id, drink);
                 if (updated == null)
                     return null;
                 return toReadModel(updated);
