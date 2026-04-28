@@ -8,15 +8,15 @@ namespace BrewMapAPI.DTO.Location
 {
     public class ReadLocation
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
+        public string Id { get; set; } = String.Empty;
+        public string Name { get; set; } = String.Empty;
         public string? Description { get; set; }
-        public Address Address { get; set; }
-        public double Latitude { get; set; }
+        public Address Address { get; set; } = new Address();
         public double Longitude { get; set; }
-        public string CategoryTag { get; set; }
-        public List<string> PaymentOptionTags { get; set; }
-        public Dictionary<string, DayOpeningHours> OpeningHours { get; set; }
+        public double Latitude { get; set; }
+        public string CategoryTag { get; set; } = String.Empty;
+        public List<string> PaymentOptionTags { get; set; } = new List<string>();
+        public Dictionary<string, DayOpeningHours> OpeningHours { get; set; } = new Dictionary<string, DayOpeningHours>();
         public Contact? Contact { get; set; }
         public bool IsActive { get; set; }
         public double AverageRating { get; set; }

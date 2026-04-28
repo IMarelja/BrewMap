@@ -1,12 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using BrewMapAPI.Validation;
 namespace BrewMapAPI.DTO.Review
 {
      public class CreateReview
     {
         [Required]
-        [TargetTypeValidation] // Custom validation attribute, see below
-        public string TargetType { get; set; } = string.Empty; // Must be "location" or "product"
+        [AllowedValues("location", "product")]
+        public string TargetType { get; set; } = string.Empty;
 
         [Required]
         public string TargetId { get; set; } = string.Empty;

@@ -123,6 +123,8 @@ const loc7  = new ObjectId();
 const loc8  = new ObjectId();
 const loc9  = new ObjectId();
 const loc10 = new ObjectId();
+const loc11 = new ObjectId();
+const loc12 = new ObjectId();
 
 const hours = (open, close) => ({
   monday:    { open, close, isClosed: false },
@@ -147,14 +149,14 @@ const hoursClosedSunday = (open, close) => ({
 db.locations.insertMany([
   {
     _id: loc1,
-    name: "Cogito Coffee",
-    description: "Specialty coffee roaster and café in the heart of Zagreb.",
+    name: "Pivana",
+    description: "Spacious neighborhood pub with craft beer on tap, classic bar snacks, and a relaxed evening crowd.",
     address: { street: "Varšavska 11", city: "Zagreb", country: "Croatia", postalCode: "10000" },
-    location: { type: "Point", coordinates: [15.9734, 45.8131] },
-    categoryTag: "coffeeshop",
+    location: { type: "Point", coordinates: [15.8457503, 45.7976803] },
+    categoryTag: "cafe",
     paymentOptionTags: ["cash", "card"],
-    openingHours: hours("07:30", "21:00"),
-    contact: { website: "https://cogitocoffee.com" },
+    openingHours: hours("08:00", "22:00"),
+    contact: { website: "https://www.google.com/maps/place/Pivana/data=!4m2!3m1!1s0x4765d6dbb5a8ed03:0x3cbbed9018ef1850" },
     reportCount: 0,
     isActive: true,
     addedByUserId: userId1,
@@ -162,18 +164,18 @@ db.locations.insertMany([
     updatedAt: now,
     
     edits: [],
-    aggregatedRating: { average: 4.7, count: 3 },
+    aggregatedRating: { average: 0, count: 0 },
   },
   {
     _id: loc2,
-    name: "Eli's Caffe",
-    description: "Popular local café known for its relaxed vibe and great espresso.",
+    name: "Vinkl",
+    description: "A lively local hangout known for quick coffee, friendly service, and easy after-work drinks.",
     address: { street: "Ilica 63", city: "Zagreb", country: "Croatia", postalCode: "10000" },
-    location: { type: "Point", coordinates: [15.9651, 45.8132] },
-    categoryTag: "cafe",
+    location: { type: "Point", coordinates: [15.8457503, 45.7976803] },
+    categoryTag: "bar",
     paymentOptionTags: ["cash", "card", "mobile"],
     openingHours: hours("08:00", "22:00"),
-    contact: { website: null },
+    contact: { website: "https://www.google.com/maps/place/Vinkl/data=!4m2!3m1!1s0x4765d6d188a7c731:0x1b974a1831367905" },
     reportCount: 0,
     isActive: true,
     addedByUserId: userId2,
@@ -181,18 +183,18 @@ db.locations.insertMany([
     updatedAt: now,
     
     edits: [],
-    aggregatedRating: { average: 4.2, count: 2 },
+    aggregatedRating: { average: 0, count: 0 },
   },
   {
     _id: loc3,
-    name: "Stari Fijaker 900",
-    description: "Old-school Zagreb café with traditional pastries and strong coffee.",
+    name: "Botaničar",
+    description: "Green, artsy cafe bar near the botanical garden with specialty coffee by day and cocktails at night.",
     address: { street: "Mesnička 6", city: "Zagreb", country: "Croatia", postalCode: "10000" },
-    location: { type: "Point", coordinates: [15.9692, 45.8142] },
+    location: { type: "Point", coordinates: [15.8457503, 45.7976803] },
     categoryTag: "cafe",
     paymentOptionTags: ["cash"],
     openingHours: hours("07:00", "20:00"),
-    contact: { website: null },
+    contact: { website: "https://www.google.com/maps/place/Botani%C4%8Dar/data=!4m2!3m1!1s0x4765d6fa8854279b:0xeda2050f79c51fc9" },
     reportCount: 0,
     isActive: true,
     addedByUserId: userId1,
@@ -200,18 +202,18 @@ db.locations.insertMany([
     updatedAt: now,
     
     edits: [],
-    aggregatedRating: { average: 4.0, count: 2 },
+    aggregatedRating: { average: 0, count: 0 },
   },
   {
     _id: loc4,
-    name: "Quahwa",
-    description: "Third-wave specialty café with single-origin pour-overs.",
+    name: "Caffe Bar SKA",
+    description: "Casual city-center bar with laid-back music, strong espresso, and a dependable terrace scene.",
     address: { street: "Preradovićeva 11", city: "Zagreb", country: "Croatia", postalCode: "10000" },
-    location: { type: "Point", coordinates: [15.9712, 45.8127] },
-    categoryTag: "coffeeshop",
+    location: { type: "Point", coordinates: [15.8457503, 45.7976803] },
+    categoryTag: "cafe",
     paymentOptionTags: ["cash", "card"],
     openingHours: hours("08:00", "21:00"),
-    contact: { website: null },
+    contact: { website: "https://www.google.com/maps/place/Caffe+Bar+SKA/data=!4m2!3m1!1s0x4765d68b4a6c1591:0xea78ba5eedc44c1e" },
     reportCount: 0,
     isActive: true,
     addedByUserId: userId3,
@@ -219,18 +221,18 @@ db.locations.insertMany([
     updatedAt: now,
     
     edits: [],
-    aggregatedRating: { average: 4.5, count: 2 },
+    aggregatedRating: { average: 0, count: 0 },
   },
   {
     _id: loc5,
-    name: "Torrefazione",
-    description: "In-house roastery with an ever-changing menu of seasonal beans.",
+    name: "Sabotage",
+    description: "Underground-style bar with alternative playlists, late-night energy, and a solid cocktail list.",
     address: { street: "Gajeva 14", city: "Zagreb", country: "Croatia", postalCode: "10000" },
-    location: { type: "Point", coordinates: [15.9756, 45.8124] },
-    categoryTag: "roastery",
+    location: { type: "Point", coordinates: [15.8457503, 45.7976803] },
+    categoryTag: "cafe",
     paymentOptionTags: ["cash", "card", "mobile"],
     openingHours: hoursClosedSunday("08:00", "20:00"),
-    contact: { website: "https://torrefazione.hr" },
+    contact: { website: "https://www.google.com/maps/place/Sabotage/data=!4m2!3m1!1s0x4765d68b2e133e3f:0xc85bd54078c8b0c2" },
     reportCount: 0,
     isActive: true,
     addedByUserId: userId4,
@@ -238,18 +240,18 @@ db.locations.insertMany([
     updatedAt: now,
     
     edits: [],
-    aggregatedRating: { average: 4.8, count: 2 },
+    aggregatedRating: { average: 0, count: 0 },
   },
   {
     _id: loc6,
-    name: "Vanilla Zagreb",
-    description: "Bright bakery café famous for its croissants and filter coffee.",
+    name: "Paooro Cocktail Bar",
+    description: "Modern cocktail bar mixing classic and signature drinks in an intimate, stylish setting.",
     address: { street: "Petrinjska 4", city: "Zagreb", country: "Croatia", postalCode: "10000" },
-    location: { type: "Point", coordinates: [15.9779, 45.8115] },
-    categoryTag: "bakery",
+    location: { type: "Point", coordinates: [15.937394,45.779911] },
+    categoryTag: "bar",
     paymentOptionTags: ["cash", "card"],
     openingHours: hours("07:00", "20:00"),
-    contact: { website: null },
+    contact: { website: "https://www.google.com/maps/place/Paooro+Cocktail+Bar/data=!4m2!3m1!1s0x4765d41fbf2eb3f3:0xf7f2ca175e05ad56" },
     reportCount: 0,
     isActive: true,
     addedByUserId: userId5,
@@ -257,37 +259,37 @@ db.locations.insertMany([
     updatedAt: now,
     
     edits: [],
-    aggregatedRating: { average: 4.3, count: 2 },
+    aggregatedRating: { average: 0, count: 0 },
   },
   {
     _id: loc7,
-    name: "Kava Tava",
-    description: "Cozy neighbourhood spot with homemade cakes and loose-leaf teas.",
+    name: "Leggiero Malešnica",
+    description: "Contemporary coffee spot with consistent espresso, comfortable seating, and a calm neighborhood vibe.",
     address: { street: "Jurišićeva 9", city: "Zagreb", country: "Croatia", postalCode: "10000" },
-    location: { type: "Point", coordinates: [15.9801, 45.8133] },
-    categoryTag: "cafe",
+    location: { type: "Point", coordinates: [15.907584,45.806690] },
+    categoryTag: "coffeeshop",
     paymentOptionTags: ["cash"],
     openingHours: hours("09:00", "21:00"),
-    contact: { website: null },
-    reportCount: 1,
+    contact: { website: "https://www.google.com/maps/place/Leggiero+Male%C5%A1nica/data=!4m2!3m1!1s0x4765d135482550fb:0x46dfec8e84dc150e" },
+    reportCount: 0,
     isActive: true,
     addedByUserId: userId2,
     createdAt: now,
     updatedAt: now,
     
     edits: [],
-    aggregatedRating: { average: 3.5, count: 2 },
+    aggregatedRating: { average: 0, count: 0 },
   },
   {
     _id: loc8,
-    name: "Express Bar Donji Grad",
-    description: "Standing-room espresso bar, classic Zagreb style.",
+    name: "Mr. Jack Bar",
+    description: "Compact bar with a social atmosphere, straightforward drinks menu, and frequent local regulars.",
     address: { street: "Bogovićeva 7", city: "Zagreb", country: "Croatia", postalCode: "10000" },
-    location: { type: "Point", coordinates: [15.9745, 45.8118] },
-    categoryTag: "coffeeshop",
+    location: { type: "Point", coordinates: [15.885141,45.810210] },
+    categoryTag: "restaurant",
     paymentOptionTags: ["cash", "mobile"],
     openingHours: hoursClosedSunday("06:30", "18:00"),
-    contact: { website: null },
+    contact: { website: "https://www.google.com/maps/place/Mr.+Jack+Bar/data=!4m2!3m1!1s0x4765d10d0484ef09:0xa0d53619ad4f72c7" },
     reportCount: 0,
     isActive: true,
     addedByUserId: userId3,
@@ -295,18 +297,18 @@ db.locations.insertMany([
     updatedAt: now,
     
     edits: [],
-    aggregatedRating: { average: 4.1, count: 2 },
+    aggregatedRating: { average: 0, count: 0 },
   },
   {
     _id: loc9,
-    name: "Bread Club",
-    description: "Artisan bakery with sourdough, pastries, and excellent flat whites.",
+    name: "cafe Vanilla",
+    description: "Warm cafe patisserie offering quality coffee, fresh pastries, and a cozy all-day ambience.",
     address: { street: "Tratinska 22", city: "Zagreb", country: "Croatia", postalCode: "10000" },
-    location: { type: "Point", coordinates: [15.9589, 45.8155] },
-    categoryTag: "bakery",
+    location: { type: "Point", coordinates: [15.934580,45.815435] },
+    categoryTag: "cafe",
     paymentOptionTags: ["cash", "card"],
     openingHours: hoursClosedSunday("07:00", "19:00"),
-    contact: { website: "https://breadclub.hr" },
+    contact: { website: "https://www.google.com/maps/place/cafe+Vanilla/data=!4m2!3m1!1s0x4765d6d365c06ba3:0x577a7d77014e9efe" },
     reportCount: 0,
     isActive: true,
     addedByUserId: userId1,
@@ -314,18 +316,18 @@ db.locations.insertMany([
     updatedAt: now,
     
     edits: [],
-    aggregatedRating: { average: 4.6, count: 2 },
+    aggregatedRating: { average: 0, count: 0 },
   },
   {
     _id: loc10,
-    name: "Soft Spot",
-    description: "Laptop-friendly café with good WiFi, all-day breakfast, and batch brew.",
+    name: "Koncept Mlinček by Voilà",
+    description: "Boutique concept cafe blending artisan desserts, specialty coffee, and elegant interior design.",
     address: { street: "Vlaška 49", city: "Zagreb", country: "Croatia", postalCode: "10000" },
-    location: { type: "Point", coordinates: [15.9851, 45.8143] },
+    location: { type: "Point", coordinates: [15.941468,45.810268] },
     categoryTag: "cafe",
     paymentOptionTags: ["cash", "card", "mobile"],
     openingHours: hours("08:00", "22:00"),
-    contact: { website: null },
+    contact: { website: "https://www.google.com/maps/place/Koncept+Mlin%C4%8Dek+by+Voil%C3%A0/data=!4m2!3m1!1s0x4765d6d01c866b95:0x1cd63cf57d1a93c9" },
     reportCount: 0,
     isActive: true,
     addedByUserId: userId4,
@@ -333,9 +335,241 @@ db.locations.insertMany([
     updatedAt: now,
     
     edits: [],
-    aggregatedRating: { average: 4.4, count: 2 },
+    aggregatedRating: { average: 0, count: 0 },
+  },
+  {
+    _id: loc11,
+    name: "Old School Cafe",
+    description: "Retro-inspired cafe with classic decor, affordable drinks, and a relaxed old-Zagreb feel.",
+    address: { street: "Savska cesta 144", city: "Zagreb", country: "Croatia", postalCode: "10000" },
+    location: { type: "Point", coordinates: [15.940502,45.810228] },
+    categoryTag: "cafe",
+    paymentOptionTags: ["cash", "card"],
+    openingHours: hours("08:00", "22:00"),
+    contact: { website: "https://www.google.com/maps/place/Old+School+Cafe/data=!4m2!3m1!1s0x4765d7d3955de5d7:0xff773b28db2c65c3" },
+    reportCount: 0,
+    isActive: true,
+    addedByUserId: userId5,
+    createdAt: now,
+    updatedAt: now,
+    
+    edits: [],
+    aggregatedRating: { average: 0, count: 0 },
+  },
+  {
+    _id: loc12,
+    name: "Caffe bar Crni mačak",
+    description: "Beloved alternative cafe bar with eclectic music, character-filled interior, and a loyal local crowd.",
+    address: { street: "Mesnička 12", city: "Zagreb", country: "Croatia", postalCode: "10000" },
+    location: { type: "Point", coordinates: [15.970731,45.815080] },
+    categoryTag: "cafe",
+    paymentOptionTags: ["cash", "card"],
+    openingHours: hours("08:00", "22:00"),
+    contact: { website: "https://www.google.com/maps/place/Caffe+bar+Crni+ma%C4%8Dak/data=!4m2!3m1!1s0x4765d6dea84aa781:0xadeaf39ec02c0e37" },
+    reportCount: 0,
+    isActive: true,
+    addedByUserId: userId1,
+    createdAt: now,
+    updatedAt: now,
+    
+    edits: [],
+    aggregatedRating: { average: 0, count: 0 },
   },
 ]);
+
+// Legecy entries
+// db.locations.insertMany([
+//   {
+//     _id: loc1,
+//     name: "Cogito Coffee",
+//     description: "Specialty coffee roaster and café in the heart of Zagreb.",
+//     address: { street: "Varšavska 11", city: "Zagreb", country: "Croatia", postalCode: "10000" },
+//     location: { type: "Point", coordinates: [15.9734, 45.8131] },
+//     categoryTag: "coffeeshop",
+//     paymentOptionTags: ["cash", "card"],
+//     openingHours: hours("07:30", "21:00"),
+//     contact: { website: "https://cogitocoffee.com" },
+//     reportCount: 0,
+//     isActive: true,
+//     addedByUserId: userId1,
+//     createdAt: now,
+//     updatedAt: now,
+//
+//     edits: [],
+//     aggregatedRating: { average: 0, count: 0 },
+//   },
+//   {
+//     _id: loc2,
+//     name: "Eli's Caffe",
+//     description: "Popular local café known for its relaxed vibe and great espresso.",
+//     address: { street: "Ilica 63", city: "Zagreb", country: "Croatia", postalCode: "10000" },
+//     location: { type: "Point", coordinates: [15.9651, 45.8132] },
+//     categoryTag: "cafe",
+//     paymentOptionTags: ["cash", "card", "mobile"],
+//     openingHours: hours("08:00", "22:00"),
+//     contact: { website: null },
+//     reportCount: 0,
+//     isActive: true,
+//     addedByUserId: userId2,
+//     createdAt: now,
+//     updatedAt: now,
+//
+//     edits: [],
+//     aggregatedRating: { average: 0, count: 0 },
+//   },
+//   {
+//     _id: loc3,
+//     name: "Stari Fijaker 900",
+//     description: "Old-school Zagreb café with traditional pastries and strong coffee.",
+//     address: { street: "Mesnička 6", city: "Zagreb", country: "Croatia", postalCode: "10000" },
+//     location: { type: "Point", coordinates: [15.9692, 45.8142] },
+//     categoryTag: "cafe",
+//     paymentOptionTags: ["cash"],
+//     openingHours: hours("07:00", "20:00"),
+//     contact: { website: null },
+//     reportCount: 0,
+//     isActive: true,
+//     addedByUserId: userId1,
+//     createdAt: now,
+//     updatedAt: now,
+//
+//     edits: [],
+//     aggregatedRating: { average: 0, count: 0 },
+//   },
+//   {
+//     _id: loc4,
+//     name: "Quahwa",
+//     description: "Third-wave specialty café with single-origin pour-overs.",
+//     address: { street: "Preradovićeva 11", city: "Zagreb", country: "Croatia", postalCode: "10000" },
+//     location: { type: "Point", coordinates: [15.9712, 45.8127] },
+//     categoryTag: "coffeeshop",
+//     paymentOptionTags: ["cash", "card"],
+//     openingHours: hours("08:00", "21:00"),
+//     contact: { website: null },
+//     reportCount: 0,
+//     isActive: true,
+//     addedByUserId: userId3,
+//     createdAt: now,
+//     updatedAt: now,
+//
+//     edits: [],
+//     aggregatedRating: { average: 0, count: 0 },
+//   },
+//   {
+//     _id: loc5,
+//     name: "Torrefazione",
+//     description: "In-house roastery with an ever-changing menu of seasonal beans.",
+//     address: { street: "Gajeva 14", city: "Zagreb", country: "Croatia", postalCode: "10000" },
+//     location: { type: "Point", coordinates: [15.9756, 45.8124] },
+//     categoryTag: "roastery",
+//     paymentOptionTags: ["cash", "card", "mobile"],
+//     openingHours: hoursClosedSunday("08:00", "20:00"),
+//     contact: { website: "https://torrefazione.hr" },
+//     reportCount: 0,
+//     isActive: true,
+//     addedByUserId: userId4,
+//     createdAt: now,
+//     updatedAt: now,
+//
+//     edits: [],
+//     aggregatedRating: { average: 0, count: 0 },
+//   },
+//   {
+//     _id: loc6,
+//     name: "Vanilla Zagreb",
+//     description: "Bright bakery café famous for its croissants and filter coffee.",
+//     address: { street: "Petrinjska 4", city: "Zagreb", country: "Croatia", postalCode: "10000" },
+//     location: { type: "Point", coordinates: [15.9779, 45.8115] },
+//     categoryTag: "bakery",
+//     paymentOptionTags: ["cash", "card"],
+//     openingHours: hours("07:00", "20:00"),
+//     contact: { website: null },
+//     reportCount: 0,
+//     isActive: true,
+//     addedByUserId: userId5,
+//     createdAt: now,
+//     updatedAt: now,
+//
+//     edits: [],
+//     aggregatedRating: { average: 0, count: 0 },
+//   },
+//   {
+//     _id: loc7,
+//     name: "Kava Tava",
+//     description: "Cozy neighbourhood spot with homemade cakes and loose-leaf teas.",
+//     address: { street: "Jurišićeva 9", city: "Zagreb", country: "Croatia", postalCode: "10000" },
+//     location: { type: "Point", coordinates: [15.9801, 45.8133] },
+//     categoryTag: "cafe",
+//     paymentOptionTags: ["cash"],
+//     openingHours: hours("09:00", "21:00"),
+//     contact: { website: null },
+//     reportCount: 1,
+//     isActive: true,
+//     addedByUserId: userId2,
+//     createdAt: now,
+//     updatedAt: now,
+//
+//     edits: [],
+//     aggregatedRating: { average: 0, count: 0 },
+//   },
+//   {
+//     _id: loc8,
+//     name: "Express Bar Donji Grad",
+//     description: "Standing-room espresso bar, classic Zagreb style.",
+//     address: { street: "Bogovićeva 7", city: "Zagreb", country: "Croatia", postalCode: "10000" },
+//     location: { type: "Point", coordinates: [15.9745, 45.8118] },
+//     categoryTag: "coffeeshop",
+//     paymentOptionTags: ["cash", "mobile"],
+//     openingHours: hoursClosedSunday("06:30", "18:00"),
+//     contact: { website: null },
+//     reportCount: 0,
+//     isActive: true,
+//     addedByUserId: userId3,
+//     createdAt: now,
+//     updatedAt: now,
+//
+//     edits: [],
+//     aggregatedRating: { average: 0, count: 0 },
+//   },
+//   {
+//     _id: loc9,
+//     name: "Bread Club",
+//     description: "Artisan bakery with sourdough, pastries, and excellent flat whites.",
+//     address: { street: "Tratinska 22", city: "Zagreb", country: "Croatia", postalCode: "10000" },
+//     location: { type: "Point", coordinates: [15.9589, 45.8155] },
+//     categoryTag: "bakery",
+//     paymentOptionTags: ["cash", "card"],
+//     openingHours: hoursClosedSunday("07:00", "19:00"),
+//     contact: { website: "https://breadclub.hr" },
+//     reportCount: 0,
+//     isActive: true,
+//     addedByUserId: userId1,
+//     createdAt: now,
+//     updatedAt: now,
+//
+//     edits: [],
+//     aggregatedRating: { average: 0, count: 0 },
+//   },
+//   {
+//     _id: loc10,
+//     name: "Soft Spot",
+//     description: "Laptop-friendly café with good WiFi, all-day breakfast, and batch brew.",
+//     address: { street: "Vlaška 49", city: "Zagreb", country: "Croatia", postalCode: "10000" },
+//     location: { type: "Point", coordinates: [15.9851, 45.8143] },
+//     categoryTag: "cafe",
+//     paymentOptionTags: ["cash", "card", "mobile"],
+//     openingHours: hours("08:00", "22:00"),
+//     contact: { website: null },
+//     reportCount: 0,
+//     isActive: true,
+//     addedByUserId: userId4,
+//     createdAt: now,
+//     updatedAt: now,
+//
+//     edits: [],
+//     aggregatedRating: { average: 0, count: 0 },
+//   },
+// ]);
 
 // ─── Products ─────────────────────────────────────────────────────────────────
 
@@ -404,9 +638,9 @@ const ssBatch      = prod(loc10, "Batch Brew",     "Large-format filter, free re
 db.products.insertMany(products);
 
 // ─── Reviews ─────────────────────────────────────────────────────────────────
-// Each location gets 2 reviews from different users
+// Location and drink reviews seeded for realistic rating aggregates
 
-db.reviews.insertMany([
+const reviewDocs = [
   // Cogito
   { _id: new ObjectId(), userId: userId2, target: { type: "location", id: loc1 }, rating: 5, comment: "Best specialty coffee in Zagreb, hands down.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
   { _id: new ObjectId(), userId: userId3, target: { type: "location", id: loc1 }, rating: 4, comment: "Great beans and skilled baristas. Gets busy on weekends.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
@@ -447,14 +681,89 @@ db.reviews.insertMany([
   // Soft Spot
   { _id: new ObjectId(), userId: userId1, target: { type: "location", id: loc10 }, rating: 4, comment: "My go-to for remote work days. Fast WiFi and good coffee.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
   { _id: new ObjectId(), userId: userId5, target: { type: "location", id: loc10 }, rating: 5, comment: "Avocado toast is the best in the city.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
-]);
+
+  // Drink reviews
+  { _id: new ObjectId(), userId: userId2, target: { type: "product", id: cogFlat }, rating: 5, comment: "Creamy texture, balanced espresso, and consistently great latte art.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
+  { _id: new ObjectId(), userId: userId3, target: { type: "product", id: cogFlat }, rating: 4, comment: "Smooth and sweet, just a little strong for my taste.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
+
+  { _id: new ObjectId(), userId: userId1, target: { type: "product", id: eliCap }, rating: 4, comment: "Classic cappuccino with good foam and solid espresso base.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
+  { _id: new ObjectId(), userId: userId4, target: { type: "product", id: eliCap }, rating: 5, comment: "Exactly what I want in the morning: rich, warm, and reliable.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
+
+  { _id: new ObjectId(), userId: userId3, target: { type: "product", id: sfTurkish }, rating: 4, comment: "Full-bodied and aromatic, prepared properly with great depth.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
+  { _id: new ObjectId(), userId: userId5, target: { type: "product", id: sfTurkish }, rating: 5, comment: "Strong traditional flavor and perfect texture in every cup.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
+
+  { _id: new ObjectId(), userId: userId1, target: { type: "product", id: qPourOver }, rating: 5, comment: "Clean cup, bright acidity, and excellent origin character.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
+  { _id: new ObjectId(), userId: userId2, target: { type: "product", id: qPourOver }, rating: 4, comment: "Very nuanced and well brewed, though it took a bit longer.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
+
+  { _id: new ObjectId(), userId: userId3, target: { type: "product", id: torEspresso }, rating: 5, comment: "Great crema and chocolate notes, excellent as a straight shot.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
+  { _id: new ObjectId(), userId: userId5, target: { type: "product", id: torEspresso }, rating: 5, comment: "Balanced and sweet, one of the better house blends in town.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
+
+  { _id: new ObjectId(), userId: userId1, target: { type: "product", id: vanFlat }, rating: 4, comment: "Velvety milk and a strong double shot, very drinkable.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
+  { _id: new ObjectId(), userId: userId4, target: { type: "product", id: vanFlat }, rating: 4, comment: "Nicely textured and consistent, pairs perfectly with pastries.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
+
+  { _id: new ObjectId(), userId: userId2, target: { type: "product", id: ktLatte }, rating: 4, comment: "Mellow espresso and smooth milk, easy daily coffee choice.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
+  { _id: new ObjectId(), userId: userId3, target: { type: "product", id: ktLatte }, rating: 3, comment: "Good overall, but I would prefer a slightly stronger roast.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
+
+  { _id: new ObjectId(), userId: userId4, target: { type: "product", id: exEspresso }, rating: 4, comment: "Quick, bold, and exactly what a standing espresso should be.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
+  { _id: new ObjectId(), userId: userId5, target: { type: "product", id: exEspresso }, rating: 4, comment: "Short, punchy shot with good body and no bitterness.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
+
+  { _id: new ObjectId(), userId: userId2, target: { type: "product", id: bcFlatWhite }, rating: 5, comment: "Silky foam and strong coffee flavor, one of my favorites.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
+  { _id: new ObjectId(), userId: userId3, target: { type: "product", id: bcFlatWhite }, rating: 4, comment: "Excellent cup quality, occasionally served a touch too hot.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
+
+  { _id: new ObjectId(), userId: userId1, target: { type: "product", id: ssBatch }, rating: 4, comment: "Clean and approachable batch brew with solid refill value.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
+  { _id: new ObjectId(), userId: userId5, target: { type: "product", id: ssBatch }, rating: 5, comment: "Great daily filter coffee, consistently fresh and aromatic.", isVisible: true, reportCount: 0, createdAt: now, updatedAt: now },
+];
+
+function refreshTargetAggregatedRating(targetType, targetId) {
+  const normalizedType = targetType === "drink" ? "product" : targetType;
+  const [aggregation] = db.reviews.aggregate([
+    { $match: { "target.type": normalizedType, "target.id": targetId, isVisible: true } },
+    {
+      $group: {
+        _id: null,
+        average: { $avg: "$rating" },
+        count: { $sum: 1 },
+      },
+    },
+  ]).toArray();
+
+  const aggregatedRating = aggregation
+    ? { average: Number(aggregation.average.toFixed(2)), count: aggregation.count }
+    : { average: 0, count: 0 };
+
+  if (normalizedType === "location") {
+    db.locations.updateOne(
+      { _id: targetId },
+      { $set: { aggregatedRating } }
+    );
+    return;
+  }
+
+  if (normalizedType === "product") {
+    db.products.updateOne(
+      { _id: targetId },
+      { $set: { aggregatedRating } }
+    );
+  }
+}
+
+function insertReviewAndRefresh(reviewDoc) {
+  db.reviews.insertOne(reviewDoc);
+  refreshTargetAggregatedRating(reviewDoc.target.type, reviewDoc.target.id);
+}
+
+for (const reviewDoc of reviewDocs) {
+  insertReviewAndRefresh(reviewDoc);
+}
 
 // Categories
 db.categories.insertMany([
   { _tag: "coffeeshop", name: "Coffee Shop", isActive: true, createdAt: now, updatedAt: now },
   { _tag: "cafe",       name: "Café",        isActive: true, createdAt: now, updatedAt: now },
-  { _tag: "roastery",   name: "Roastery",    isActive: true, createdAt: now, updatedAt: now },
-  { _tag: "bakery",     name: "Bakery",      isActive: true, createdAt: now, updatedAt: now },
+  //{ _tag: "roastery",   name: "Roastery",    isActive: true, createdAt: now, updatedAt: now },
+  { _tag: "restaurant", name: "Restaurant",  isActive: true, createdAt: now, updatedAt: now },
+  { _tag: "bar", name: "Cafe bar",  isActive: true, createdAt: now, updatedAt: now }
+  //{ _tag: "bakery",     name: "Bakery",      isActive: true, createdAt: now, updatedAt: now },
 ]);
 
 // Payment options

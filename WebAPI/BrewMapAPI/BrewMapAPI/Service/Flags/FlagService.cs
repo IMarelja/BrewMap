@@ -13,10 +13,10 @@ namespace BrewMapAPI.Service.Flags
             _repo = repo;
         }
 
-        public async Task<ReadFlag> CreateFlag(CreateFlag flag)
+        public async Task<ReadFlag> CreateFlag(CreateFlag flag, string userId)
         {
 
-            var created = await _repo.CreateFlag(flag);
+            var created = await _repo.CreateFlag(flag, userId);
 
             //WORK IN PROGRESS: Increment report count on target entity
             //await _repo.IncrementReportCount(flag.Target.Type, flag.Target.Id);
@@ -57,7 +57,11 @@ namespace BrewMapAPI.Service.Flags
             {
                 Id = flag.Id,
                 ReportedByUserId = flag.ReportedByUserId,
-                Target = flag.Target,
+                Target = new ReadReportTarget
+                {
+                    Id = flag.Target.TargetId,
+                    Type = flag.Target.Type
+                },
                 Reason = flag.Reason,
                 Description = flag.Description,
                 Status = flag.Status,

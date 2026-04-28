@@ -10,5 +10,6 @@ namespace BrewMapAPI.Repository.Reviews
         Task Create(Review review);
         Task Update(Review review);
         Task<bool> Delete(string id);
+        Task<(double average, int count)> GetAggregatedRating(string targetType, string targetId);
     }
 }

@@ -1,6 +1,6 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace BrewMapAPI.Models
 {
@@ -8,17 +8,17 @@ namespace BrewMapAPI.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string Id { get; set; } = String.Empty;
 
         [BsonElement("reportedByUserId")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string ReportedByUserId { get; set; }
+        public string ReportedByUserId { get; set; } = String.Empty;
 
         [BsonElement("target")]
-        public ReportTarget Target { get; set; }
+        public ReportTarget Target { get; set; } = new ReportTarget();
 
         [BsonElement("reason")]
-        public string Reason { get; set; }
+        public string Reason { get; set; } = String.Empty;
 
         [BsonElement("description")]
         public string? Description { get; set; }
@@ -46,10 +46,11 @@ namespace BrewMapAPI.Models
     public class ReportTarget
     {
         [BsonElement("type")]
-        public string Type { get; set; } // "location", "product", "review"
+        [AllowedValues("location", "product", "review", "user")]
+        public string Type { get; set; } = String.Empty;
 
         [BsonElement("id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string TargetId { get; set; } = String.Empty;
     }
 }

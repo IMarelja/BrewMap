@@ -15,6 +15,8 @@ public class JwtTokenProvider
         var tokenKey = Encoding.UTF8.GetBytes(secureKey);
         var tokenDescriptor = new SecurityTokenDescriptor()
         {
+            Issuer = configuration["Jwt:Issuer"],
+            Audience = configuration["Jwt:Audience"],
             Expires = DateTime.Now.AddMinutes(expiration),
             SigningCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(tokenKey),

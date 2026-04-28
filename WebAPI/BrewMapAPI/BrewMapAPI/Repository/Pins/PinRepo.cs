@@ -15,35 +15,40 @@ namespace BrewMapAPI.Repository.Pins
 
         public async Task<Pin?> GetById(string id)
         {
-            return await _context.Locations
+            var location = await _context.Locations
                 .Find(x => x.Id == id)
-                .Project(x => new Pin
-                {
-                    Id = x.Id,
-                    Longitude = x.LocationPoint.Coordinates[0],
-                    Latitude = x.LocationPoint.Coordinates[1]
-                })
                 .FirstOrDefaultAsync();
+
+            if (location == null) return null;
+
+            return new Pin
+            {
+                Id = location.Id,
+                Longitude = location.LocationPoint.Coordinates.Longitude,
+                Latitude = location.LocationPoint.Coordinates.Latitude
+            };
         }
 
         public async Task<List<Pin>> GetByRange(double minLat, double maxLat, double minLon, double maxLon)
         {
+            // GeoWithin with a GeoJSON polygon fails for ranges larger than a hemisphere
+            // (MongoDB returns the complement, yielding no results).
+            // Simple coordinate array index filters work correctly for any range.
             var filter = Builders<Location>.Filter.And(
-                Builders<Location>.Filter.Gte(x => x.LocationPoint.Coordinates[1], minLat),
-                Builders<Location>.Filter.Lte(x => x.LocationPoint.Coordinates[1], maxLat),
-                Builders<Location>.Filter.Gte(x => x.LocationPoint.Coordinates[0], minLon),
-                Builders<Location>.Filter.Lte(x => x.LocationPoint.Coordinates[0], maxLon)
+                Builders<Location>.Filter.Gte("LocationPoint.coordinates.0", minLon),
+                Builders<Location>.Filter.Lte("LocationPoint.coordinates.0", maxLon),
+                Builders<Location>.Filter.Gte("LocationPoint.coordinates.1", minLat),
+                Builders<Location>.Filter.Lte("LocationPoint.coordinates.1", maxLat)
             );
 
-            return await _context.Locations
-                .Find(filter)
-                .Project(x => new Pin
-                {
-                    Id = x.Id,
-                    Longitude = x.LocationPoint.Coordinates[0],
-                    Latitude = x.LocationPoint.Coordinates[1]
-                })
-                .ToListAsync();
+            var locations = await _context.Locations.Find(filter).ToListAsync();
+
+            return [.. locations.Select(x => new Pin
+            {
+                Id = x.Id,
+                Longitude = x.LocationPoint.Coordinates.Longitude,
+                Latitude = x.LocationPoint.Coordinates.Latitude
+            })];
         }
     }
 }

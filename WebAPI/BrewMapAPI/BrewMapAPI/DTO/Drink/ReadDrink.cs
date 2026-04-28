@@ -9,7 +9,7 @@ namespace BrewMapAPI.DTO.Drink
         public string CreatedByUserId { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        public ReadAggregatedRating AggregatedRating { get; set; }
+        public ReadAggregatedRating AggregatedRating { get; set; } = new ReadAggregatedRating();
     }
 
     public class ReadAggregatedRating

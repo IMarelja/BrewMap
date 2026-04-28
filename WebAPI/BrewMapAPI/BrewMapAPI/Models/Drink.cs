@@ -8,17 +8,17 @@ namespace BrewMapAPI.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string Id { get; set; } = String.Empty;
 
         [BsonElement("name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = String.Empty;
 
         [BsonElement("description")]
         public string? Description { get; set; }
 
         [BsonElement("availableAtLocationId")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string AvailableAtLocationId { get; set; }
+        public string AvailableAtLocationId { get; set; } = String.Empty;
 
         [BsonElement("isVisible")]
         public bool IsVisible { get; set; } = true;
@@ -28,7 +28,7 @@ namespace BrewMapAPI.Models
 
         [BsonElement("createdByUserId")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string CreatedByUserId { get; set; }
+        public string CreatedByUserId { get; set; } = String.Empty;
 
         [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

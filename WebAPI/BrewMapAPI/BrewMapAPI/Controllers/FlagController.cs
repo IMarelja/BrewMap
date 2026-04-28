@@ -1,6 +1,10 @@
 using BrewMapAPI.DTO.Flag;
 using BrewMapAPI.Service.Flags;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
+using System.Security.Claims;
 
 namespace BrewMapAPI.Controllers
 {
@@ -15,8 +19,11 @@ namespace BrewMapAPI.Controllers
             _service = service;
         }
 
+        private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
         // POST: api/flag - Create a report (User)
         [HttpPost]
+        [Authorize(Roles = "admin,user")]
         public async Task<IActionResult> CreateFlag([FromBody] CreateFlag flag)
         {
             try
@@ -24,7 +31,8 @@ namespace BrewMapAPI.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                var created = await _service.CreateFlag(flag);
+                var userId = GetUserId();
+                var created = await _service.CreateFlag(flag, userId);
                 return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
             }
             catch (InvalidOperationException ex)
@@ -57,7 +65,17 @@ namespace BrewMapAPI.Controllers
         // GET: api/flag - Get all reports with optional filters (Admin)
         // Query params: ?status=pending&targetType=location
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] string? status, [FromQuery] string? targetType)
+        public async Task<IActionResult> GetAll(
+            [FromQuery] 
+            [AllowNull]
+            [AllowedValues("pending", "reviewed", "resolved")]
+            string? status, 
+            
+            [FromQuery] 
+            [AllowNull]
+            [AllowedValues("location", "product", "review", "user")] 
+            string? targetType
+        )
         {
             try
             {
