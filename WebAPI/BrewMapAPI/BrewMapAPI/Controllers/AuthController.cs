@@ -10,7 +10,10 @@ using System.IdentityModel.Tokens.Jwt;
 using BrewMapAPI.Security;
 using BrewMapAPI.Service.Auth;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.IdentityModel.Tokens;
+using LoginRequest = BrewMapAPI.DTO.Auth.LoginRequest;
+using RegisterRequest = BrewMapAPI.DTO.Auth.RegisterRequest;
 
 namespace BrewMapAPI.Controllers
 {
@@ -25,7 +28,7 @@ namespace BrewMapAPI.Controllers
             _authService = authService;
         }
 
-        [HttpPost("login")]
+        [HttpPatch("login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginRequest loginUser)
         {
@@ -35,8 +38,8 @@ namespace BrewMapAPI.Controllers
             }
             try
             {
-                AuthResponse request = await _authService.Login(loginUser);
-                return StatusCode(request.StatusCode, request);
+                AuthResponse response = await _authService.Login(loginUser);
+                return StatusCode(response.StatusCode, response);
             }
             catch (Exception ex)
             {
@@ -54,8 +57,46 @@ namespace BrewMapAPI.Controllers
             }
             try
             {
-                AuthResponse request = await _authService.Register(registerUser);
-                return StatusCode(request.StatusCode, request);
+                AuthResponse response = await _authService.Register(registerUser);
+                return StatusCode(response.StatusCode, response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        
+        [HttpPost("send-reset-email")]
+        [AllowAnonymous]
+        public async Task<IActionResult> SendResetEmail([FromBody] ResetRequest resetRequest)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                AuthResponse response = await _authService.ResetRequest(resetRequest);
+                return StatusCode(response.StatusCode, response.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        
+        [HttpPatch("change-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest passwordRequest)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                AuthResponse response = await _authService.ChangePassword(passwordRequest);
+                return StatusCode(response.StatusCode, response.Message);
             }
             catch (Exception ex)
             {
