@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using BrewMapEndpointUnitTest.Infrastructure;
 using BrewMapEndpointUnitTest.ViewModels.Drinks;
+using BrewMapEndpointUnitTest.ViewModels.Location;
 using FluentAssertions;
 using Xunit;
 
@@ -10,10 +11,10 @@ namespace BrewMapEndpointUnitTest.Tests;
 // Drink tested/non-tested endpoints
 // ✅ Tested
 // - GET /api/Drink/{id}
+// - GET /api/Drink/location/{locationId}
 // 🚫 Not tested
 // - PUT /api/Drink/{id}
 // - DELETE /api/Drink/{id}
-// - GET /api/Drink/location/{locationId}
 // - POST /api/Drink
 public class DrinkControllerTests
 {
@@ -52,5 +53,24 @@ public class DrinkControllerTests
         var response = await client.GetAsync(_apiClient.GetUrl($"Drink/{tag}"), TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GetDrinksBy_ValidLocationId_Returns200WithDrinks()
+    {
+        if (string.IsNullOrEmpty(_apiClient.ValidLocationId))
+            Assert.Skip("ValidLocationId is not configured in appsettings.json");
+
+        var token = string.Empty;
+        try { token = await _apiClient.GetAdminTokenAsync(); }
+        catch { Assert.Skip("Could not fetch admin token — is the API running and configured?"); }
+        using var client = _apiClient.CreateAuthenticated(token);
+
+        var response = await client.GetAsync(_apiClient.GetUrl($"Drink/location/{_apiClient.ValidLocationId}"), TestContext.Current.CancellationToken);
+        var body = await response.Content.ReadFromJsonAsync<List<ReadLocationViewModel>>(ApiClient.GetJsonOptions(), cancellationToken: TestContext.Current.CancellationToken);
+    
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        body.Should().NotBeNull();
+        body.Should().NotBeEmpty();
     }
 }
