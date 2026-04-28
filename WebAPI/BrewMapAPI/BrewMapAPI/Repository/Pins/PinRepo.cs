@@ -1,7 +1,6 @@
 using BrewMapAPI.Data;
 using BrewMapAPI.Models;
 using MongoDB.Driver;
-using MongoDB.Driver.GeoJsonObjectModel;
 
 namespace BrewMapAPI.Repository.Pins
 {
@@ -32,20 +31,15 @@ namespace BrewMapAPI.Repository.Pins
 
         public async Task<List<Pin>> GetByRange(double minLat, double maxLat, double minLon, double maxLon)
         {
-            var bbox = new GeoJsonPolygon<GeoJson2DGeographicCoordinates>(
-                new GeoJsonPolygonCoordinates<GeoJson2DGeographicCoordinates>(
-                    new GeoJsonLinearRingCoordinates<GeoJson2DGeographicCoordinates>(
-                    [
-                        new(minLon, minLat),
-                        new(maxLon, minLat),
-                        new(maxLon, maxLat),
-                        new(minLon, maxLat),
-                        new(minLon, minLat)
-                    ])
-                )
+            // GeoWithin with a GeoJSON polygon fails for ranges larger than a hemisphere
+            // (MongoDB returns the complement, yielding no results).
+            // Simple coordinate array index filters work correctly for any range.
+            var filter = Builders<Location>.Filter.And(
+                Builders<Location>.Filter.Gte("LocationPoint.coordinates.0", minLon),
+                Builders<Location>.Filter.Lte("LocationPoint.coordinates.0", maxLon),
+                Builders<Location>.Filter.Gte("LocationPoint.coordinates.1", minLat),
+                Builders<Location>.Filter.Lte("LocationPoint.coordinates.1", maxLat)
             );
-
-            var filter = Builders<Location>.Filter.GeoWithin(x => x.LocationPoint, bbox);
 
             var locations = await _context.Locations.Find(filter).ToListAsync();
 
