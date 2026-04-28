@@ -72,6 +72,7 @@ namespace BrewMapAPI.Data
         public IMongoCollection<Drink> Drinks => _database.GetCollection<Drink>("products");
         public IMongoCollection<Location> Locations => _database.GetCollection<Location>("locations");
         public IMongoCollection<Review> Reviews => _database.GetCollection<Review>("reviews");
+        public IMongoCollection<TempToken> TempTokens => _database.GetCollection<TempToken>("temp_tokens");
         public IMongoCollection<Category> Categories => _database.GetCollection<Category>("categories");
         public IMongoCollection<PaymentOption> PaymentOptions => _database.GetCollection<PaymentOption>("payment_options");
         public IMongoCollection<Flag> Flags => _database.GetCollection<Flag>("reports");
