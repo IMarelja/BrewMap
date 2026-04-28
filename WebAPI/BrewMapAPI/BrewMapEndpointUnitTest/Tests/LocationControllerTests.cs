@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using Microsoft.AspNetCore.WebUtilities;
 using BrewMapEndpointUnitTest.Infrastructure;
 using BrewMapEndpointUnitTest.ViewModels.Location;
+using static BrewMapEndpointUnitTest.Infrastructure.GeoConvert;
 using FluentAssertions;
 using Xunit;
 
@@ -67,8 +68,11 @@ public class LocationControllerTests(ITestOutputHelper output)
     }
 
     [Fact]
-    public async Task GetPins_LargestRangeThenShrink_ReturnsFewer()
+    public async Task GetPins_20KmRangeThenShrinkTo100m_ReturnsFewer()
     {
+        if (!_apiClient.HasSearchLongitude || !_apiClient.HasSearchLatitude)
+            Assert.Skip("SearchLongitude or SearchLatitude is missing/empty in appsettings.json");
+
         var token = string.Empty;
         try { token = await _apiClient.GetUserTokenAsync(); }
         catch { Assert.Skip("Could not fetch user token — is the API running and configured?"); }
@@ -76,45 +80,46 @@ public class LocationControllerTests(ITestOutputHelper output)
 
         var ct = TestContext.Current.CancellationToken;
 
-        // 1. World-spanning bounding box — the maximum possible range
-        var worldParams = new Dictionary<string, string?>
+        // 1. Large bounding box: ~20 km around the configured coordinates
+        double largeDelta = KmToDegrees(20);
+        var largeParams = new Dictionary<string, string?>
         {
-            ["minLon"] = "-180",
-            ["maxLon"] = "180",
-            ["minLat"] = "-90",
-            ["maxLat"] = "90"
+            ["minLon"] = (_apiClient.SearchLongitude - largeDelta).ToString(CultureInfo.InvariantCulture),
+            ["maxLon"] = (_apiClient.SearchLongitude + largeDelta).ToString(CultureInfo.InvariantCulture),
+            ["minLat"] = (_apiClient.SearchLatitude - largeDelta).ToString(CultureInfo.InvariantCulture),
+            ["maxLat"] = (_apiClient.SearchLatitude + largeDelta).ToString(CultureInfo.InvariantCulture)
         };
-        var worldResponse = await client.GetAsync(
-            _apiClient.GetUrl(QueryHelpers.AddQueryString("Locations/pins", worldParams)), ct);
-        worldResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        var allPins = await worldResponse.Content.ReadFromJsonAsync<List<ReadPinViewModel>>(ApiClient.GetJsonOptions(), ct);
-        allPins.Should().NotBeNull();
+        var largeResponse = await client.GetAsync(
+            _apiClient.GetUrl(QueryHelpers.AddQueryString("Locations/pins", largeParams)), ct);
+        largeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var largePins = await largeResponse.Content.ReadFromJsonAsync<List<ReadPinViewModel>>(ApiClient.GetJsonOptions(), ct);
+        largePins.Should().NotBeNull();
 
-        if (allPins!.Count == 0)
-            Assert.Skip("No pins found in the database — cannot validate range shrinking");
+        if (largePins.Count == 0)
+            Assert.Skip("No pins found within 20 km of the configured coordinates — cannot validate range shrinking");
 
-        output.WriteLine($"World range returned {allPins.Count} pin(s)");
+        output.WriteLine($"20 km range returned {largePins.Count} pin(s)");
 
-        // 2. Narrow bounding box centred on the configured search coordinates (≈1 km radius)
-        const double delta = 0.01;
-        var narrowParams = new Dictionary<string, string?>
+        // 2. Small bounding box: ~100 m around the same centre
+        double smallDelta = MetersToDegrees(100);
+        var smallParams = new Dictionary<string, string?>
         {
-            ["minLon"] = (_apiClient.SearchLongitude - delta).ToString(CultureInfo.InvariantCulture),
-            ["maxLon"] = (_apiClient.SearchLongitude + delta).ToString(CultureInfo.InvariantCulture),
-            ["minLat"] = (_apiClient.SearchLatitude - delta).ToString(CultureInfo.InvariantCulture),
-            ["maxLat"] = (_apiClient.SearchLatitude + delta).ToString(CultureInfo.InvariantCulture)
+            ["minLon"] = (_apiClient.SearchLongitude - smallDelta).ToString(CultureInfo.InvariantCulture),
+            ["maxLon"] = (_apiClient.SearchLongitude + smallDelta).ToString(CultureInfo.InvariantCulture),
+            ["minLat"] = (_apiClient.SearchLatitude - smallDelta).ToString(CultureInfo.InvariantCulture),
+            ["maxLat"] = (_apiClient.SearchLatitude + smallDelta).ToString(CultureInfo.InvariantCulture)
         };
-        var narrowResponse = await client.GetAsync(
-            _apiClient.GetUrl(QueryHelpers.AddQueryString("Locations/pins", narrowParams)), ct);
-        narrowResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        var narrowPins = await narrowResponse.Content.ReadFromJsonAsync<List<ReadPinViewModel>>(ApiClient.GetJsonOptions(), ct);
-        narrowPins.Should().NotBeNull();
+        var smallResponse = await client.GetAsync(
+            _apiClient.GetUrl(QueryHelpers.AddQueryString("Locations/pins", smallParams)), ct);
+        smallResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var smallPins = await smallResponse.Content.ReadFromJsonAsync<List<ReadPinViewModel>>(ApiClient.GetJsonOptions(), ct);
+        smallPins.Should().NotBeNull();
 
-        output.WriteLine($"Narrow range returned {narrowPins!.Count} pin(s)");
+        output.WriteLine($"100 m range returned {smallPins.Count} pin(s)");
 
-        if (narrowPins.Count == allPins.Count)
-            Assert.Skip("All pins lie within the narrow bounding box — cannot validate that shrinking reduces count");
+        if (smallPins.Count == largePins.Count)
+            Assert.Skip("All pins lie within the 100 m bounding box — cannot validate that shrinking reduces count");
 
-        narrowPins.Count.Should().BeLessThan(allPins.Count);
+        smallPins.Count.Should().BeLessThan(largePins.Count);
     }
 }
