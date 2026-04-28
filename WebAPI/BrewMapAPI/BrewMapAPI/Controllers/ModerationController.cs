@@ -1,4 +1,5 @@
 using BrewMapAPI.Service.Moderation;
+using BrewMapAPI.DTO.Moderation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -55,24 +56,25 @@ namespace BrewMapAPI.Controllers
             }
         }
 
-        /// PUT: api/Moderation/User/{id}/unsuspend
-        [HttpPut("User/{id}/unsuspend")]
-        public async Task<IActionResult> UnsuspendUser(string id)
+/*
+        /// DELETE: api/Moderation/user/{id}
+        [HttpDelete("user/{id}")]
+        public async Task<IActionResult> DeleteUser(string id)
         {
             try
             {
-                var result = await _service.UnsuspendUser(id);
-                
+                var result = await _service.DeleteUser(id);
+
                 if (!result.Success)
                     return BadRequest(result);
-                
+
                 return Ok(result);
             }
             catch (Exception ex)
             {
                 return BadRequest(new { success = false, message = ex.Message });
             }
-        }
+        }*/
 
         
 
