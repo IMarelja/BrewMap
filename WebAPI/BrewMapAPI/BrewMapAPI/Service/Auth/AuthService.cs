@@ -47,6 +47,16 @@ namespace BrewMapAPI.Service.Auth
                         StatusCode = 401
                     };
                 }
+
+                if (existingUser.IsActive)
+                {
+                    return new AuthResponse()
+                    {
+                        Success = false,
+                        Message = "Already logged in",
+                        StatusCode = 400
+                    };
+                }
                 var hash = PasswordHashProvider.GetHash(request.Password, existingUser.PasswordSalt!);
                 if (hash != existingUser.PasswordHash)
                 {
