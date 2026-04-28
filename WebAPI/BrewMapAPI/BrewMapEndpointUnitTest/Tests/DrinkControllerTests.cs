@@ -47,7 +47,9 @@ public class DrinkControllerTests
         catch { Assert.Skip("Could not fetch admin token — is the API running and configured?"); }
         using var client = _apiClient.CreateAuthenticated(token);
 
-        var response = await client.GetAsync(_apiClient.GetUrl("Drink/invalid_id"), TestContext.Current.CancellationToken);
+        var tag = "tag_invalid";
+
+        var response = await client.GetAsync(_apiClient.GetUrl($"Drink/{tag}"), TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }

@@ -61,7 +61,7 @@ public class LocationControllerTests
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         body.Should().NotBeNull();
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        body.Should().NotBeEmpty();
 
     }
 }

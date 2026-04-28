@@ -13,8 +13,6 @@ namespace BrewMapEndpointUnitTest.Tests;
 // - POST /api/PaymentOption
 // - GET /api/PaymentOption/{tag}
 // - PUT /api/PaymentOption/{tag}
-// 🚫 Not tested
-// - None
 public class PaymentOptionControllerTests
 {
     private readonly ApiClient _apiClient = new();
