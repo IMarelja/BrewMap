@@ -50,6 +50,23 @@ namespace BrewMapAPI.Controllers
             }
         }
 
+        [HttpGet("location/{locationId}/best-drink")]
+        [Authorize(Roles =  "admin,user")]
+        public async Task<IActionResult> GetBestDrinkInLocationId(string locationId)
+        {
+            try
+            {
+                var drink = await _service.GetBestDrinkByLocationId(locationId);
+                if (drink == null)
+                    return NotFound();
+                return Ok(drink);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPost]
         [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> CreateDrink([FromBody] CreateDrink drink)
