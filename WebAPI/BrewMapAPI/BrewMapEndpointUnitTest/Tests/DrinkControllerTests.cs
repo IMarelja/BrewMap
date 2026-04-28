@@ -12,6 +12,7 @@ namespace BrewMapEndpointUnitTest.Tests;
 // ✅ Tested
 // - GET /api/Drink/{id}
 // - GET /api/Drink/location/{locationId}
+// - GET /api/Drink/location/{locationId}/best-drink
 // 🚫 Not tested
 // - PUT /api/Drink/{id}
 // - DELETE /api/Drink/{id}
@@ -53,6 +54,63 @@ public class DrinkControllerTests
         var response = await client.GetAsync(_apiClient.GetUrl($"Drink/{tag}"), TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GetBestDrink_MatchesLocallyComputedBest()
+    {
+        // 1. Standard precondition checks
+        if (string.IsNullOrEmpty(_apiClient.ValidLocationId))
+            Assert.Skip("ValidLocationId is not configured in appsettings.json");
+
+        var token = string.Empty;
+        try { token = await _apiClient.GetUserTokenAsync(); }
+        catch { Assert.Skip("Could not fetch user token — is the API running and configured?"); }
+        using var client = _apiClient.CreateAuthenticated(token);
+
+        // 2. Fetch all drinks at the location
+        var allDrinksResponse = await client.GetAsync(
+            _apiClient.GetUrl($"Drink/location/{_apiClient.ValidLocationId}"),
+            TestContext.Current.CancellationToken);
+
+        if (allDrinksResponse.StatusCode == HttpStatusCode.NotFound)
+            Assert.Skip("Location was not found — skipping best-drink test.");
+
+        var allDrinks = await allDrinksResponse.Content
+            .ReadFromJsonAsync<List<ReadDrinkViewModel>>(ApiClient.GetJsonOptions(),
+                cancellationToken: TestContext.Current.CancellationToken);
+
+        if (allDrinks == null || allDrinks.Count == 0)
+            Assert.Skip("Location has no drinks — skipping best-drink test.");
+
+        // 3. Compute the expected best drink locally
+        var expected = allDrinks
+            .OrderByDescending(d => d.AggregatedRating.Average)
+            .First();
+
+        // 4. Fetch the best drink from the controller
+        var bestResponse = await client.GetAsync(
+            _apiClient.GetUrl($"Drink/location/{_apiClient.ValidLocationId}/best-drink"),
+            TestContext.Current.CancellationToken);
+
+        bestResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var actual = await bestResponse.Content
+            .ReadFromJsonAsync<ReadBestDrinkViewModel>(ApiClient.GetJsonOptions(),
+                cancellationToken: TestContext.Current.CancellationToken);
+
+        actual.Should().NotBeNull();
+
+        // 5. Compare — report each mismatch individually
+        var failures = new List<string>();
+        if (actual.Id != expected.Id)
+            failures.Add($"Id: expected '{expected.Id}', got '{actual.Id}'");
+        if (actual.Name != expected.Name)
+            failures.Add($"Name: expected '{expected.Name}', got '{actual.Name}'");
+        if (actual.Rating != expected.AggregatedRating.Average)
+            failures.Add($"Rating: expected {expected.AggregatedRating.Average}, got {actual.Rating}");
+
+        failures.Should().BeEmpty(because: string.Join("; ", failures));
     }
 
     [Fact]
