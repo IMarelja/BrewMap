@@ -20,52 +20,77 @@ namespace BrewMapAPI.Data
 
         private void ApplyIndex()
         {
-            // Drink (products)
-            var drinksIndex = Builders<Drink>.IndexKeys
-                .Ascending(x => x.AvailableAtLocationId)
-                .Ascending(x => x.Name);
+            // users
+            Users.Indexes.CreateMany([
+                new CreateIndexModel<User>(
+                    Builders<User>.IndexKeys.Ascending(x => x.Email),
+                    new CreateIndexOptions { Unique = true }),
+                new CreateIndexModel<User>(
+                    Builders<User>.IndexKeys.Ascending(x => x.Username),
+                    new CreateIndexOptions { Unique = true }),
+            ]);
 
+            // products
             Drinks.Indexes.CreateOne(new CreateIndexModel<Drink>(
-                drinksIndex,
-                new CreateIndexOptions { Unique = true }
-            ));
-            //index for locations
-            var nameIndex = Builders<Location>.IndexKeys.Ascending(x => x.Name);
-            var cityIndex = Builders<Location>.IndexKeys.Ascending(x => x.Address.City);
-            var ratingIndex = Builders<Location>.IndexKeys.Ascending(x => x.AggregatedRating.Average);
-            var paymentIndex = Builders<Location>.IndexKeys.Ascending(x => x.PaymentOptionTags);
-            var geoIndex = Builders<Location>.IndexKeys.Geo2DSphere(x => x.LocationPoint);
-
-            Locations.Indexes.CreateMany(new[]
-            {
-                new CreateIndexModel<Location>(nameIndex),
-                new CreateIndexModel<Location>(cityIndex),
-                new CreateIndexModel<Location>(ratingIndex),
-                new CreateIndexModel<Location>(paymentIndex),
-                new CreateIndexModel<Location>(geoIndex)
-            });
-
-            var paymentOptionTagIndex = Builders<PaymentOption>.IndexKeys.Ascending(x => x.Tag);
-            PaymentOptions.Indexes.CreateOne(new CreateIndexModel<PaymentOption>(
-                paymentOptionTagIndex,
+                Builders<Drink>.IndexKeys
+                    .Ascending(x => x.AvailableAtLocationId)
+                    .Ascending(x => x.Name),
                 new CreateIndexOptions { Unique = true }
             ));
 
-            var categoryTagIndex = Builders<Category>.IndexKeys.Ascending(x => x.Tag);
+            // locations
+            Locations.Indexes.CreateMany([
+                new CreateIndexModel<Location>(Builders<Location>.IndexKeys.Ascending(x => x.Name)),
+                new CreateIndexModel<Location>(Builders<Location>.IndexKeys.Ascending(x => x.Address.City)),
+                new CreateIndexModel<Location>(Builders<Location>.IndexKeys.Ascending(x => x.AggregatedRating.Average)),
+                new CreateIndexModel<Location>(Builders<Location>.IndexKeys.Ascending(x => x.PaymentOptionTags)),
+                new CreateIndexModel<Location>(Builders<Location>.IndexKeys.Geo2DSphere(x => x.LocationPoint)),
+                new CreateIndexModel<Location>(
+                    Builders<Location>.IndexKeys
+                        .Ascending(x => x.CategoryTag)
+                        .Ascending(x => x.IsActive)),
+            ]);
+
+            // reviews
+            Reviews.Indexes.CreateMany([
+                new CreateIndexModel<Review>(
+                    Builders<Review>.IndexKeys
+                        .Ascending(x => x.Target.TargetId)
+                        .Ascending(x => x.Target.Type)),
+                new CreateIndexModel<Review>(Builders<Review>.IndexKeys.Ascending(x => x.UserId)),
+            ]);
+
+            // categories
             Categories.Indexes.CreateOne(new CreateIndexModel<Category>(
-                categoryTagIndex,
+                Builders<Category>.IndexKeys.Ascending(x => x.Tag),
                 new CreateIndexOptions { Unique = true }
             ));
 
-            var flagsIndex = Builders<Flag>.IndexKeys
-                .Ascending(x => x.Status)
-                .Ascending(x => x.Target.TargetId)
-                .Ascending(x => x.Target.Type);
-
-            Flags.Indexes.CreateOne(new CreateIndexModel<Flag>(
-                flagsIndex,
+            // payment_options
+            PaymentOptions.Indexes.CreateOne(new CreateIndexModel<PaymentOption>(
+                Builders<PaymentOption>.IndexKeys.Ascending(x => x.Tag),
                 new CreateIndexOptions { Unique = true }
             ));
+
+            // reports — two separate non-unique indexes (status alone for admin dashboard;
+            // target compound for per-entity report fetching)
+            Flags.Indexes.CreateMany([
+                new CreateIndexModel<Flag>(Builders<Flag>.IndexKeys.Ascending(x => x.Status)),
+                new CreateIndexModel<Flag>(
+                    Builders<Flag>.IndexKeys
+                        .Ascending(x => x.Target.TargetId)
+                        .Ascending(x => x.Target.Type)),
+            ]);
+
+            // temp_tokens
+            TempTokens.Indexes.CreateMany([
+                new CreateIndexModel<TempToken>(
+                    Builders<TempToken>.IndexKeys.Ascending(x => x.ExpiresAt),
+                    new CreateIndexOptions { ExpireAfter = TimeSpan.Zero }),
+                new CreateIndexModel<TempToken>(
+                    Builders<TempToken>.IndexKeys.Ascending(x => x.Token),
+                    new CreateIndexOptions { Unique = true }),
+            ]);
         }
 
         public IMongoCollection<User> Users => _database.GetCollection<User>("users");
