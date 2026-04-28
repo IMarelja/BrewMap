@@ -10,5 +10,6 @@ namespace BrewMapAPI.Service.Drinks
         Task<ReadDrink> CreateDrink(CreateDrink drink, string userId);
         Task<ReadDrink?> UpdateDrink(string id, UpdateDrink drink);
         Task<bool> DeleteDrink(string id);
+        Task<ReadBestDrink?> GetBestDrinkByLocationId(string locationId);
     }
 }
