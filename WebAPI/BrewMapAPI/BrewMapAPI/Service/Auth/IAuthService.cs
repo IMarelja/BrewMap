@@ -6,5 +6,7 @@ namespace BrewMapAPI.Service.Auth
     {
         Task<AuthResponse> Login(LoginRequest request);
         Task<AuthResponse> Register(RegisterRequest request);
+        Task<AuthResponse> ResetRequest(ResetRequest request);
+        Task<AuthResponse> ChangePassword(ChangePasswordRequest request);
     }
 }
