@@ -511,6 +511,15 @@ video {
 [hidden]:where(:not([hidden="until-found"])) {
   display: none;
 }
+.absolute{
+  position: absolute;
+}
+.relative{
+  position: relative;
+}
+.sticky{
+  position: sticky;
+}
 .block{
   display: block;
 }
@@ -523,8 +532,17 @@ video {
 .grid{
   display: grid;
 }
+.hidden{
+  display: none;
+}
 .min-h-screen{
   min-height: 100vh;
+}
+.transform{
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+.resize{
+  resize: both;
 }
 .items-center{
   align-items: center;
@@ -545,6 +563,11 @@ video {
 }
 .outline{
   outline-style: solid;
+}
+.transition{
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
 }
 
 * {
