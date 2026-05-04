@@ -1,5 +1,6 @@
 using System.Text;
 using BrewMapAPI.Data;
+using BrewMapAPI.Email;
 using BrewMapAPI.Models;
 using BrewMapAPI.Repository.Auth;
 using BrewMapAPI.Repository.Drinks;
@@ -9,8 +10,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using BrewMapAPI.Service.Review;
-using BrewMapAPI.Service.Pins;
 using BrewMapAPI.Repository.Reviews;
+using BrewMapAPI.Service.Pins;
 using BrewMapAPI.Repository.Pins;
 using BrewMapAPI.Repository.Locations;
 using BrewMapAPI.Service.Location;
@@ -21,6 +22,7 @@ using BrewMapAPI.Repository.Flags;
 using BrewMapAPI.Service.Moderation;
 using BrewMapAPI.Repository.Moderation;
 using BrewMapAPI.Service.User;
+using BrewMapAPI.Repository.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,6 +78,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+
+var emailConfig = builder.Configuration
+    .GetSection("EmailConfiguration")
+    .Get<EmailConfiguration>();
+builder.Services.AddSingleton(emailConfig);
+builder.Services.AddScoped<IEmailSender, EmailSender>();
+
 // Business level architecture
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDrinkService, DrinkService>();
@@ -92,6 +101,7 @@ builder.Services.AddScoped<IDrinkRepo, DrinkRepo>();
 builder.Services.AddScoped<IReviewRepo, ReviewRepo>();
 builder.Services.AddScoped<ILocationRepo, LocationRepo>();
 builder.Services.AddScoped<IPinRepo, PinRepo>();
+builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
 builder.Services.AddScoped<IPaymentOptionRepo, PaymentOptionRepo>();
 builder.Services.AddScoped<IFlagRepo, FlagRepo>();
