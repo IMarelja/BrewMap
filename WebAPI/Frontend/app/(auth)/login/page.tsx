@@ -7,8 +7,9 @@ import { login } from '@/lib/auth'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
+  const [user, setUser] = useState('')
   const [password, setPassword] = useState('')
+  const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -17,10 +18,10 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
     try {
-      await login(email, password)
+      await login(user, password, rememberMe)
       router.push('/explore')
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Invalid email or password.')
+      setError(err.response?.data?.message || 'Invalid credentials. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -48,18 +49,41 @@ export default function LoginPage() {
           )}
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#2C1A0E', marginBottom: '6px' }}>Email</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="you@example.com"
-                style={{ width: '100%', padding: '10px 14px', border: '1px solid #E8D5B7', borderRadius: '8px', fontSize: '15px', background: '#FDFAF7', outline: 'none', boxSizing: 'border-box' }} />
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#2C1A0E', marginBottom: '6px' }}>Username or Email</label>
+              <input
+                type="text"
+                value={user}
+                onChange={e => setUser(e.target.value)}
+                required
+                placeholder="your username or email"
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid #E8D5B7', borderRadius: '8px', fontSize: '15px', background: '#FDFAF7', outline: 'none', boxSizing: 'border-box' }}
+              />
             </div>
-            <div style={{ marginBottom: '1.5rem' }}>
+            <div style={{ marginBottom: '1rem' }}>
               <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#2C1A0E', marginBottom: '6px' }}>Password</label>
-              <input type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="••••••••"
-                style={{ width: '100%', padding: '10px 14px', border: '1px solid #E8D5B7', borderRadius: '8px', fontSize: '15px', background: '#FDFAF7', outline: 'none', boxSizing: 'border-box' }} />
+              <input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                placeholder="••••••••"
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid #E8D5B7', borderRadius: '8px', fontSize: '15px', background: '#FDFAF7', outline: 'none', boxSizing: 'border-box' }}
+              />
+            </div>
+            <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input
+                type="checkbox"
+                id="rememberMe"
+                checked={rememberMe}
+                onChange={e => setRememberMe(e.target.checked)}
+                style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+              />
+              <label htmlFor="rememberMe" style={{ fontSize: '14px', color: '#6B3F1F', cursor: 'pointer' }}>Remember me</label>
             </div>
             <button type="submit" disabled={loading} style={{
               width: '100%', padding: '12px', background: loading ? '#9CA3AF' : '#2C1A0E',
-              color: '#F5EFE6', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer'
+              color: '#F5EFE6', border: 'none', borderRadius: '8px', fontSize: '16px',
+              fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer'
             }}>
               {loading ? 'Signing in...' : 'Sign In'}
             </button>

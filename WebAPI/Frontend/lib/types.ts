@@ -9,7 +9,12 @@ export interface Cafe {
   id: string
   name: string
   description: string
-  address: string
+  address:{
+    street: string;
+    city:string;
+    country:string;
+    postalcode: string;
+  };
   city: string
   latitude: number
   longitude: number

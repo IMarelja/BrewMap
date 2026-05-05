@@ -1,8 +1,8 @@
 import api from './api'
 import { AuthResponse, User } from './types'
 
-export async function login(email: string, password: string): Promise<AuthResponse> {
-  const res = await api.post('/api/Auth/login', { email, password })
+export async function login(user: string, password: string, rememberMe: boolean = false): Promise<AuthResponse> {
+  const res = await api.patch('/api/Auth/login', { user, password, rememberMe })
   const token = res.data.token || res.data.accessToken || res.data.jwt
   localStorage.setItem('token', token)
   if (res.data.user) {
@@ -11,12 +11,8 @@ export async function login(email: string, password: string): Promise<AuthRespon
   return res.data
 }
 
-export async function register(
-  email: string,
-  password: string,
-  username: string
-): Promise<void> {
-  await api.post('/api/Auth/register', { email, password, username })
+export async function register(email: string, username: string, password: string): Promise<void> {
+  await api.post('/api/Auth/register', { email, username, password })
 }
 
 export function logout(): void {

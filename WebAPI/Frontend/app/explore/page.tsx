@@ -11,12 +11,21 @@ export default function ExplorePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  useEffect(() => {
-    api.get('/api/Locations')
-      .then(res => setCafes(res.data))
-      .catch(() => setError('Failed to load cafes.'))
-      .finally(() => setLoading(false))
-  }, [])
+ useEffect(() => {
+    // We use a large radius (e.g., 50000 meters / 50km) to capture all local cafes
+    api.get('/api/Locations/search', {
+        params: {
+            longitude: 15.8457503,
+            latitude: 45.7976803,
+            radiusMeters: 50000 // Increase this to find more locations
+        }
+    })
+    .then(res => {
+        // Based on the data you provided, the response is a direct array
+        setCafes(res.data); 
+    })
+    .catch(() => setError('Failed to load cafes.'));
+}, []);
 
   return (
     <ProtectedRoute>
@@ -45,27 +54,17 @@ export default function ExplorePage() {
               <Link key={cafe.id} href={`/cafe/${cafe.id}`} style={{ textDecoration: 'none' }}>
                 <div style={{
                   background: '#fff', border: '1px solid #E8D5B7', borderRadius: '12px',
-                  overflow: 'hidden', transition: 'transform 0.2s', cursor: 'pointer'
+                  overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.2s'
                 }}
                   onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-4px)')}
                   onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0)')}
                 >
-                  <div style={{ height: '160px', background: '#E8D5B7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '48px' }}>
-                    ☕
-                  </div>
+                  <div style={{ height: '160px', background: '#E8D5B7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '48px' }}>☕</div>
                   <div style={{ padding: '1.25rem' }}>
                     <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#2C1A0E', marginBottom: '4px' }}>{cafe.name}</h3>
-                    <p style={{ fontSize: '13px', color: '#6B3F1F', marginBottom: '8px' }}>{cafe.address}, {cafe.city}</p>
+                    <p style={{ fontSize: '13px', color: '#6B3F1F', marginBottom: '8px' }}>{cafe.address.street}, {cafe.address.city}</p>
                     {cafe.description && (
-                      <p style={{ fontSize: '13px', color: '#888', lineHeight: 1.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as any }}>
-                        {cafe.description}
-                      </p>
-                    )}
-                    {cafe.rating && (
-                      <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <span style={{ color: '#C8854A' }}>★</span>
-                        <span style={{ fontSize: '13px', fontWeight: 500, color: '#2C1A0E' }}>{cafe.rating}</span>
-                      </div>
+                      <p style={{ fontSize: '13px', color: '#888', lineHeight: 1.5 }}>{cafe.description}</p>
                     )}
                   </div>
                 </div>

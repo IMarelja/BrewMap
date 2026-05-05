@@ -54,7 +54,7 @@ export default function SearchPage() {
                   <div style={{ width: '56px', height: '56px', background: '#E8D5B7', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', flexShrink: 0 }}>☕</div>
                   <div>
                     <div style={{ fontWeight: 600, fontSize: '15px', color: '#2C1A0E' }}>{cafe.name}</div>
-                    <div style={{ fontSize: '13px', color: '#6B3F1F', marginTop: '2px' }}>{cafe.address}, {cafe.city}</div>
+                    <div style={{ fontSize: '13px', color: '#6B3F1F', marginTop: '2px' }}>{cafe.address.street}, {cafe.address.city}</div>
                   </div>
                 </div>
               </Link>
