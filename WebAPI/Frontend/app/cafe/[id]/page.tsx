@@ -19,7 +19,7 @@ export default function CafeDetailPage() {
   useEffect(() => {
     Promise.all([
       api.get(`/api/Locations/${id}`),
-      api.get(`/api/Review/${id}`)
+      api.get(`/api/Review/location/${id}`)
     ]).then(([cafeRes, reviewRes]) => {
       setCafe(cafeRes.data)
       setReviews(reviewRes.data)
@@ -31,8 +31,12 @@ export default function CafeDetailPage() {
     e.preventDefault()
     setSubmitting(true)
     try {
-      await api.post('/api/Review', { cafeId: id, rating, comment })
-      const res = await api.get(`/api/Review?cafeId=${id}`)
+      await api.post(`/api/Review/location/${id}`, {
+         cafeId: id, 
+         rating: rating,
+         comment: comment
+        })
+      const res = await api.get(`/api/Review/location/${id}`)
       setReviews(res.data)
       setComment('')
       setRating(5)

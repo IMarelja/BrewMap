@@ -11,17 +11,29 @@ export default function SearchPage() {
   const [results, setResults] = useState<Cafe[]>([])
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    if (!query.trim()) { setResults([]); return }
-    const timer = setTimeout(() => {
-      setLoading(true)
-      api.get(`/api/Locations?search=${encodeURIComponent(query)}`)
-        .then(res => setResults(res.data))
-        .catch(() => setResults([]))
-        .finally(() => setLoading(false))
-    }, 400)
-    return () => clearTimeout(timer)
-  }, [query])
+useEffect(() => {
+  if (!query.trim()) { setResults([]); return }
+  
+  const timer = setTimeout(() => {
+    setLoading(true)
+    api.get(`/api/Locations/search`, {
+      params: {
+        query: query,
+        longitude: 15.8457503, 
+        latitude: 45.7976803,
+        radiusMeters: 5000 
+      }
+    })
+    .then(res => {
+      const data = Array.isArray(res.data) ? res.data : res.data.locations || []
+      setResults(data)
+    })
+    .catch(() => setResults([]))
+    .finally(() => setLoading(false))
+  }, 400)
+  
+  return () => clearTimeout(timer)
+}, [query])
 
   return (
     <ProtectedRoute>
@@ -34,7 +46,7 @@ export default function SearchPage() {
             <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px' }}>🔍</span>
             <input
               type="text" value={query} onChange={e => setQuery(e.target.value)}
-              placeholder="Search by name, city, or vibe..."
+              placeholder="Search by cafe name..."
               style={{ width: '100%', padding: '14px 14px 14px 42px', border: '1.5px solid #E8D5B7', borderRadius: '12px', fontSize: '16px', background: '#fff', outline: 'none', boxSizing: 'border-box' }}
             />
           </div>
