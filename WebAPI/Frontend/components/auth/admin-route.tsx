@@ -1,0 +1,36 @@
+// 'use client'
+
+// import { useEffect, useState } from 'react'
+// import { useRouter } from 'next/navigation'
+// import { getUser, isLoggedIn } from '@/lib/auth'
+
+// export default function AdminRoute({ children }: { children: React.ReactNode }) {
+//   const router = useRouter()
+//   const [ready, setReady] = useState(false)
+
+//   useEffect(() => {
+//     const user = getUser()
+
+//     if (!isLoggedIn()) {
+//       router.replace('/login')
+//       return
+//     }
+
+//     if (user?.role !== 'admin') {
+//       router.replace('/explore')
+//       return
+//     }
+
+//     setReady(true)
+//   }, [])
+
+//   if (!ready) {
+//     return (
+//       <div className="min-h-screen flex items-center justify-center" style={{ background: '#F5EFE6' }}>
+//         <div style={{ color: '#6B3F1F' }}>Loading...</div>
+//       </div>
+//     )
+//   }
+
+//   return <>{children}</>
+// }
