@@ -55,16 +55,16 @@ export default function ExplorePage() {
                   </div>
                   <div style={{ padding: '1.25rem' }}>
                     <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#2C1A0E', marginBottom: '4px' }}>{cafe.name}</h3>
-                    <p style={{ fontSize: '13px', color: '#6B3F1F', marginBottom: '8px' }}>{cafe.address}, {cafe.city}</p>
+                    <p style={{ fontSize: '13px', color: '#6B3F1F', marginBottom: '8px' }}>{cafe.address.street}, {cafe.address.city}</p>
                     {cafe.description && (
                       <p style={{ fontSize: '13px', color: '#888', lineHeight: 1.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as any }}>
                         {cafe.description}
                       </p>
                     )}
-                    {cafe.rating && (
+                    {cafe.averageRating && (
                       <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                         <span style={{ color: '#C8854A' }}>★</span>
-                        <span style={{ fontSize: '13px', fontWeight: 500, color: '#2C1A0E' }}>{cafe.rating}</span>
+                        <span style={{ fontSize: '13px', fontWeight: 500, color: '#2C1A0E' }}>{cafe.averageRating.toFixed(1)}</span>
                       </div>
                     )}
                   </div>

@@ -2,22 +2,36 @@ export interface User {
   id: string
   username: string
   email: string
-  profilePicture?: string
+  role?: string
+  createdAt?: string
 }
 
 export interface Cafe {
   id: string
   name: string
-  description: string
-  address: string
-  city: string
+  description?: string
+  address: Address
   latitude: number
   longitude: number
-  imageUrl?: string
-  rating?: number
-  categories?: Category[]
-  drinks?: Drink[]
-  paymentOptions?: PaymentOption[]
+  categoryTag: string
+  paymentOptionTags: string[]
+  openingHours: Record<string, OpeningHours>
+  averageRating?: number
+  totalReviews?: number
+  createdAt?: string
+}
+
+export interface Address {
+  street: string
+  city: string
+  country: string
+  postalCode: string
+}
+
+export interface OpeningHours {
+  open?: string
+  close?: string
+  isClosed: boolean
 }
 
 export interface Review {
@@ -30,23 +44,37 @@ export interface Review {
   username?: string
 }
 
-export interface Category {
-  id: string
-  name: string
-}
-
 export interface Drink {
   id: string
   name: string
   price?: number
 }
 
+export interface Category {
+  id: string
+  tag: string
+  name: string
+}
+
 export interface PaymentOption {
   id: string
+  tag: string
   name: string
 }
 
 export interface AuthResponse {
   token: string
   user: User
+}
+
+export interface Flag {
+  id: string
+  reason: string
+  description?: string
+  status: string
+  createdAt: string
+  target: {
+    type: string
+    id: string
+  }
 }
