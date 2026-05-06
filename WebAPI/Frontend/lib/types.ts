@@ -4,6 +4,7 @@ export interface User {
   email: string
   role?: string
   createdAt?: string
+  profilePicture?: string
 }
 
 export interface Cafe {
@@ -32,6 +33,7 @@ export interface OpeningHours {
   open?: string
   close?: string
   isClosed: boolean
+
 }
 
 export interface Review {

@@ -2,19 +2,17 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { isLoggedIn } from '@/lib/auth'
-import { todo } from 'node:test'
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    setReady(true)
-    // if (!isLoggedIn()) {
-    //   router.replace('/login')
-    // } else {
-    //   setReady(true)
-    // }
+    if (!isLoggedIn()) {
+      router.replace('/login')
+    } else {
+      setReady(true)
+    }
   }, [])
 
   if (!ready) return (

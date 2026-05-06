@@ -14,6 +14,7 @@ brewmap_config/
 # dependencies
 node_modules/
 WebAPI/Frontend/node_modules/
+WebAPI/Frontend/.next/
 
 # API specific
 WebAPI/BrewMapAPI/BrewMapAPI/appsettings.json
