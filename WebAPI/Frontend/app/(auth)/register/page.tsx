@@ -20,7 +20,7 @@ export default function RegisterPage() {
     setLoading(true)
     setError('')
     try {
-      await register(email, password, username)
+      await register(email, username, password)
       router.push('/login')
     } catch (err: any) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.')
@@ -58,13 +58,20 @@ export default function RegisterPage() {
             ].map(f => (
               <div key={f.label} style={{ marginBottom: '1rem' }}>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#2C1A0E', marginBottom: '6px' }}>{f.label}</label>
-                <input type={f.type} value={f.value} onChange={e => f.setter(e.target.value)} required placeholder={f.placeholder}
-                  style={{ width: '100%', padding: '10px 14px', border: '1px solid #E8D5B7', borderRadius: '8px', fontSize: '15px', background: '#FDFAF7', outline: 'none', boxSizing: 'border-box' }} />
+                <input
+                  type={f.type}
+                  value={f.value}
+                  onChange={e => f.setter(e.target.value)}
+                  required
+                  placeholder={f.placeholder}
+                  style={{ width: '100%', padding: '10px 14px', border: '1px solid #E8D5B7', borderRadius: '8px', fontSize: '15px', background: '#FDFAF7', outline: 'none', boxSizing: 'border-box' }}
+                />
               </div>
             ))}
             <button type="submit" disabled={loading} style={{
               width: '100%', padding: '12px', background: loading ? '#9CA3AF' : '#2C1A0E',
-              color: '#F5EFE6', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer', marginTop: '0.5rem'
+              color: '#F5EFE6', border: 'none', borderRadius: '8px', fontSize: '16px',
+              fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer', marginTop: '0.5rem'
             }}>
               {loading ? 'Creating account...' : 'Create Account'}
             </button>

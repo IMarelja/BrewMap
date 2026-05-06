@@ -19,7 +19,7 @@ export default function CafeDetailPage() {
   useEffect(() => {
     Promise.all([
       api.get(`/api/Locations/${id}`),
-      api.get(`/api/Review?cafeId=${id}`)
+      api.get(`/api/Review/location/${id}`)
     ]).then(([cafeRes, reviewRes]) => {
       setCafe(cafeRes.data)
       setReviews(reviewRes.data)
@@ -31,8 +31,12 @@ export default function CafeDetailPage() {
     e.preventDefault()
     setSubmitting(true)
     try {
-      await api.post('/api/Review', { cafeId: id, rating, comment })
-      const res = await api.get(`/api/Review?cafeId=${id}`)
+      await api.post(`/api/Review/location/${id}`, {
+         cafeId: id, 
+         rating: rating,
+         comment: comment
+        })
+      const res = await api.get(`/api/Review/location/${id}`)
       setReviews(res.data)
       setComment('')
       setRating(5)
@@ -54,7 +58,7 @@ export default function CafeDetailPage() {
             <div style={{ background: '#E8D5B7', height: '240px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '64px', marginBottom: '1.5rem' }}>☕</div>
 
             <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: '2rem', color: '#2C1A0E', marginBottom: '0.5rem' }}>{cafe.name}</h1>
-            <p style={{ color: '#6B3F1F', marginBottom: '1rem' }}>📍 {cafe.address}, {cafe.city}</p>
+            <p style={{ color: '#6B3F1F', marginBottom: '1rem' }}>📍 {cafe.address.street}, {cafe.address.city}</p>
             {cafe.description && <p style={{ color: '#2C1A0E', lineHeight: 1.7, marginBottom: '2rem' }}>{cafe.description}</p>}
 
             {cafe.drinks && cafe.drinks.length > 0 && (

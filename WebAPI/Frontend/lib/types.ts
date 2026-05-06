@@ -10,8 +10,14 @@ export interface User {
 export interface Cafe {
   id: string
   name: string
-  description?: string
-  address: Address
+  description: string
+  address:{
+    street: string;
+    city:string;
+    country:string;
+    postalcode: string;
+  };
+  city: string
   latitude: number
   longitude: number
   categoryTag: string
@@ -20,6 +26,7 @@ export interface Cafe {
   averageRating?: number
   totalReviews?: number
   createdAt?: string
+  imageUrl?: string
 }
 
 export interface Address {

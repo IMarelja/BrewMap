@@ -46,7 +46,7 @@ export default function LandingPage() {
       <section style={{ padding: '5rem 2rem', textAlign: 'center' }}>
         <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '2rem', color: '#2C1A0E', marginBottom: '0.5rem' }}>Everything you need to find great coffee</h2>
         <p style={{ color: '#6B3F1F', marginBottom: '3rem' }}>Simple tools for discovering and sharing amazing cafe experiences</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem', maxWidth: '900px', margin: '0 auto' }}>
+        <div style={{ display: 'flex', flexDirection:'row', flexWrap:'nowrap', gap:'20px',justifyContent: 'center', alignItems:'stretch',width:'100%', padding:'20px' }}>
           {[
             { icon: '🗺️', title: 'Interactive Map', desc: 'Find cafes near you with our live map view' },
             { icon: '⭐', title: 'Honest Reviews', desc: 'Read and write reviews from real coffee lovers' },
@@ -55,8 +55,8 @@ export default function LandingPage() {
           ].map(f => (
             <div key={f.title} style={{ background: '#fff', border: '1px solid #E8D5B7', borderRadius: '12px', padding: '2rem 1.5rem', textAlign: 'left' }}>
               <div style={{ fontSize: '28px', marginBottom: '1rem' }}>{f.icon}</div>
-              <div style={{ fontWeight: 600, fontSize: '16px', color: '#2C1A0E', marginBottom: '0.5rem' }}>{f.title}</div>
-              <div style={{ fontSize: '14px', color: '#6B3F1F', lineHeight: 1.6 }}>{f.desc}</div>
+              <div style={{ fontWeight: 600, fontSize: '20px', color: '#2C1A0E', marginBottom: '0.5rem' }}>{f.title}</div>
+              <div style={{ fontSize: '17px', color: '#6B3F1F', lineHeight: 1.6 }}>{f.desc}</div>
             </div>
           ))}
         </div>
