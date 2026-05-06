@@ -59,27 +59,26 @@ export default function ExplorePage() {
   // --- Flexible Filtering Logic ---
   const filteredCafes = useMemo(() => {
     return cafes.filter(cafe => {
-      // 1. Rating (Min)
+  
       if ((cafe.rating ?? 0) < minRating) return false
 
-      // 2. Price Level (Multiple Selection - OR logic)
+   
       if (selectedPrices.length > 0) {
-        // Mapping string $ to numeric level if your API uses numbers, 
-        // otherwise matching the string directly.
+   
         const priceMap: Record<string, number> = { '$': 1, '$$': 2, '$$$': 3, '$$$$': 4 };
-        const cafePrice = cafe.rating; // Adjust this if your property name is different
+        const cafePrice = cafe.rating; 
         const match = selectedPrices.some(p => priceMap[p] === cafePrice);
         if (!match) return false;
       }
 
-      // 3. Categories/Amenities (Multiple Selection - AND logic: must have all selected)
+      
       if (selectedCategories.length > 0) {
         const cafeCats = (cafe.categories || []).map(c => String(c).toLowerCase());
         const hasAll = selectedCategories.every(s => cafeCats.some(cat => cat.includes(s.toLowerCase())));
         if (!hasAll) return false
       }
 
-      // 4. Drinks (Multiple Selection - OR logic: shows cafes that have ANY of the selected drinks)
+     
       if (selectedDrinks.length > 0) {
         const cafeDrinks = (cafe.drinks || []).map(d => String(d).toLowerCase());
         const hasAny = selectedDrinks.some(s => cafeDrinks.some(drink => drink.includes(s.toLowerCase())));
