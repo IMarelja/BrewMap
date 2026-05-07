@@ -28,6 +28,7 @@ namespace BrewMapAPI.Controllers
 
         // Get a review by its ID (single review detail)
         [HttpGet("{id}")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> GetById(string id)
         {
             try
@@ -45,6 +46,7 @@ namespace BrewMapAPI.Controllers
 
         // Get all reviews for a specific cafe location
         [HttpGet("cafe/{cafeId}")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> GetByCafeId(string cafeId)
         {
             try
@@ -60,6 +62,7 @@ namespace BrewMapAPI.Controllers
 
         // Get all reviews created by the logged-in user
         [HttpGet("mine")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> GetOwnReviews()
         {
             try
@@ -79,6 +82,7 @@ namespace BrewMapAPI.Controllers
 
         // Create a new review
         [HttpPost]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> CreateReview([FromBody] CreateReview review)
         {
             try
@@ -98,6 +102,7 @@ namespace BrewMapAPI.Controllers
 
         // Update own review
         [HttpPut("{id}")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> UpdateReview(string id, [FromBody] UpdateReview update)
         {
             try
@@ -120,6 +125,7 @@ namespace BrewMapAPI.Controllers
 
         // Delete own review
         [HttpDelete("{id}")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> DeleteReview(string id)
         {
             try

@@ -1,5 +1,6 @@
 using BrewMapAPI.DTO.Flag;
 using BrewMapAPI.Service.Flags;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BrewMapAPI.Controllers
@@ -17,6 +18,7 @@ namespace BrewMapAPI.Controllers
 
         // POST: api/flag - Create a report (User)
         [HttpPost]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> CreateFlag([FromBody] CreateFlag flag)
         {
             try
@@ -39,6 +41,7 @@ namespace BrewMapAPI.Controllers
 
         // GET: api/flag/{id} - Get a specific report (Admin)
         [HttpGet("{id}")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> GetById(string id)
         {
             try
@@ -57,6 +60,7 @@ namespace BrewMapAPI.Controllers
         // GET: api/flag - Get all reports with optional filters (Admin)
         // Query params: ?status=pending&targetType=location
         [HttpGet]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> GetAll([FromQuery] string? status, [FromQuery] string? targetType)
         {
             try
@@ -72,6 +76,7 @@ namespace BrewMapAPI.Controllers
 
         // PUT: api/flag/status - Update report status (Admin)
         [HttpPut("status")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> UpdateStatus([FromBody] UpdateFlagStatus dto)
         {
             try
@@ -92,6 +97,7 @@ namespace BrewMapAPI.Controllers
 
         // GET: api/flag/stats - Get report statistics (Admin)
         [HttpGet("stats")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> GetStatistics()
         {
             try

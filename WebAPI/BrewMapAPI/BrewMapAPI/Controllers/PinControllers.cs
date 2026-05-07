@@ -1,5 +1,6 @@
 using BrewMapAPI.DTO.Pin;
 using BrewMapAPI.Service.Pins;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BrewMapAPI.Controllers
@@ -16,6 +17,7 @@ namespace BrewMapAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> GetById(string id)
         {
             try
@@ -30,6 +32,7 @@ namespace BrewMapAPI.Controllers
         }
 
         [HttpGet("range")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> GetByRange(
             [FromQuery] double minLat,
             [FromQuery] double maxLat,

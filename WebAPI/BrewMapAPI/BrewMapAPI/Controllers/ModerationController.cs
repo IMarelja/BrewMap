@@ -1,4 +1,5 @@
 using BrewMapAPI.Service.Moderation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BrewMapAPI.Controllers
@@ -16,6 +17,7 @@ namespace BrewMapAPI.Controllers
 
         /// DELETE: api/moderation/location/{id}
         [HttpDelete("location/{id}")]
+        [Authorize(Roles =  "admin")]
         public async Task<IActionResult> DeleteLocation(string id)
         {
             try
@@ -35,6 +37,7 @@ namespace BrewMapAPI.Controllers
 
         /// DELETE: api/moderation/drink/{id}
         [HttpDelete("drink/{id}")]
+        [Authorize(Roles =  "admin")]
         public async Task<IActionResult> DeleteDrink(string id)
         {
             try
@@ -54,6 +57,7 @@ namespace BrewMapAPI.Controllers
 
         /// DELETE: api/moderation/review/{id}
         [HttpDelete("review/{id}")]
+        [Authorize(Roles =  "admin")]
         public async Task<IActionResult> DeleteReview(string id)
         {
             try
@@ -92,6 +96,7 @@ namespace BrewMapAPI.Controllers
 
         /// PUT: api/moderation/user/{id}/suspend
         [HttpPut("user/{id}/suspend")]
+        [Authorize(Roles =  "admin")]
         public async Task<IActionResult> SuspendUser(string id)
         {
             try
@@ -111,6 +116,7 @@ namespace BrewMapAPI.Controllers
 
         /// PUT: api/moderation/user/{id}/unsuspend
         [HttpPut("user/{id}/unsuspend")]
+        [Authorize(Roles =  "admin")]
         public async Task<IActionResult> UnsuspendUser(string id)
         {
             try
@@ -130,6 +136,7 @@ namespace BrewMapAPI.Controllers
 
         /// PUT: api/moderation/user/{id}/grant-admin
         [HttpPut("user/{id}/grant-admin")]
+        [Authorize(Roles =  "admin")]
         public async Task<IActionResult> GrantAdminRole(string id)
         {
             try
@@ -149,6 +156,7 @@ namespace BrewMapAPI.Controllers
 
         /// PUT: api/moderation/user/{id}/revoke-admin
         [HttpPut("user/{id}/revoke-admin")]
+        [Authorize(Roles =  "admin")]
         public async Task<IActionResult> RevokeAdminRole(string id)
         {
             try
