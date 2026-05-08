@@ -11,6 +11,10 @@ brewmap_config/
 # Environment variables
 .env
 
+# dependencies
+node_modules/
+WebAPI/Frontend/node_modules/
+
 # API specific
 WebAPI/BrewMapAPI/BrewMapAPI/appsettings.json
 WebAPI/BrewMapAPI/BrewMapAPI/appsettings.Development.json
