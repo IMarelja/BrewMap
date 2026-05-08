@@ -11,6 +11,7 @@ export default function ProfilePage() {
   const [email, setEmail] = useState(user?.email || '')
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
+  const [confirmNewPassword,setConfirmedNewPassword]= useState('')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
@@ -21,7 +22,7 @@ export default function ProfilePage() {
     setMessage('')
     setError('')
     try {
-      await api.patch('/api/User/me', { username, email })
+      await api.put('/api/User/email', { newEmail: email, currentPassword })
       setMessage('Profile updated successfully.')
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to update profile.')
@@ -34,10 +35,11 @@ export default function ProfilePage() {
     setMessage('')
     setError('')
     try {
-      await api.post('/api/User/change-password', { currentPassword, newPassword })
+      await api.put('/api/User/password', { currentPassword, newPassword, confirmNewPassword})
       setMessage('Password changed successfully.')
       setCurrentPassword('')
       setNewPassword('')
+      setConfirmedNewPassword('')
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to change password.')
     } finally { setSaving(false) }
@@ -57,8 +59,9 @@ export default function ProfilePage() {
             <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#2C1A0E', marginBottom: '1.5rem' }}>Account Details</h2>
             <form onSubmit={handleSave}>
               {[
-                { label: 'Username', value: username, setter: setUsername, type: 'text' },
-                { label: 'Email', value: email, setter: setEmail, type: 'email' },
+                { label: 'New Email', value: email, setter: setEmail, type: 'email' },
+                { label: 'Current Password', value: currentPassword, setter: setCurrentPassword},
+              
               ].map(f => (
                 <div key={f.label} style={{ marginBottom: '1rem' }}>
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#2C1A0E', marginBottom: '6px' }}>{f.label}</label>
@@ -79,6 +82,7 @@ export default function ProfilePage() {
               {[
                 { label: 'Current Password', value: currentPassword, setter: setCurrentPassword },
                 { label: 'New Password', value: newPassword, setter: setNewPassword },
+                {label:'Confirmed New Password', value:confirmNewPassword,setter:setConfirmedNewPassword}
               ].map(f => (
                 <div key={f.label} style={{ marginBottom: '1rem' }}>
                   <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#2C1A0E', marginBottom: '6px' }}>{f.label}</label>

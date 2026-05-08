@@ -21,7 +21,7 @@ export default function SearchPage() {
 
 
   const recentSearches = ['espresso', 'outdoor seating', 'cozy cafe', 'cold brew']
-  const popularTags = ['WiFi', 'Pet Friendly', 'Good for Work', 'Outdoor Seating', 'Quiet']
+  const Ameneties= ['WiFi', 'Pet Friendly', 'Good for Work', 'Outdoor Seating', 'Quiet']
 
 useEffect(() => {
 
@@ -77,7 +77,7 @@ useEffect(() => {
 
           {/* Search Bar Section */}
           <div style={{ position: 'relative', marginBottom: '2rem' }}>
-            <span style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', fontSize: '18px', color: '#888' }}>🔍</span>
+            <span style={{ position: 'absolute', left: '15px', top: '18%', transform: 'translateY(-50%)', fontSize: '20px', color: '#888' }}>🔍</span>
             <input
               type="text" value={query} onChange={e => setQuery(e.target.value)}
               placeholder="Search for cafes, drinks, or amenities..."
@@ -159,16 +159,16 @@ useEffect(() => {
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                   {recentSearches.map(item => (
                     <button key={item} onClick={() => setQuery(item)} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #E8D5B7', background: 'transparent', cursor: 'pointer', color: '#2C1A0E', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontSize: '12px' }}>🔍</span> {item}
+                     <span style={{ fontSize: '12px' }}>🔍</span> {item}
                     </button>
                   ))}
                 </div>
               </div>
 
               <div style={{ marginBottom: '3rem' }}>
-                <h3 style={{ fontSize: '0.9rem', color: '#8C7861', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '1rem' }}>Popular Tags</h3>
+                <h3 style={{ fontSize: '0.9rem', color: '#8C7861', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '1rem' }}>Ameneties</h3>
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  {popularTags.map(tag => (
+                  {Ameneties.map(tag => (
                     <span key={tag} style={{ padding: '6px 12px', background: '#EADBC8', borderRadius: '6px', fontSize: '0.85rem', color: '#5C4033', cursor: 'pointer' }}>
                       {tag}
                     </span>
@@ -218,7 +218,15 @@ useEffect(() => {
                     border: '1px solid #EEE'
                   }}>
                     {/* Using an emoji as a placeholder for the image circle in your ref */}
-                    ☕
+                    <img 
+                    src= "/placeholder.png"
+                    alt= "Profile placeholder"
+                    style = {{
+                      width:'100%',
+                      height:"100%",
+                      objectFit:'cover'
+                    }}
+                    />
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: '700', fontSize: '1.1rem', color: '#2C1A0E', marginBottom: '4px' }}>{cafe.name}</div>
