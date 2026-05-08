@@ -6,12 +6,12 @@ services:
     container_name: brewmap-mongodb
     restart: unless-stopped
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: changeme
+      MONGODB_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-admin}
+      MONGODB_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-changeme}
       MONGO_INITDB_DATABASE: brewmap
     ports:
      
-      - "27019:27017" 
+      - "${MONGO_PORT:-27017}:27017"
     volumes:
       - brewmap_data:/data/db
       - brewmap_config:/data/configdb
