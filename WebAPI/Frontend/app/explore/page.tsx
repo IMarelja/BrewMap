@@ -72,11 +72,15 @@ export default function ExplorePage() {
         if (!match) return false;
       }
 
-      // 3. Categories/Amenities (Multiple Selection - AND logic: must have all selected)
-      if (selectedCategories.length > 0) {
-        const cafeCats = (cafe.categories || []).map(c => String(c).toLowerCase());
-        const hasAll = selectedCategories.every(s => cafeCats.some(cat => cat.includes(s.toLowerCase())));
-        if (!hasAll) return false
+      // 3. CategoryTag filter
+        if (selectedCategories.length > 0) {
+          const cafeCategory = cafe.categoryTag?.toLowerCase() || ''
+
+        const matchesCategory = selectedCategories.some(category =>
+          cafeCategory.includes(category.toLowerCase())
+        )
+
+        if (!matchesCategory) return false
       }
 
       // 4. Drinks (Multiple Selection - OR logic: shows cafes that have ANY of the selected drinks)

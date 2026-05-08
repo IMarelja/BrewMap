@@ -22,6 +22,7 @@ export interface Cafe {
   longitude: number
   categoryTag: string
   paymentOptionTags: string[]
+  drinks: string[]
   openingHours: Record<string, OpeningHours>
   averageRating?: number
   totalReviews?: number
