@@ -59,23 +59,27 @@ export default function ExplorePage() {
   // --- Flexible Filtering Logic ---
   const filteredCafes = useMemo(() => {
     return cafes.filter(cafe => {
-  
-      if ((cafe.rating ?? 0) < minRating) return false
+      // 1. Rating (Min)
+      if ((cafe.averageRating ?? 0) < minRating) return false
 
    
       if (selectedPrices.length > 0) {
    
         const priceMap: Record<string, number> = { '$': 1, '$$': 2, '$$$': 3, '$$$$': 4 };
-        const cafePrice = cafe.rating; 
+        const cafePrice = cafe.averageRating; // Adjust this if your property name is different
         const match = selectedPrices.some(p => priceMap[p] === cafePrice);
         if (!match) return false;
       }
 
-      
-      if (selectedCategories.length > 0) {
-        const cafeCats = (cafe.categories || []).map(c => String(c).toLowerCase());
-        const hasAll = selectedCategories.every(s => cafeCats.some(cat => cat.includes(s.toLowerCase())));
-        if (!hasAll) return false
+      // 3. CategoryTag filter
+        if (selectedCategories.length > 0) {
+          const cafeCategory = cafe.categoryTag?.toLowerCase() || ''
+
+        const matchesCategory = selectedCategories.some(category =>
+          cafeCategory.includes(category.toLowerCase())
+        )
+
+        if (!matchesCategory) return false
       }
 
      
@@ -151,7 +155,7 @@ export default function ExplorePage() {
                     <div style={{ padding: view === 'list' ? '0' : '1rem', flex: 1 }}>
                       <h3 style={{ margin: '0 0 4px 0', color: '#2C1A0E' }}>{cafe.name}</h3>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#B08968', marginBottom: '8px' }}>
-                        <Star size={14} fill="#B08968" /> <span>{cafe.rating || 'N/A'}</span>
+                        <Star size={14} fill="#B08968" /> <span>{cafe.averageRating || 'N/A'}</span>
                       </div>
                       <p style={{ margin: 0, fontSize: '0.85rem', color: '#6B3F1F' }}>{cafe.address?.street || cafe.city}</p>
                     </div>
