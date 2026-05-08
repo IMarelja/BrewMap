@@ -32,7 +32,7 @@ namespace BrewMapAPI.Service.Auth
                 // MongoDB syntax for finding one user
                 var emailUser = await _repo.GetByEmail(request.User);
                 var usernameUser = await _repo.GetByUsername(request.User);
-                Models.User existingUser = null;
+                Models.User? existingUser = null;
                 if (emailUser != null)
                 {
                     existingUser = emailUser;

@@ -3,6 +3,7 @@
 **/bin/
 **/obj/
 .vs
+.vscode
 
 # Database specific
 brewmap_data/
@@ -12,3 +13,6 @@ brewmap_config/
 
 # API specific
 WebAPI/BrewMapAPI/BrewMapAPI/appsettings.json
+WebAPI/BrewMapAPI/BrewMapAPI/appsettings.Development.json
+
+WebAPI/BrewMapAPI/BrewMapEndpointUnitTest/appsettings.json

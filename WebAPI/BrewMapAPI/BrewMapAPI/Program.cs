@@ -23,6 +23,8 @@ using BrewMapAPI.Service.Moderation;
 using BrewMapAPI.Repository.Moderation;
 using BrewMapAPI.Service.User;
 using BrewMapAPI.Repository.Users;
+using BrewMapAPI.Service.Category;
+using BrewMapAPI.Service.PaymentOption;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,6 +68,9 @@ builder.Services.AddSwaggerGen(options =>
 
 // JWT Authentication
 var secureKey = builder.Configuration["Jwt:SecureKey"];
+var issuer = builder.Configuration["Jwt:Issuer"];
+var audience = builder.Configuration["Jwt:Audience"];
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -73,8 +78,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secureKey!)),
-            ValidateIssuer = false,
-            ValidateAudience = false
+            
+            ValidateIssuer = true,
+            ValidIssuer = issuer,
+
+            ValidateAudience = true,
+            ValidAudience = audience
         };
     });
 
@@ -94,6 +103,8 @@ builder.Services.AddScoped<IPinService, PinService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFlagService, FlagService>();
 builder.Services.AddScoped<IModerationService, ModerationService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IPaymentOptionService, PaymentOptionService>();
 
 // Data access level architecture
 builder.Services.AddScoped<IAuthRepo, AuthRepo>();
@@ -104,8 +115,11 @@ builder.Services.AddScoped<IPinRepo, PinRepo>();
 builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
 builder.Services.AddScoped<IPaymentOptionRepo, PaymentOptionRepo>();
+builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<IFlagRepo, FlagRepo>();
 builder.Services.AddScoped<IModerationRepo, ModerationRepo>();
+builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
+builder.Services.AddScoped<IPaymentOptionRepo, PaymentOptionRepo>();
 
 var app = builder.Build();
 

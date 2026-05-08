@@ -1,4 +1,4 @@
-﻿using BrewMapAPI.DTO.Review;
+using BrewMapAPI.DTO.Review;
 using BrewMapAPI.Service.Review;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -8,7 +8,7 @@ namespace BrewMapAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize] 
+    //[Authorize]
     public class ReviewController : ControllerBase
     {
         private readonly IReviewService _service;
@@ -18,15 +18,8 @@ namespace BrewMapAPI.Controllers
             _service = service;
         }
 
-        // Helper to extract userId from JWT claims
-        private string? GetUserId()
-        {
-            return User.FindFirstValue("sub")
-                ?? User.FindFirstValue("id")
-                ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
-        }
+        private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
-        // Get a review by its ID (single review detail)
         [HttpGet("{id}")]
         [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> GetById(string id)
@@ -44,14 +37,13 @@ namespace BrewMapAPI.Controllers
             }
         }
 
-        // Get all reviews for a specific cafe location
-        [HttpGet("cafe/{cafeId}")]
+        [HttpGet("location/{locationId}")]
         [Authorize(Roles =  "admin,user")]
-        public async Task<IActionResult> GetByCafeId(string cafeId)
+        public async Task<IActionResult> GetByLocationId(string locationId)
         {
             try
             {
-                var reviews = await _service.GetByTarget("location", cafeId);
+                var reviews = await _service.GetByTarget("location", locationId);
                 return Ok(reviews);
             }
             catch (Exception ex)
@@ -60,7 +52,21 @@ namespace BrewMapAPI.Controllers
             }
         }
 
-        // Get all reviews created by the logged-in user
+        [HttpGet("drink/{drinkId}")]
+        [Authorize(Roles =  "admin,user")]
+        public async Task<IActionResult> GetByDrinkId(string drinkId)
+        {
+            try
+            {
+                var reviews = await _service.GetByTarget("product", drinkId);
+                return Ok(reviews);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpGet("mine")]
         [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> GetOwnReviews()
@@ -80,19 +86,14 @@ namespace BrewMapAPI.Controllers
             }
         }
 
-        // Create a new review
-        [HttpPost]
+        [HttpGet("byUser/{userId}")]
         [Authorize(Roles =  "admin,user")]
-        public async Task<IActionResult> CreateReview([FromBody] CreateReview review)
+        public async Task<IActionResult> GetByUserIdReviews(string userId)
         {
             try
             {
-                var userId = GetUserId();
-                if (string.IsNullOrEmpty(userId))
-                    return Unauthorized();
-
-                var createdReview = await _service.CreateReview(review, userId);
-                return CreatedAtAction(nameof(GetById), new { id = createdReview.Id }, createdReview);
+                var reviews = await _service.GetByUserId(userId);
+                return Ok(reviews);
             }
             catch (Exception ex)
             {
@@ -100,7 +101,43 @@ namespace BrewMapAPI.Controllers
             }
         }
 
-        // Update own review
+        [HttpPost("location/{locationId}")]
+        [Authorize(Roles =  "admin,user")]
+        public async Task<IActionResult> CreateLocationReview(string locationId, [FromBody] CreateReviewBody body)
+        {
+            try
+            {
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized();
+
+                var created = await _service.CreateLocationReview(locationId, body, userId);
+                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("drink/{drinkId}")]
+        public async Task<IActionResult> CreateDrinkReview(string drinkId, [FromBody] CreateReviewBody body)
+        {
+            try
+            {
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized();
+
+                var created = await _service.CreateDrinkReview(drinkId, body, userId);
+                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPut("{id}")]
         [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> UpdateReview(string id, [FromBody] UpdateReview update)
@@ -111,8 +148,7 @@ namespace BrewMapAPI.Controllers
                 if (string.IsNullOrEmpty(userId))
                     return Unauthorized();
 
-                update.Id = id; // ensure id in route matches DTO
-                var updated = await _service.UpdateReview(update, userId);
+                var updated = await _service.UpdateReview(id, update, userId);
                 if (updated == null)
                     return NotFound();
                 return Ok(updated);
@@ -123,7 +159,6 @@ namespace BrewMapAPI.Controllers
             }
         }
 
-        // Delete own review
         [HttpDelete("{id}")]
         [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> DeleteReview(string id)

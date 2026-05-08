@@ -12,28 +12,28 @@ namespace BrewMapAPI.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string Id { get; set; } = String.Empty;
 
         [BsonElement("name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = String.Empty;
 
         [BsonElement("description")]
         public string? Description { get; set; }
 
         [BsonElement("address")]
-        public Address Address { get; set; }
+        public Address Address { get; set; } = new Address();
 
         [BsonElement("location")]
-        public GeoJsonPoint<GeoJson2DGeographicCoordinates> LocationPoint { get; set; }
+        public GeoJsonPoint<GeoJson2DGeographicCoordinates> LocationPoint { get; set; } = new GeoJsonPoint<GeoJson2DGeographicCoordinates>(new GeoJson2DGeographicCoordinates(0, 0));
 
         [BsonElement("categoryTag")]
-        public string CategoryTag { get; set; }
+        public string CategoryTag { get; set; }  = String.Empty;
 
         [BsonElement("paymentOptionTags")]
         public List<string> PaymentOptionTags { get; set; } = new List<string>();
 
         [BsonElement("openingHours")]
-        public Dictionary<string, DayOpeningHours> OpeningHours { get; set; }
+        public Dictionary<string, DayOpeningHours> OpeningHours { get; set; } = new Dictionary<string, DayOpeningHours>();
 
         [BsonElement("contact")]
         public Contact? Contact { get; set; }
@@ -46,7 +46,7 @@ namespace BrewMapAPI.Models
 
         [BsonElement("addedByUserId")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string AddedByUserId { get; set; }
+        public string AddedByUserId { get; set; } = String.Empty;
 
         [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -64,16 +64,16 @@ namespace BrewMapAPI.Models
     public class Address
     {
         [BsonElement("street")]
-        public string Street { get; set; }
+        public string Street { get; set; } = String.Empty;
 
         [BsonElement("city")]
-        public string City { get; set; }
+        public string City { get; set; } = String.Empty;
 
         [BsonElement("country")]
-        public string Country { get; set; }
+        public string Country { get; set; } = String.Empty;
 
         [BsonElement("postalCode")]
-        public string PostalCode { get; set; }
+        public string PostalCode { get; set; } = String.Empty;
     }
 
     public class DayOpeningHours : IValidatableObject
@@ -148,7 +148,7 @@ namespace BrewMapAPI.Models
     {
         [BsonElement("editedByUserId")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string EditedByUserId { get; set; }
+        public string EditedByUserId { get; set; }  = String.Empty;
 
         [BsonElement("editedAt")]
         public DateTime EditedAt { get; set; }

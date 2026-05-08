@@ -7,13 +7,13 @@ namespace BrewMapAPI.Models;
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string Id { get; set; }  = String.Empty;
 
         [BsonElement("_tag")]
-        public string Tag { get; set; }
+        public string Tag { get; set; }  = String.Empty;
 
         [BsonElement("name")]
-        public string Name { get; set; }
+        public string Name { get; set; }  = String.Empty;
 
         [BsonElement("isActive")]
         public bool IsActive { get; set; }

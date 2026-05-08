@@ -1,4 +1,5 @@
 using BrewMapAPI.Service.Moderation;
+using BrewMapAPI.DTO.Moderation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,6 +7,7 @@ namespace BrewMapAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "admin")]
     public class ModerationController : ControllerBase
     {
         private readonly IModerationService _service;
@@ -15,68 +17,10 @@ namespace BrewMapAPI.Controllers
             _service = service;
         }
 
-        /// DELETE: api/moderation/location/{id}
-        [HttpDelete("location/{id}")]
-        [Authorize(Roles =  "admin")]
-        public async Task<IActionResult> DeleteLocation(string id)
-        {
-            try
-            {
-                var result = await _service.DeleteLocation(id);
-                
-                if (!result.Success)
-                    return NotFound(result);
-                
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { success = false, message = ex.Message });
-            }
-        }
 
-        /// DELETE: api/moderation/drink/{id}
-        [HttpDelete("drink/{id}")]
-        [Authorize(Roles =  "admin")]
-        public async Task<IActionResult> DeleteDrink(string id)
-        {
-            try
-            {
-                var result = await _service.DeleteDrink(id);
-                
-                if (!result.Success)
-                    return NotFound(result);
-                
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { success = false, message = ex.Message });
-            }
-        }
-
-        /// DELETE: api/moderation/review/{id}
-        [HttpDelete("review/{id}")]
-        [Authorize(Roles =  "admin")]
-        public async Task<IActionResult> DeleteReview(string id)
-        {
-            try
-            {
-                var result = await _service.DeleteReview(id);
-                
-                if (!result.Success)
-                    return NotFound(result);
-                
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { success = false, message = ex.Message });
-            }
-        }
-
-        /// GET: api/moderation/user/{id}
+        /// GET: api/Moderation/user/{id}
         [HttpGet("user/{id}")]
+        [Authorize(Roles =  "admin")]
         public async Task<IActionResult> GetUserInfo(string id)
         {
             try
@@ -94,18 +38,18 @@ namespace BrewMapAPI.Controllers
             }
         }
 
-        /// PUT: api/moderation/user/{id}/suspend
-        [HttpPut("user/{id}/suspend")]
+        /// PATCH: api/Moderation/user/{id}
+        [HttpPatch("user/{id}")]
         [Authorize(Roles =  "admin")]
-        public async Task<IActionResult> SuspendUser(string id)
+        public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserModerationRequest request)
         {
             try
             {
-                var result = await _service.SuspendUser(id);
-                
+                var result = await _service.UpdateUser(id, request);
+
                 if (!result.Success)
                     return BadRequest(result);
-                
+
                 return Ok(result);
             }
             catch (Exception ex)
@@ -114,64 +58,98 @@ namespace BrewMapAPI.Controllers
             }
         }
 
-        /// PUT: api/moderation/user/{id}/unsuspend
-        [HttpPut("user/{id}/unsuspend")]
+/*
+        /// DELETE: api/Moderation/user/{id}
+        [HttpDelete("user/{id}")]
         [Authorize(Roles =  "admin")]
-        public async Task<IActionResult> UnsuspendUser(string id)
+        public async Task<IActionResult> DeleteUser(string id)
         {
             try
             {
-                var result = await _service.UnsuspendUser(id);
-                
-                if (!result.Success)
-                    return BadRequest(result);
-                
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { success = false, message = ex.Message });
-            }
-        }
+                var result = await _service.DeleteUser(id);
 
-        /// PUT: api/moderation/user/{id}/grant-admin
-        [HttpPut("user/{id}/grant-admin")]
-        [Authorize(Roles =  "admin")]
-        public async Task<IActionResult> GrantAdminRole(string id)
-        {
-            try
-            {
-                var result = await _service.GrantAdminRole(id);
-                
                 if (!result.Success)
                     return BadRequest(result);
-                
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { success = false, message = ex.Message });
-            }
-        }
 
-        /// PUT: api/moderation/user/{id}/revoke-admin
-        [HttpPut("user/{id}/revoke-admin")]
-        [Authorize(Roles =  "admin")]
-        public async Task<IActionResult> RevokeAdminRole(string id)
-        {
-            try
-            {
-                var result = await _service.RevokeAdminRole(id);
-                
-                if (!result.Success)
-                    return BadRequest(result);
-                
                 return Ok(result);
             }
             catch (Exception ex)
             {
                 return BadRequest(new { success = false, message = ex.Message });
             }
-        }
+        }*/
+
+        
+
+        // /// PUT: api/Moderation/User/{id}/suspend
+        // [HttpPut("User/{id}/suspend")]
+        // [Authorize(Roles =  "admin")]
+        // public async Task<IActionResult> SuspendUser(string id)
+        // {
+        //     try
+        //     {
+        //         var result = await _service.SuspendUser(id);
+        //         if (!result.Success)
+        //             return BadRequest(result);
+        //         return Ok(result);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return BadRequest(new { success = false, message = ex.Message });
+        //     }
+        // }
+
+        // /// PUT: api/Moderation/User/{id}/unsuspend
+        // [HttpPut("User/{id}/unsuspend")]
+        // public async Task<IActionResult> UnsuspendUser(string id)
+        // {
+        //     try
+        //     {
+        //         var result = await _service.UnsuspendUser(id);
+        //         if (!result.Success)
+        //             return BadRequest(result);
+        //         return Ok(result);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return BadRequest(new { success = false, message = ex.Message });
+        //     }
+        // }
+
+        // /// PUT: api/Moderation/User/{id}/grant-admin
+        // [HttpPut("User/{id}/grant-admin")]
+        // [Authorize(Roles =  "admin")]
+        // public async Task<IActionResult> GrantAdminRole(string id)
+        // {
+        //     try
+        //     {
+        //         var result = await _service.GrantAdminRole(id);
+        //         if (!result.Success)
+        //             return BadRequest(result);
+        //         return Ok(result);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return BadRequest(new { success = false, message = ex.Message });
+        //     }
+        // }
+
+        // /// PUT: api/Moderation/User/{id}/revoke-admin
+        // [HttpPut("user/{id}/revoke-admin")]
+        // [Authorize(Roles =  "admin")]
+        // public async Task<IActionResult> RevokeAdminRole(string id)
+        // {
+        //     try
+        //     {
+        //         var result = await _service.RevokeAdminRole(id);
+        //         if (!result.Success)
+        //             return BadRequest(result);
+        //         return Ok(result);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return BadRequest(new { success = false, message = ex.Message });
+        //     }
+        // }
     }
 }

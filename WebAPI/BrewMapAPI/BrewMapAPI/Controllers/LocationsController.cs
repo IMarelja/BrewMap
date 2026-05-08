@@ -1,5 +1,7 @@
 ﻿using BrewMapAPI.DTO.Location;
+using BrewMapAPI.DTO.Pin;
 using BrewMapAPI.Service.Location;
+using BrewMapAPI.Service.Pins;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -13,21 +15,15 @@ namespace BrewMapAPI.Controllers
     public class LocationsController : ControllerBase
     {
         private readonly ILocationService _service;
+        private readonly IPinService _pinService;
 
-        public LocationsController(ILocationService service)
+        public LocationsController(ILocationService service, IPinService pinService)
         {
             _service = service;
+            _pinService = pinService;
         }
 
-        [Authorize(Roles =  "admin,user")]
-        private string GetUserId()
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrWhiteSpace(userId))
-                throw new UnauthorizedAccessException("Invalid authentication token.");
-
-            return userId;
-        }
+        private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
         /// <summary>
         /// Add a new cafe location
@@ -52,6 +48,7 @@ namespace BrewMapAPI.Controllers
         /// <summary>
         /// Get all active locations
         /// </summary>
+        /*
         [HttpGet]
         [Authorize(Roles =  "admin,user")]
         public async Task<ActionResult<IEnumerable<ReadLocation>>> GetAll()
@@ -65,7 +62,7 @@ namespace BrewMapAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
+        }*/
 
         /// <summary>
         /// Get a location by ID
@@ -97,15 +94,16 @@ namespace BrewMapAPI.Controllers
             [FromQuery] string? query,
             [FromQuery] double? minRating,
             [FromQuery] string? drinkQuery,
+            [FromQuery] List<string>? categoryTags,
             [FromQuery] List<string>? paymentOptionTags,
-            [FromQuery] [Required] double latitude,
             [FromQuery] [Required] double longitude,
+            [FromQuery] [Required] double latitude,
             [FromQuery] double radiusMeters = 5000)
         {
             try
             {
                 var result = await _service.SearchAsync(
-                    query, minRating, drinkQuery, paymentOptionTags, latitude, longitude, radiusMeters);
+                    query, minRating, drinkQuery, categoryTags, paymentOptionTags, latitude, longitude, radiusMeters);
 
                 return Ok(result);
             }
@@ -155,6 +153,29 @@ namespace BrewMapAPI.Controllers
                     return NotFound(new { message = "Location not found or access denied." });
 
                 return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Get map pins within a coordinate range
+        /// </summary>
+        [HttpGet("pins")]
+        [Authorize(Roles = "admin,user")]
+        public async Task<IActionResult> GetPinsByRange(
+            [FromQuery] double minLon = 0,
+            [FromQuery] double maxLon = 0,
+            [FromQuery] double minLat = 0,
+            [FromQuery] double maxLat = 0
+            )
+        {
+            try
+            {
+                var pins = await _pinService.GetByRange(minLat, maxLat, minLon, maxLon);
+                return Ok(pins);
             }
             catch (Exception ex)
             {

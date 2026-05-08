@@ -18,11 +18,7 @@ namespace BrewMapAPI.Controllers
             _service = service;
         }
 
-        private string GetUserId() {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-            
-            return userId;
-        }
+        private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
         [HttpGet("{id}")]
         [Authorize(Roles =  "admin,user")]
@@ -47,6 +43,23 @@ namespace BrewMapAPI.Controllers
             {
                 var drinks = await _service.GetByLocationId(locationId);
                 return Ok(drinks);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("location/{locationId}/best-drink")]
+        [Authorize(Roles =  "admin,user")]
+        public async Task<IActionResult> GetBestDrinkInLocationId(string locationId)
+        {
+            try
+            {
+                var drink = await _service.GetBestDrinkByLocationId(locationId);
+                if (drink == null)
+                    return NotFound();
+                return Ok(drink);
             }
             catch (Exception ex)
             {

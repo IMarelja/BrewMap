@@ -9,19 +9,19 @@ namespace BrewMapAPI.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string Id { get; set; } = String.Empty;
 
         [BsonElement("username")] 
-        public string Username { get; set; }
+        public string Username { get; set; } = String.Empty;
 
         [BsonElement("email")] 
-        public string Email { get; set; }
+        public string Email { get; set; } = String.Empty;
 
         [BsonElement("passwordHash")] 
-        public string PasswordHash { get; set; }
+        public string PasswordHash { get; set; } = String.Empty;
 
         [BsonElement("passwordSalt")] 
-        public string PasswordSalt { get; set; }
+        public string PasswordSalt { get; set; } = String.Empty;
 
         [BsonElement("role")] 
         public string Role { get; set; } = "user";

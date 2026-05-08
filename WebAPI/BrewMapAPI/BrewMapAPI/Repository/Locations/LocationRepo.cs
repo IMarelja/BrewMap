@@ -29,7 +29,7 @@ namespace BrewMapAPI.Repository.Locations
         }
 
         public async Task<IEnumerable<Location>> SearchAsync(
-            string? query, double? minRating, List<string>? paymentOptionTags,
+            string? query, double? minRating, List<string>? categoryTags, List<string>? paymentOptionTags,
             double? centerLatitude, double? centerLongitude,
             double radiusMeters)
         {
@@ -43,6 +43,9 @@ namespace BrewMapAPI.Repository.Locations
                     Builders<Location>.Filter.Regex(l => l.Description, regex)
                 );
             }
+
+            if (categoryTags != null && categoryTags.Count > 0)
+                filter &= Builders<Location>.Filter.In(l => l.CategoryTag, categoryTags);
 
             if (minRating.HasValue)
                 filter &= Builders<Location>.Filter.Gte(l => l.AggregatedRating.Average, minRating.Value);
@@ -72,9 +75,18 @@ namespace BrewMapAPI.Repository.Locations
             await _locations.ReplaceOneAsync(l => l.Id == location.Id, location);
         }
 
-        public async Task DeleteAsync(string id)
+        public async Task<bool> DeleteAsync(string id)
         {
             var update = Builders<Location>.Update.Set(l => l.IsActive, false);
+            var result = await _locations.UpdateOneAsync(l => l.Id == id, update);
+            return result.ModifiedCount > 0;
+        }
+
+        public async Task UpdateAggregatedRatingAsync(string id, double average, int count)
+        {
+            var update = Builders<Location>.Update
+                .Set(l => l.AggregatedRating.Average, average)
+                .Set(l => l.AggregatedRating.Count, count);
             await _locations.UpdateOneAsync(l => l.Id == id, update);
         }
     }

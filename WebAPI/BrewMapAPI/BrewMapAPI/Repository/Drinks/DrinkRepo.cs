@@ -62,5 +62,21 @@ namespace BrewMapAPI.Repository.Drinks
             var options = new FindOneAndUpdateOptions<Drink> { ReturnDocument = ReturnDocument.After };
             return await _context.Drinks.FindOneAndUpdateAsync(x => x.Id == id, update, options);
         }
+
+        public async Task<Drink?> GetBestDrinkByLocationId(string locationId)
+        {
+            return await _context.Drinks
+                .Find(x => x.AvailableAtLocationId == locationId && x.IsVisible)
+                .SortByDescending(x => x.AggregatedRating.Average)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task UpdateAggregatedRating(string id, double average, int count)
+        {
+            var update = Builders<Drink>.Update
+                .Set(x => x.AggregatedRating.Average, average)
+                .Set(x => x.AggregatedRating.Count, count);
+            await _context.Drinks.UpdateOneAsync(x => x.Id == id, update);
+        }
     }
 }

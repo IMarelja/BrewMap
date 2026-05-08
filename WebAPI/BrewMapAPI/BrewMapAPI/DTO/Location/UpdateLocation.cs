@@ -13,14 +13,14 @@ namespace BrewMapAPI.DTO.Location
         };
 
         [Required]
-        public string Name { get; set; }
+        public string Name { get; set; } = String.Empty;
         public string? Description { get; set; }
 
         [Required]
-        public Address Address { get; set; }
+        public Address Address { get; set; } = new Address();
 
         [Required]
-        public string CategoryTag { get; set; }
+        public string CategoryTag { get; set; } = String.Empty;
 
         [Required]
         public List<string> PaymentOptionTags { get; set; } = new();

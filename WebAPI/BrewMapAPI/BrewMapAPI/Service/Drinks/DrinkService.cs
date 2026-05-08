@@ -69,6 +69,19 @@ namespace BrewMapAPI.Service.Drinks
             }
         }
 
+        public async Task<ReadBestDrink?> GetBestDrinkByLocationId(string locationId)
+        {
+            var drink = await _repo.GetBestDrinkByLocationId(locationId);
+            if (drink == null)
+                return null;
+            return new ReadBestDrink
+            {
+                Id = drink.Id,
+                Name = drink.Name,
+                Rating = drink.AggregatedRating.Average
+            };
+        }
+
         private ReadDrink toReadModel(Drink drink)
         {
             return new ReadDrink
