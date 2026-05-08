@@ -5,6 +5,10 @@
 .vs
 .vscode
 
+# next.js
+.next
+out/
+
 # Database specific
 brewmap_data/
 brewmap_config/
