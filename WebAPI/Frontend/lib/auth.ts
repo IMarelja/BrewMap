@@ -5,9 +5,12 @@ export async function login(user: string, password: string, rememberMe: boolean 
   const res = await api.patch('/api/Auth/login', { user, password, rememberMe })
   const token = res.data.token || res.data.accessToken || res.data.jwt
   localStorage.setItem('token', token)
+  console.log(user)
+  console.log(res.data)
   if (res.data.user) {
     localStorage.setItem('user', JSON.stringify(res.data.user))
   }
+    console.log(user)
   return res.data
 }
 

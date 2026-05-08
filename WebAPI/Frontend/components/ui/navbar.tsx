@@ -25,6 +25,7 @@ export default function Navbar() {
       <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
         <Link href="/explore" style={{ color: '#6B3F1F', textDecoration: 'none', fontSize: '14px', fontWeight: 500 }}>Explore</Link>
         <Link href="/search" style={{ color: '#6B3F1F', textDecoration: 'none', fontSize: '14px', fontWeight: 500 }}>Search</Link>
+        <Link href="/admin" style={{ color: '#6B3F1F', textDecoration: 'none', fontSize: '14px', fontWeight: 500 }}>Admin</Link>
         <Link href="/profile" style={{ color: '#6B3F1F', textDecoration: 'none', fontSize: '14px', fontWeight: 500 }}>
           {user?.username || 'Profile'}
         </Link>

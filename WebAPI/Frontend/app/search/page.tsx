@@ -1,13 +1,21 @@
 'use client'
-import { useState, useEffect } from 'react'
+
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import ProtectedRoute from '@/components/auth/protected-route'
 import Navbar from '@/components/ui/navbar'
+import ProtectedRoute from '@/components/auth/protected-route'
 import api from '@/lib/api'
-import { Cafe } from '@/lib/types'
+import { Cafe, Category, PaymentOption } from '@/lib/types'
 
 export default function SearchPage() {
   const [query, setQuery] = useState('')
+  const [drinkQuery, setDrinkQuery] = useState('')
+  const [rating, setRating] = useState('')
+  const [distance, setDistance] = useState('5000')
+  const [categories, setCategories] = useState<Category[]>([])
+  const [paymentOptions, setPaymentOptions] = useState<PaymentOption[]>([])
+  const [selectedCategory, setSelectedCategory] = useState('')
+  const [selectedPayment, setSelectedPayment] = useState('')
   const [results, setResults] = useState<Cafe[]>([])
   const [loading, setLoading] = useState(false)
 
@@ -84,6 +92,63 @@ useEffect(() => {
                 boxShadow: '0 2px 4px rgba(0,0,0,0.02)' 
               }}
             />
+
+            <input
+              value={drinkQuery}
+              onChange={e => setDrinkQuery(e.target.value)}
+              placeholder="Search beverages..."
+              className="border border-[#E8D5B7] rounded-xl px-4 py-3 outline-none"
+            />
+
+            <select
+              value={rating}
+              onChange={e => setRating(e.target.value)}
+              className="border border-[#E8D5B7] rounded-xl px-4 py-3"
+            >
+              <option value="">Any rating</option>
+              <option value="1">1+ stars</option>
+              <option value="2">2+ stars</option>
+              <option value="3">3+ stars</option>
+              <option value="4">4+ stars</option>
+              <option value="5">5 stars</option>
+            </select>
+
+            <select
+              value={distance}
+              onChange={e => setDistance(e.target.value)}
+              className="border border-[#E8D5B7] rounded-xl px-4 py-3"
+            >
+              <option value="1000">1 km</option>
+              <option value="5000">5 km</option>
+              <option value="10000">10 km</option>
+              <option value="20000">20 km</option>
+            </select>
+
+            <select
+              value={selectedCategory}
+              onChange={e => setSelectedCategory(e.target.value)}
+              className="border border-[#E8D5B7] rounded-xl px-4 py-3"
+            >
+              <option value="">All categories</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.tag}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={selectedPayment}
+              onChange={e => setSelectedPayment(e.target.value)}
+              className="border border-[#E8D5B7] rounded-xl px-4 py-3"
+            >
+              <option value="">All payment methods</option>
+              {paymentOptions.map(p => (
+                <option key={p.id} value={p.tag}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Recent Searches Section - Only shows when not searching */}
