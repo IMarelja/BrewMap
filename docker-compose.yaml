@@ -10,64 +10,15 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: changeme
       MONGO_INITDB_DATABASE: brewmap
     ports:
-      - "${MONGO_PORT:-27019}:27017"
+     
+      - "27019:27017" 
     volumes:
       - brewmap_data:/data/db
       - brewmap_config:/data/configdb
       - ./init-db:/docker-entrypoint-initdb.d:ro
-    networks:
-      - brewmap_net
-    healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-
-  api:
-    build:
-      context: ./WebAPI/BrewMapAPI/BrewMapAPI  
-      dockerfile: Dockerfile
-    container_name: brewmap-api
-    restart: unless-stopped
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:5239
-      MongoDB__ConnectionString: mongodb://${MONGO_ROOT_USER:-admin}:${MONGO_ROOT_PASSWORD:-changeme}@mongodb:27017
-      MongoDB__DatabaseName: brewmap
-    ports:
-      - "7000:5239"
-    depends_on:
-      mongodb:
-        condition: service_healthy
-    networks:
-      - brewmap_net
-
-  frontend:
-    build:
-      context: ./WebAPI/Frontend
-      dockerfile: Dockerfile
-    container_name: brewmap-frontend
-    restart: unless-stopped
-    environment:
-      NEXT_PUBLIC_API_URL: http://localhost:7000
-    ports:
-      - "3000:3000"
-    depends_on:
-      - api
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
-    networks:
-      - brewmap_net
 
 volumes:
   brewmap_data:
     driver: local
   brewmap_config:
     driver: local
-
-networks:
-  brewmap_net:
-    driver: bridge
