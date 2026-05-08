@@ -15,8 +15,9 @@ export default function AdminRoute({ children }: { children: React.ReactNode }) 
     }
 
     const user = getUser()
+    const role = user?.role?.toLowerCase()
 
-    if (user?.role !== 'admin') {
+    if (role !== 'admin') {
       router.replace('/explore')
       return
     }

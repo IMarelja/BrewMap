@@ -30,8 +30,8 @@ export default function CreateLocationPage() {
     city: '',
     country: '',
     postalCode: '',
-    latitude: '',
-    longitude: '',
+    latitude: 45.8150, // Default center
+    longitude: 15.9819,
     categoryTag: '',
     website: ''
   })
@@ -67,34 +67,53 @@ export default function CreateLocationPage() {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
 
-    try {
-      await api.post('/api/Locations', {
-        name: form.name,
-        description: form.description,
-        latitude: Number(form.latitude),
-        longitude: Number(form.longitude),
-        categoryTag: form.categoryTag,
-        paymentOptionTags: selectedPayments,
-        openingHours,
-        contact: {
-          website: form.website
-        },
-        address: {
-          street: form.street,
-          city: form.city,
-          country: form.country,
-          postalCode: form.postalCode
-        }
-      })
+  try {
+    // transform opening hours before sending
+    const formattedOpeningHours = Object.fromEntries(
+      Object.entries(openingHours).map(([day, value]: any) => [
+        day,
+        value.isClosed
+          ? {
+              open: null,
+              close: null,
+              isClosed: true
+            }
+          : value
+      ])
+    )
 
-      router.push('/explore')
-    } catch (err) {
-      console.error(err)
-    }
+    await api.post('/api/Locations', {
+      name: form.name,
+      description: form.description,
+
+      // fixed coordinates
+      latitude: 45.8150,
+      longitude: 15.9819,
+
+      categoryTag: form.categoryTag,
+      paymentOptionTags: selectedPayments,
+      openingHours: formattedOpeningHours,
+
+      contact: {
+        website: form.website
+      },
+
+      address: {
+        street: form.street,
+        city: form.city,
+        country: form.country,
+        postalCode: form.postalCode
+      }
+    })
+
+    router.push('/explore')
+  } catch (err) {
+    console.error(err)
   }
+}
 
   return (
     <ProtectedRoute>
@@ -149,22 +168,6 @@ export default function CreateLocationPage() {
                   placeholder="Postal code"
                   value={form.postalCode}
                   onChange={e => setForm({ ...form, postalCode: e.target.value })}
-                  className="border border-[#E8D5B7] rounded-xl px-4 py-3"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <input
-                  placeholder="Latitude"
-                  value={form.latitude}
-                  onChange={e => setForm({ ...form, latitude: e.target.value })}
-                  className="border border-[#E8D5B7] rounded-xl px-4 py-3"
-                />
-
-                <input
-                  placeholder="Longitude"
-                  value={form.longitude}
-                  onChange={e => setForm({ ...form, longitude: e.target.value })}
                   className="border border-[#E8D5B7] rounded-xl px-4 py-3"
                 />
               </div>
