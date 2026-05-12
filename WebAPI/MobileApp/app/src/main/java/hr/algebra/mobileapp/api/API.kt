@@ -1,60 +1,35 @@
 package hr.algebra.mobileapp.api
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonNull
+import com.google.gson.JsonObject
+import com.google.gson.internal.bind.DateTypeAdapter
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.android.Android
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.Date
 
 class API {
     companion object {
-        fun callApi(apiUrl: String, token: String, httpMethod: String, requestModel: Any? = null): String {
-            //should have a base url in an .env file or something
-            val response = StringBuilder()
+        fun createClient(): Requestable {
+            val gson: Gson = GsonBuilder()
+                .registerTypeAdapter(Date::class.java, DateTypeAdapter())
+                .create()
 
-            try {
-                val url = URL(apiUrl)
-                val connection = url.openConnection() as HttpURLConnection
-                connection.requestMethod = httpMethod
-
-                connection.setRequestProperty("Content-Type", "application/json")
-                connection.setRequestProperty("Accept", "application/json")
-                connection.setRequestProperty("Authorization", "Bearer $token")
-
-                if (httpMethod == "POST" || httpMethod == "PUT") {
-                    connection.doOutput = true
-                    requestModel?.let {
-                        val jsonInput = Gson().toJson(it)
-                        OutputStreamWriter(connection.outputStream).use { os ->
-                            os.write(jsonInput)
-                            os.flush()
-                        }
-                    }
+            val client = HttpClient(Android) {
+                install(ContentNegotiation)
+                defaultRequest {
+                    url("http://localhost:5239/")
                 }
-
-                //should probably return a dictonary or map, not a string
-                val responseCode = connection.responseCode
-                if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
-                    BufferedReader(InputStreamReader(connection.inputStream, "utf-8")).use { br ->
-                        var responseLine: String?
-                        while (br.readLine().also { responseLine = it } != null) {
-                            response.append(responseLine?.trim())
-                        }
-                    }
-                } else {
-                    BufferedReader(InputStreamReader(connection.errorStream, "utf-8")).use { br ->
-                        var responseLine: String?
-                        while (br.readLine().also { responseLine = it } != null) {
-                            response.append(responseLine?.trim())
-                        }
-                    }
-                    println("Error Response Code: $responseCode, Message: ${connection.responseMessage}")
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                return e.message.toString()
             }
-            return response.toString()
+
+            return RequestableImpl(client, gson)
         }
     }
 }
