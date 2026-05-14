@@ -5,7 +5,7 @@ import Navbar from '@/components/ui/navbar'
 import api from '@/lib/api'
 import { getUser } from '@/lib/auth'
 
-// Simple SVG Eye Icon Component to keep code clean
+// Simple SVG Eye Icon 
 const EyeIcon = ({ visible }: { visible: boolean }) => (
   visible ? (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

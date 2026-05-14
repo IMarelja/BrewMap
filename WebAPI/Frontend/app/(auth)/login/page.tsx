@@ -9,7 +9,7 @@ export default function LoginPage() {
   const router = useRouter()
   const [user, setUser] = useState('')
   const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false) // New state for toggle
+  const [showPassword, setShowPassword] = useState(false) 
   const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -61,7 +61,7 @@ export default function LoginPage() {
               />
             </div>
             
-            {/* Password Field with Eye Toggle */}
+            {/* Password Field*/}
   <div style={{ marginBottom: '1rem' }}>
   <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#2C1A0E', marginBottom: '6px' }}>Password</label>
   <div style={{ position: 'relative' }}>
