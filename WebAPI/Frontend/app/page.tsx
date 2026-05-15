@@ -1,7 +1,21 @@
+'use client'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { isLoggedIn } from '@/lib/auth'
 
 export default function LandingPage() {
+  
+  const router = useRouter()
+
+  useEffect(() => {
+
+    if (isLoggedIn()){
+      router.replace('/explore')
+    }
+  }, [])
+
   return (
     <main style={{ minHeight: '100vh', background: '#F5EFE6' }}>
       <nav style={{
