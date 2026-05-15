@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   mongodb:
     image: mongodb/mongodb-community-server:8.0-ubuntu2204
@@ -6,28 +8,17 @@ services:
     environment:
       MONGODB_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-admin}
       MONGODB_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-changeme}
-      MONGODB_INITDB_DATABASE: brewmap
+      MONGO_INITDB_DATABASE: brewmap
     ports:
+     
       - "${MONGO_PORT:-27017}:27017"
     volumes:
       - brewmap_data:/data/db
       - brewmap_config:/data/configdb
       - ./init-db:/docker-entrypoint-initdb.d:ro
-    networks:
-      - brewmap_net
-    healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
 volumes:
   brewmap_data:
     driver: local
   brewmap_config:
     driver: local
-
-networks:
-  brewmap_net:
-    driver: bridge

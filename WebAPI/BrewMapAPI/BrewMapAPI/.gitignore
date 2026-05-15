@@ -5,10 +5,6 @@
 .vs
 .vscode
 
-# next.js
-.next
-out/
-
 # Database specific
 brewmap_data/
 brewmap_config/
@@ -18,7 +14,6 @@ brewmap_config/
 # dependencies
 node_modules/
 WebAPI/Frontend/node_modules/
-WebAPI/Frontend/.next/
 
 # API specific
 WebAPI/BrewMapAPI/BrewMapAPI/appsettings.json
