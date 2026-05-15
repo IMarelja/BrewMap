@@ -47,7 +47,7 @@ namespace BrewMapAPI.Controllers
 
         // GET: api/flag/{id} - Get a specific report (Admin)
         [HttpGet("{id}")]
-        [Authorize(Roles =  "admin,user")]
+        [Authorize(Roles =  "admin")]
         public async Task<IActionResult> GetById(string id)
         {
             try
@@ -66,7 +66,7 @@ namespace BrewMapAPI.Controllers
         // GET: api/flag - Get all reports with optional filters (Admin)
         // Query params: ?status=pending&targetType=location
         [HttpGet]
-        [Authorize(Roles =  "admin,user")]
+        [Authorize(Roles =  "admin")]
         public async Task<IActionResult> GetAll(
             [FromQuery] 
             [AllowNull]
@@ -92,7 +92,7 @@ namespace BrewMapAPI.Controllers
 
         // PUT: api/flag/status - Update report status (Admin)
         [HttpPut("status")]
-        [Authorize(Roles =  "admin,user")]
+        [Authorize(Roles =  "admin")]
         public async Task<IActionResult> UpdateStatus([FromBody] UpdateFlagStatus dto)
         {
             try
@@ -113,7 +113,7 @@ namespace BrewMapAPI.Controllers
 
         // GET: api/flag/stats - Get report statistics (Admin)
         [HttpGet("stats")]
-        [Authorize(Roles =  "admin,user")]
+        [Authorize(Roles =  "admin")]
         public async Task<IActionResult> GetStatistics()
         {
             try
