@@ -90,6 +90,24 @@ namespace BrewMapAPI.Controllers
             }
         }
 
+        [HttpGet("me/export")]
+        public async Task<IActionResult> ExportMyData()
+        {
+            try
+            {
+                var export = await _service.ExportMyData(GetUserId());
+
+                if (export == null)
+                    return NotFound();
+
+                return Ok(export);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpDelete("me")]
         public async Task<IActionResult> DeleteMyAccount()
         {

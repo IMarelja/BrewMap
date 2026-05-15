@@ -106,6 +106,7 @@ DTO/
   StrangerUserProfileRead.cs
   UpdateEmail.cs
   UpdatePassword.cs
+  UserDataExport.cs
   UserResponce.cs
 Models/
  Category.cs
