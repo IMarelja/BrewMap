@@ -38,6 +38,7 @@ namespace BrewMapAPI.Controllers
 
         /// GET: api/Moderation/user/{id}
         [HttpGet("user/{id}")]
+        [Authorize(Roles =  "admin")]
         public async Task<IActionResult> GetUserInfo(string id)
         {
             try
@@ -57,6 +58,7 @@ namespace BrewMapAPI.Controllers
 
         /// PATCH: api/Moderation/user/{id}
         [HttpPatch("user/{id}")]
+        [Authorize(Roles =  "admin")]
         public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserModerationRequest request)
         {
             try
@@ -77,6 +79,7 @@ namespace BrewMapAPI.Controllers
 /*
         /// DELETE: api/Moderation/user/{id}
         [HttpDelete("user/{id}")]
+        [Authorize(Roles =  "admin")]
         public async Task<IActionResult> DeleteUser(string id)
         {
             try
@@ -98,6 +101,7 @@ namespace BrewMapAPI.Controllers
 
         // /// PUT: api/Moderation/User/{id}/suspend
         // [HttpPut("User/{id}/suspend")]
+        // [Authorize(Roles =  "admin")]
         // public async Task<IActionResult> SuspendUser(string id)
         // {
         //     try
@@ -132,6 +136,7 @@ namespace BrewMapAPI.Controllers
 
         // /// PUT: api/Moderation/User/{id}/grant-admin
         // [HttpPut("User/{id}/grant-admin")]
+        // [Authorize(Roles =  "admin")]
         // public async Task<IActionResult> GrantAdminRole(string id)
         // {
         //     try
@@ -149,6 +154,7 @@ namespace BrewMapAPI.Controllers
 
         // /// PUT: api/Moderation/User/{id}/revoke-admin
         // [HttpPut("user/{id}/revoke-admin")]
+        // [Authorize(Roles =  "admin")]
         // public async Task<IActionResult> RevokeAdminRole(string id)
         // {
         //     try
