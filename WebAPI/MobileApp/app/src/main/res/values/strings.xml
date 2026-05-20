@@ -1,3 +1,25 @@
 <resources>
     <string name="app_name">MobileApp</string>
+
+    <!-- Auth screens -->
+    <string name="login_title">Login</string>
+    <string name="register_title">Create Account</string>
+
+    <!-- Hints -->
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_username">Username</string>
+    <string name="hint_confirm_password">Confirm Password</string>
+
+    <!-- Buttons -->
+    <string name="btn_login">Log In</string>
+    <string name="btn_register">Register</string>
+    <string name="btn_go_to_register">Don\'t have an account? Register</string>
+    <string name="btn_go_to_login">Already have an account? Log In</string>
+
+    <!-- Validation -->
+    <string name="error_empty_email">Email cannot be empty</string>
+    <string name="error_empty_password">Password cannot be empty</string>
+    <string name="error_empty_username">Username cannot be empty</string>
+    <string name="error_passwords_no_match">Passwords do not match</string>
 </resources>
