@@ -27,7 +27,7 @@ export default function AddCafePage() {
 
   const [categories, setCategories] = useState<Category[]>([])
   const [paymentOptions, setPaymentOptions] = useState<PaymentOption[]>([])
-
+  const [error, setError] = useState('')
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -115,11 +115,10 @@ export default function AddCafePage() {
         address: formData.address
       })
 
-      alert('Cafe added successfully!')
       router.push('/explore')
     } catch (error) {
       console.error('Submission failed', error)
-      alert('Error adding cafe')
+      setError('Cafe not created')
     } finally {
       setLoading(false)
     }
@@ -134,7 +133,21 @@ export default function AddCafePage() {
           <h1 style={{ fontSize: '2.5rem', color: '#2C1A0E' }}>
             Add a New Location
           </h1>
-
+          {error && (
+            <div
+              style={{
+                background: '#FEE2E2',
+                color: '#991B1B',
+                padding: '10px 14px',
+                borderRadius: '8px',
+                marginTop: '10px',
+                marginBottom: '20px',
+                border: '1px solid #FCA5A5'
+              }}
+            >
+              {error}
+            </div>
+          )}
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
             {/* BASIC INFO */}

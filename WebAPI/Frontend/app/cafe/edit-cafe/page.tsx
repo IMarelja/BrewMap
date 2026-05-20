@@ -21,7 +21,7 @@ export default function EditLocationPage() {
   const [loading, setLoading] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
   const [paymentOptions, setPaymentOptions] = useState<PaymentOption[]>([])
-
+const [error, setError] = useState('')
   const [formData, setFormData] = useState<any>({
     name: '',
     description: '',
@@ -102,7 +102,6 @@ export default function EditLocationPage() {
     })
   }
 
-  // ---------------- UPDATE (FIXED TO MATCH BACKEND) ----------------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -117,7 +116,6 @@ export default function EditLocationPage() {
         ])
       )
 
-      // ✅ IMPORTANT: PUT not POST
       await api.put(`/api/Locations/${id}`, {
         name: formData.name,
         description: formData.description,
@@ -133,7 +131,7 @@ export default function EditLocationPage() {
       router.push('/explore')
     } catch (err) {
       console.error('Update failed', err)
-      alert('Error updating location')
+      setError('Cafe not edited')
     } finally {
       setLoading(false)
     }
@@ -146,7 +144,21 @@ export default function EditLocationPage() {
 
         <div style={{ maxWidth: 800, margin: '0 auto', padding: 32 }}>
           <h1>Edit Location</h1>
-
+        {error && (
+          <div
+            style={{
+              background: '#FEE2E2',
+              color: '#991B1B',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              marginTop: '10px',
+              marginBottom: '20px',
+              border: '1px solid #FCA5A5'
+            }}
+          >
+            {error}
+          </div>
+        )}
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
             {/* BASIC */}
