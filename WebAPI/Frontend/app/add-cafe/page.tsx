@@ -8,6 +8,16 @@ import Navbar from '@/components/ui/navbar'
 // We'll build this component next - it needs to handle the click-to-pin logic
 const PinMap = dynamic(() => import('../../components/ui/PinMap'), { ssr: false })
 
+const days = [
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+  'sunday'
+]
+
 export default function AddCafePage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
