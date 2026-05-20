@@ -4,6 +4,9 @@ import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import api from '@/lib/api'
 import Navbar from '@/components/ui/navbar'
+import { useEffect } from 'react'
+import ProtectedRoute from '@/components/auth/protected-route'
+import { Category, PaymentOption } from '@/lib/types'
 
 // We'll build this component next - it needs to handle the click-to-pin logic
 const PinMap = dynamic(() => import('../../components/ui/PinMap'), { ssr: false })
@@ -21,7 +24,10 @@ const days = [
 export default function AddCafePage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  
+
+  const [categories, setCategories] = useState<Category[]>([])
+  const [paymentOptions, setPaymentOptions] = useState<PaymentOption[]>([])
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -31,123 +37,269 @@ export default function AddCafePage() {
       country: 'Croatia',
       postalCode: ''
     },
-    latitude: 45.8150, // Default center
+    latitude: 45.815,
     longitude: 15.9819,
-    categoryTag: 'Cafe',
+    categoryTag: '',
     paymentOptionTags: [] as string[],
-    contact: { website: '' },
-    openingHours: {} // We can start simple and expand this
+    contact: { website: '' }
   })
+
+  const [openingHours, setOpeningHours] = useState(
+    days.reduce((acc, day) => {
+      acc[day] = {
+        open: '08:00',
+        close: '22:00',
+        isClosed: false
+      }
+      return acc
+    }, {} as any)
+  )
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [catRes, payRes] = await Promise.all([
+          api.get('/api/Category'),
+          api.get('/api/PaymentOption')
+        ])
+
+        setCategories(catRes.data)
+        setPaymentOptions(payRes.data)
+      } catch (err) {
+        console.error('Failed loading metadata', err)
+      }
+    }
+
+    load()
+  }, [])
+
+  const togglePayment = (tag: string) => {
+    const exists = formData.paymentOptionTags.includes(tag)
+
+    setFormData({
+      ...formData,
+      paymentOptionTags: exists
+        ? formData.paymentOptionTags.filter(t => t !== tag)
+        : [...formData.paymentOptionTags, tag]
+    })
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+
     try {
-      await api.post('/api/Locations', formData)
+      const formattedOpeningHours = Object.fromEntries(
+        Object.entries(openingHours).map(([day, value]: any) => [
+          day,
+          value.isClosed
+            ? { open: null, close: null, isClosed: true }
+            : value
+        ])
+      )
+
+      await api.post('/api/Locations', {
+        name: formData.name,
+        description: formData.description,
+
+        latitude: formData.latitude,
+        longitude: formData.longitude,
+
+        categoryTag: formData.categoryTag,
+        paymentOptionTags: formData.paymentOptionTags,
+
+        openingHours: formattedOpeningHours,
+
+        contact: formData.contact,
+
+        address: formData.address
+      })
+
       alert('Cafe added successfully!')
-      router.push('/explore') // Go back to map
+      router.push('/explore')
     } catch (error) {
-      console.error("Submission failed", error)
-      alert('Error adding cafe. Check console.')
+      console.error('Submission failed', error)
+      alert('Error adding cafe')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div style={{ background: '#F9F3E9', minHeight: '100vh', paddingBottom: '4rem' }}>
-      <Navbar />
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
-        
-        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: '2.5rem', color: '#2C1A0E' }}>Add a New Location</h1>
-        <p style={{ color: '#6B3F1F', marginBottom: '2rem' }}>Help the community by adding a cafe you love</p>
+    <ProtectedRoute>
+      <div style={{ background: '#F9F3E9', minHeight: '100vh', paddingBottom: '4rem' }}>
+        <Navbar />
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          
-          {/* Basic Info Box */}
-          <section style={cardStyle}>
-            <h3 style={sectionTitle}>Basic Information</h3>
-            <label style={labelStyle}>Cafe Name</label>
-            <input 
-              style={inputStyle} 
-              placeholder="e.g., The Roasted Bean"
-              onChange={e => setFormData({...formData, name: e.target.value})}
-              required
-            />
-            
-            <label style={labelStyle}>Street Address</label>
-            <input 
-              style={inputStyle} 
-              placeholder="e.g., Ilica 10"
-              onChange={e => setFormData({
-                ...formData, 
-                address: {...formData.address, street: e.target.value}
-              })}
-              required
-            />
+        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
+          <h1 style={{ fontSize: '2.5rem', color: '#2C1A0E' }}>
+            Add a New Location
+          </h1>
 
-            <label style={labelStyle}>Description</label>
-            <textarea 
-              style={{...inputStyle, height: '100px'}} 
-              placeholder="Describe the atmosphere..."
-              onChange={e => setFormData({...formData, description: e.target.value})}
-            />
-          </section>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
-          {/* Map Pinning Box */}
-          <section style={cardStyle}>
-            <h3 style={sectionTitle}>📍 Pin Location</h3>
-            <p style={{ fontSize: '0.9rem', color: '#6B3F1F', marginBottom: '1rem' }}>
-              Click on the map to pin exactly where this cafe is located
-            </p>
-            <div style={{ height: '300px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #E8D5B7' }}>
-              <PinMap 
-                onLocationSelect={(lat, lng) => setFormData({...formData, latitude: lat, longitude: lng})} 
+            {/* BASIC INFO */}
+            <section style={cardStyle}>
+              <h3 style={sectionTitle}>Basic Information</h3>
+
+              <input
+                style={inputStyle}
+                placeholder="Cafe name"
+                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                required
               />
-            </div>
-            <div style={{ marginTop: '10px', fontSize: '0.8rem', color: '#8C7861' }}>
-              Selected: {formData.latitude.toFixed(4)}, {formData.longitude.toFixed(4)}
-            </div>
-          </section>
 
-          {/* Payment Options (referencing image_035139.png) */}
-          <section style={cardStyle}>
-            <h3 style={sectionTitle}>Payment Options</h3>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              {['Cash', 'Card', 'Mobile Pay'].map(opt => (
-                <button
-                  key={opt}
-                  type="button"
-                  onClick={() => {
-                    const tags = formData.paymentOptionTags.includes(opt)
-                      ? formData.paymentOptionTags.filter(t => t !== opt)
-                      : [...formData.paymentOptionTags, opt]
-                    setFormData({...formData, paymentOptionTags: tags})
-                  }}
-                  style={{
-                    padding: '10px 20px',
-                    borderRadius: '8px',
-                    border: '1px solid #E8D5B7',
-                    background: formData.paymentOptionTags.includes(opt) ? '#4A2C19' : '#FFF',
-                    color: formData.paymentOptionTags.includes(opt) ? '#FFF' : '#2C1A0E',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {opt}
-                </button>
+              <input
+                style={inputStyle}
+                placeholder="Street address"
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    address: { ...formData.address, street: e.target.value }
+                  })
+                }
+              />
+
+              <textarea
+                style={{ ...inputStyle, height: 100 }}
+                placeholder="Description"
+                onChange={e =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+              />
+            </section>
+
+            {/* CATEGORY (FIXED FROM API) */}
+            <section style={cardStyle}>
+              <h3 style={sectionTitle}>Category</h3>
+
+              <select
+                style={inputStyle}
+                value={formData.categoryTag}
+                onChange={e =>
+                  setFormData({ ...formData, categoryTag: e.target.value })
+                }
+              >
+                <option value="">Select category</option>
+                {categories.map(c => (
+                  <option key={c.id} value={c.tag}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </section>
+
+            {/* MAP */}
+            <section style={cardStyle}>
+              <h3 style={sectionTitle}>📍 Pin Location</h3>
+
+              <div style={{ height: 300, borderRadius: 12, overflow: 'hidden' }}>
+                <PinMap
+                  onLocationSelect={(lat, lng) =>
+                    setFormData({ ...formData, latitude: lat, longitude: lng })
+                  }
+                />
+              </div>
+
+              <div style={{ marginTop: 10, fontSize: 12 }}>
+                {formData.latitude.toFixed(4)}, {formData.longitude.toFixed(4)}
+              </div>
+            </section>
+
+            {/* PAYMENT (FIXED FROM API) */}
+            <section style={cardStyle}>
+              <h3 style={sectionTitle}>Payment Options</h3>
+
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                {paymentOptions.map(opt => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => togglePayment(opt.tag)}
+                    style={{
+                      padding: '10px 16px',
+                      borderRadius: 8,
+                      border: '1px solid #E8D5B7',
+                      background: formData.paymentOptionTags.includes(opt.tag)
+                        ? '#4A2C19'
+                        : '#fff',
+                      color: formData.paymentOptionTags.includes(opt.tag)
+                        ? '#fff'
+                        : '#2C1A0E'
+                    }}
+                  >
+                    {opt.name}
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            {/* OPENING HOURS (ADDED BACK LOGIC) */}
+            <section style={cardStyle}>
+              <h3 style={sectionTitle}>Opening Hours</h3>
+
+              {days.map(day => (
+                <div key={day} style={{ display: 'grid', gridTemplateColumns: '120px 1fr 1fr 100px', gap: 10, marginBottom: 10 }}>
+                  <span style={{ textTransform: 'capitalize' }}>{day}</span>
+
+                  <input
+                    type="time"
+                    disabled={openingHours[day].isClosed}
+                    value={openingHours[day].open}
+                    onChange={e =>
+                      setOpeningHours({
+                        ...openingHours,
+                        [day]: { ...openingHours[day], open: e.target.value }
+                      })
+                    }
+                  />
+
+                  <input
+                    type="time"
+                    disabled={openingHours[day].isClosed}
+                    value={openingHours[day].close}
+                    onChange={e =>
+                      setOpeningHours({
+                        ...openingHours,
+                        [day]: { ...openingHours[day], close: e.target.value }
+                      })
+                    }
+                  />
+
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={openingHours[day].isClosed}
+                      onChange={e =>
+                        setOpeningHours({
+                          ...openingHours,
+                          [day]: {
+                            ...openingHours[day],
+                            isClosed: e.target.checked
+                          }
+                        })
+                      }
+                    />
+                    Closed
+                  </label>
+                </div>
               ))}
-            </div>
-          </section>
+            </section>
 
-          <div style={{ display: 'flex', gap: '1rem' }}>
-             <button type="button" onClick={() => router.back()} style={secondaryBtn}>Cancel</button>
-             <button type="submit" disabled={loading} style={primaryBtn}>
-               {loading ? 'Adding...' : '+ Add Location'}
-             </button>
-          </div>
-        </form>
+            {/* ACTIONS */}
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button type="button" onClick={() => router.back()} style={secondaryBtn}>
+                Cancel
+              </button>
+
+              <button type="submit" disabled={loading} style={primaryBtn}>
+                {loading ? 'Adding...' : '+ Add Location'}
+              </button>
+            </div>
+
+          </form>
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   )
 }
 

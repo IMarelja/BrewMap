@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { getUser, isLoggedIn } from '@/lib/auth'
+import { getUserFromToken, isLoggedIn } from '@/lib/auth'
 
 export default function AdminRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter()
@@ -14,8 +14,8 @@ export default function AdminRoute({ children }: { children: React.ReactNode }) 
       return
     }
 
-    const user = getUser()
-    const role = user?.role?.toLowerCase()
+  const user = getUserFromToken();
+  const role = user?.role?.toLowerCase();
 
     if (role !== 'admin') {
       router.replace('/explore')

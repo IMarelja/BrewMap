@@ -83,8 +83,6 @@ export interface Flag {
   description?: string
   status: string
   createdAt: string
-  target: {
-    type: string
-    id: string
-  }
+  targetType: string
+  targetId: string
 }

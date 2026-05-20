@@ -1,5 +1,6 @@
 import api from './api'
 import Cookies from 'js-cookie'
+import { jwtDecode } from "jwt-decode"
 import { AuthResponse, User } from './types'
 
 const TOKEN_KEY = 'token'
@@ -57,4 +58,15 @@ export function getUser(): User | null {
 
 export function isLoggedIn(): boolean {
   return !!Cookies.get(TOKEN_KEY)
+}
+
+export function getUserFromToken() {
+  const token = Cookies.get("token");
+  if (!token) return null;
+
+  try {
+    return jwtDecode<any>(token);
+  } catch {
+    return null;
+  }
 }
