@@ -21,6 +21,7 @@ namespace BrewMapAPI.Controllers
         private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
         [HttpGet("me")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> GetMyProfile()
         {
             try
@@ -39,6 +40,7 @@ namespace BrewMapAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> GetUserById(string id)
         {
             try
@@ -57,6 +59,7 @@ namespace BrewMapAPI.Controllers
         }
 
         [HttpPut("email")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> UpdateEmail([FromBody] UpdateEmail dto)
         {
             if (!ModelState.IsValid) 
@@ -74,6 +77,7 @@ namespace BrewMapAPI.Controllers
         }
 
         [HttpPut("password")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> UpdatePassword([FromBody] UpdatePassword dto)
         {
             if (!ModelState.IsValid) 
@@ -91,6 +95,7 @@ namespace BrewMapAPI.Controllers
         }
 
         [HttpDelete("me")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> DeleteMyAccount()
         {
             try

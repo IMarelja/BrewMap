@@ -1,6 +1,7 @@
 ﻿using System.Net.Mail;
 using BrewMapAPI.Data;
 using BrewMapAPI.DTO.Auth;
+using BrewMapAPI.Email;
 using BrewMapAPI.Models;
 using BrewMapAPI.Repository.Auth;
 using BrewMapAPI.Security;
@@ -15,11 +16,13 @@ namespace BrewMapAPI.Service.Auth
     {
         private readonly IConfiguration _config;
         private readonly IAuthRepo _repo;
+        private readonly IEmailSender _sender;
         
-        public AuthService(IConfiguration config, IAuthRepo repo)
+        public AuthService(IConfiguration config, IAuthRepo repo, IEmailSender sender)
         {
             _config = config;
             _repo = repo;
+            _sender = sender;
         }
         public async Task<AuthResponse> Login(LoginRequest request)
         {
@@ -175,19 +178,13 @@ namespace BrewMapAPI.Service.Auth
                     ExpiresAt = DateTime.UtcNow.AddDays(3),
                 };
                 await _repo.CreateToken(token);
-                //string body = $"Dear {existingUser.Username}, please use this token to reset your password: {refreshToken}";
-                //WHY
-                //await new SmtpClient("smtp.gmail.com", 465).SendMailAsync("BrewMap@gmail.com", existingUser.Email, "Password Reset", body);
-                
-                //var message = new MimeMessage ();
-                //message.From.Add (new MailboxAddress ("BrewMap Admin", "zara.capps@yahoo.co.uk"));
-                //message.To.Add (new MailboxAddress (existingUser.Username, existingUser.Email));
-                //message.Subject = "Password Reset";
-
-                //message.Body = new TextPart ("plain") {
-                    //Text = $"Dear {existingUser.Username}, please use this token to reset your password: {body}. --BrewMap Admin"
-                //};
-                
+                string body = $"Dear {existingUser.Username}, please use this token to reset your password: {refreshToken}";
+                var reciever = new List<String>
+                {
+                    existingUser.Email,
+                };
+                Message message = new Message(reciever, "Password reset", body);
+                await _sender.SendEmailAsync(message);
                 return new AuthResponse()
                 {
                     Success = true,
@@ -240,26 +237,16 @@ namespace BrewMapAPI.Service.Auth
                         StatusCode = 401
                     };
                 }
+                if (token.UserId != existingUser.Id)
+                {
+                    return new AuthResponse()
+                    {
+                        Success = false,
+                        Message = invalidToken,
+                        StatusCode = 401
+                    };
+                }
                 if (token.ExpiresAt < DateTime.UtcNow)
-                {
-                    return new AuthResponse()
-                    {
-                        Success = false,
-                        Message = invalidToken,
-                        StatusCode = 401
-                    };
-                }
-                var tokenUser = await _repo.GetById(token.UserId);
-                if (tokenUser == null)
-                {
-                    return new AuthResponse()
-                    {
-                        Success = false,
-                        Message = invalidToken,
-                        StatusCode = 401
-                    };
-                }
-                if (tokenUser != existingUser)
                 {
                     return new AuthResponse()
                     {

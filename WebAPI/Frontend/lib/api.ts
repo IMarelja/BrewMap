@@ -1,4 +1,5 @@
 import axios from 'axios'
+import Cookies from 'js-cookie'
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
@@ -9,7 +10,7 @@ const api = axios.create({
 
 api.interceptors.request.use((config: any) => {
   if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('token')
+    const token = Cookies.get('token')  // ← was localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -21,7 +22,8 @@ api.interceptors.response.use(
   (response: any) => response,
   (error: any) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token')
+      Cookies.remove('token')           // ← was localStorage.removeItem('token')
+      Cookies.remove('refreshToken')    // clean up refresh token too
       window.location.href = '/login'
     }
     return Promise.reject(error)
