@@ -15,7 +15,7 @@ export default function SearchPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [paymentOptions, setPaymentOptions] = useState<PaymentOption[]>([])
   const [selectedCategory, setSelectedCategory] = useState('')
-  const [selectedPayment, setSelectedPayment] = useState('')
+  const [selectedPayments, setSelectedPayments] = useState<string[]>([])
   const [results, setResults] = useState<Cafe[]>([])
   const [loading, setLoading] = useState(false)
 
@@ -42,7 +42,7 @@ export default function SearchPage() {
         drinkQuery: drinkQuery || undefined,
         minRating: rating ? Number(rating) : undefined,
         categoryTags: selectedCategory ? [selectedCategory] : undefined,
-        paymentOptionTags: selectedPayment ? [selectedPayment] : undefined,
+        paymentOptionTags: selectedPayments.length > 0 ? selectedPayments : undefined,
         longitude: 15.8457503,
         latitude: 45.7976803,
         radiusMeters: Number(distance)
@@ -66,7 +66,15 @@ export default function SearchPage() {
     }, 400)
 
     return () => clearTimeout(timer)
-  }, [query, drinkQuery, rating, distance, selectedCategory, selectedPayment])
+  }, [query, drinkQuery, rating, distance, selectedCategory, selectedPayments])
+
+  const togglePayment = (tag: string) => {
+  setSelectedPayments(prev =>
+    prev.includes(tag)
+      ? prev.filter(t => t !== tag)
+      : [...prev, tag]
+  )
+}
 
   return (
     <ProtectedRoute>
@@ -143,9 +151,9 @@ export default function SearchPage() {
               ))}
             </select>
 
-            <select
-              value={selectedPayment}
-              onChange={e => setSelectedPayment(e.target.value)}
+            {/* <select
+              value={selectedPayments}
+              onChange={e => setSelectedPayments(e.target.value)}
               className="border border-[#E8D5B7] rounded-xl px-4 py-3"
             >
               <option value="">All payment methods</option>
@@ -154,7 +162,7 @@ export default function SearchPage() {
                   {p.name}
                 </option>
               ))}
-            </select>
+            </select> */}
           </div>
 
           {/* Payment chips (unchanged UI, just functional) */}
@@ -174,11 +182,11 @@ export default function SearchPage() {
                 {paymentOptions.map(option => (
                   <span
                     key={option.id}
-                    onClick={() => setSelectedPayment(option.tag)}
+                    onClick={() => togglePayment(option.tag)}
                     style={{
                       padding: '6px 12px',
-                      background: selectedPayment === option.tag ? '#6B3F1F' : '#EADBC8',
-                      color: selectedPayment === option.tag ? '#fff' : '#5C4033',
+                      background: selectedPayments.includes(option.tag) ? '#6B3F1F' : '#EADBC8',
+                      color: selectedPayments.includes(option.tag) ? '#fff' : '#5C4033',
                       borderRadius: '6px',
                       fontSize: '0.85rem',
                       cursor: 'pointer'
