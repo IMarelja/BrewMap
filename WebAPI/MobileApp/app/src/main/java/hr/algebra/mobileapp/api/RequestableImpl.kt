@@ -1,10 +1,11 @@
 package hr.algebra.mobileapp.api
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+
 
 class RequestableImpl(var client: HttpClient, var gson: Gson) : Requestable {
     override suspend fun <T> request(
@@ -27,7 +28,9 @@ class RequestableImpl(var client: HttpClient, var gson: Gson) : Requestable {
             }
             if (body != null) {
                 contentType(ContentType.Application.Json)
-                setBody(body)
+                val gson = Gson()
+                val json = gson.toJson(body, LinkedHashMap::class.java)
+                setBody(json)
             }
         }
 

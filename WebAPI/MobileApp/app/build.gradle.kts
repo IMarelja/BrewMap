@@ -46,7 +46,6 @@ dependencies {
     implementation(libs.adapter.rxjava2)
     implementation(libs.converter.gson)
     implementation(libs.rxandroid)
-    implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.android)
     implementation(libs.ktor.client.logging)
