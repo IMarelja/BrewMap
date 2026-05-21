@@ -18,6 +18,24 @@ namespace BrewMapAPI.Controllers
         }
 
 
+        /// GET: api/Moderation/users/search?keyword=
+        [HttpGet("users/search")]
+        public async Task<IActionResult> SearchUsers([FromQuery] string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                return BadRequest(new { success = false, message = "Keyword is required." });
+
+            try
+            {
+                var users = await _service.GetUsersByKeyword(keyword);
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
         /// GET: api/Moderation/user/{id}
         [HttpGet("user/{id}")]
         [Authorize(Roles =  "admin")]

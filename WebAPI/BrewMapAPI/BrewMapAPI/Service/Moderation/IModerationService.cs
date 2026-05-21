@@ -6,6 +6,7 @@ namespace BrewMapAPI.Service.Moderation
     {
         // User management
         Task<ModeratedUserInfo?> GetUserInfo(string userId);
+        Task<List<ModeratedUserInfo>> GetUsersByKeyword(string keyword);
         Task<ModerationResult> UpdateUser(string userId, UpdateUserModerationRequest request);
 
         // Task<ModerationResult> SuspendUser(string userId);

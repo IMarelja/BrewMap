@@ -36,6 +36,20 @@ namespace BrewMapAPI.Service.Moderation
             };
         }
 
+        public async Task<List<ModeratedUserInfo>> GetUsersByKeyword(string keyword)
+        {
+            var users = await _repo.GetUsersByKeyword(keyword);
+            return users.Select(u => new ModeratedUserInfo
+            {
+                Id = u.Id,
+                Username = u.Username,
+                Email = u.Email,
+                Role = u.Role,
+                IsActive = u.IsActive,
+                CreatedAt = u.CreatedAt
+            }).ToList();
+        }
+
         public async Task<ModerationResult> UpdateUser(string userId, UpdateUserModerationRequest request)
         {
             var user = await _repo.GetUserById(userId);

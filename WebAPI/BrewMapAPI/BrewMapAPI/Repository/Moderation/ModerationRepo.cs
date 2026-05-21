@@ -1,5 +1,6 @@
 using BrewMapAPI.Data;
 using BrewMapAPI.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace BrewMapAPI.Repository.Moderation
@@ -19,6 +20,16 @@ namespace BrewMapAPI.Repository.Moderation
         public async Task<User?> GetUserById(string id)
         {
             return await _context.Users.Find(x => x.Id == id).FirstOrDefaultAsync();
+        }
+
+        public async Task<List<User>> GetUsersByKeyword(string keyword)
+        {
+            var regex = new BsonRegularExpression(keyword, "i");
+            var filter = Builders<User>.Filter.Or(
+                Builders<User>.Filter.Regex(x => x.Username, regex),
+                Builders<User>.Filter.Regex(x => x.Email, regex)
+            );
+            return await _context.Users.Find(filter).ToListAsync();
         }
 
         public async Task<User?> UpdateUserRole(string userId, string newRole)
