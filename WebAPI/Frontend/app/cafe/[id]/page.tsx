@@ -75,7 +75,7 @@ export default function CafeDetailPage() {
         ) : (
           <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
             <button
-              onClick={() => router.back()}
+              onClick={() => router.push(`/search`)}
               style={{
                 background: 'none',
                 border: 'none',
@@ -105,9 +105,43 @@ export default function CafeDetailPage() {
               ☕
             </div>
 
-            <h1 style={{ fontSize: '2rem', color: '#2C1A0E' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: '1rem',
+              marginBottom: '0.5rem'
+            }}
+          >
+            <h1
+              style={{
+                fontSize: '2rem',
+                color: '#2C1A0E',
+                margin: 0
+              }}
+            >
               {cafe.name}
             </h1>
+
+            <button
+              onClick={() =>
+                router.push(`/cafe/edit-cafe?locationId=${cafe.id}`)
+              }
+              style={{
+                background: '#4A2C19',
+                color: '#F5EFE6',
+                border: 'none',
+                padding: '8px 14px',
+                borderRadius: '8px',
+                fontSize: '13px',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              Edit Cafe
+            </button>
+          </div>
 
             <p style={{ color: '#6B3F1F', marginBottom: '0.5rem' }}>
               📍 {cafe.address.street}, {cafe.address.city}
@@ -117,6 +151,24 @@ export default function CafeDetailPage() {
             <p style={{ color: '#6B3F1F', marginBottom: '1rem' }}>
               🏷 Category: {cafe.categoryTag}
             </p>
+
+            {cafe.contact?.website && (
+              <div style={{ color: '#6B3F1F', marginBottom: '1rem' }}>
+                <a
+                  href={cafe.contact.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: '#6B3F1F',
+                    textDecoration: 'none',
+                    fontSize: '14px',
+                    fontWeight: 500
+                  }}
+                >
+                  🔗 Visit Website
+                </a>
+              </div>
+            )}
 
             {cafe.description && (
               <p style={{ color: '#2C1A0E', lineHeight: 1.7, marginBottom: '2rem' }}>

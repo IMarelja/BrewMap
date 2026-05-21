@@ -31,12 +31,16 @@ export default function AddCafePage() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    address: {
+    // address: {
+    //   street: '',
+    //   city: 'Zagreb',
+    //   country: 'Croatia',
+    //   postalCode: ''
+    // },
       street: '',
-      city: 'Zagreb',
-      country: 'Croatia',
-      postalCode: ''
-    },
+      city: '',
+      country: '',
+      postalCode: '',
     latitude: 45.815,
     longitude: 15.9819,
     categoryTag: '',
@@ -110,15 +114,23 @@ export default function AddCafePage() {
 
         openingHours: formattedOpeningHours,
 
-        contact: formData.contact,
+        contact: formData.contact.website
+          ? { website: formData.contact.website }
+          : null,
 
-        address: formData.address
+        address: {
+          street: formData.street || '',
+          city: formData.city || 'Zagreb',
+          country: formData.country || 'Croatia',
+          postalCode: formData.postalCode || '10000'
+          }
       })
 
       router.push('/explore')
     } catch (error) {
-      console.error('Submission failed', error)
-      setError('Cafe not created')
+  console.error('Submission failed', error)
+  console.log(error.response?.data)
+  setError(error.response?.data?.message || 'Cafe not created')
     } finally {
       setLoading(false)
     }
@@ -161,24 +173,69 @@ export default function AddCafePage() {
                 required
               />
 
-              <input
-                style={inputStyle}
-                placeholder="Street address"
-                onChange={e =>
-                  setFormData({
-                    ...formData,
-                    address: { ...formData.address, street: e.target.value }
-                  })
-                }
-              />
+              <div className="grid grid-cols-2 gap-4">
+                <input
+                  placeholder="Street"
+                  value={formData.street}
+                  onChange={e => setFormData({ ...formData, street: e.target.value })}
+                  className="border border-[#E8D5B7] rounded-xl px-4 py-3"
+                  required
+                />
+
+                <input
+                  placeholder="City"
+                  value={formData.city}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      city: e.target.value || 'Zagreb'
+                    })
+                  }
+                  className="border border-[#E8D5B7] rounded-xl px-4 py-3"
+                />
+
+                <input
+                  placeholder="Country"
+                  value={formData.country}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      country: e.target.value || 'Croatia'
+                    })
+                  }
+                  className="border border-[#E8D5B7] rounded-xl px-4 py-3"
+                />
+
+                <input
+                  placeholder="Postal code"
+                  value={formData.postalCode}
+                  onChange={e => setFormData({ ...formData, postalCode: e.target.value })}
+                  className="border border-[#E8D5B7] rounded-xl px-4 py-3"
+                />
+              </div>
 
               <textarea
-                style={{ ...inputStyle, height: 100 }}
+                style={{ ...inputStyle, height: 100, marginTop: 20 }}
                 placeholder="Description"
                 onChange={e =>
                   setFormData({ ...formData, description: e.target.value })
                 }
               />
+
+              <input
+              style={inputStyle}
+              placeholder="Website (optional)"
+              value={formData.contact.website}
+              onChange={e =>
+                setFormData({
+                  ...formData,
+                  contact: {
+                    ...formData.contact,
+                    website: e.target.value
+                  }
+                })
+              }
+            />
             </section>
 
             {/* CATEGORY (FIXED FROM API) */}
@@ -186,6 +243,7 @@ export default function AddCafePage() {
               <h3 style={sectionTitle}>Category</h3>
 
               <select
+                required
                 style={inputStyle}
                 value={formData.categoryTag}
                 onChange={e =>
@@ -246,11 +304,78 @@ export default function AddCafePage() {
               </div>
             </section>
 
+
+            <div>
+                <h2 className="text-2xl font-semibold text-[#2C1A0E] mb-4">
+                  Opening Hours
+                </h2>
+
+
+              </div>
+
+              
             {/* OPENING HOURS (ADDED BACK LOGIC) */}
             <section style={cardStyle}>
               <h3 style={sectionTitle}>Opening Hours</h3>
+                <div className="space-y-4">
+                  {days.map(day => (
+                    <div key={day} className="grid grid-cols-4 gap-4 items-center">
+                      <p className="capitalize font-medium text-[#2C1A0E]">
+                        {day}
+                      </p>
 
-              {days.map(day => (
+                      <input
+                        type="time"
+                        value={openingHours[day].open}
+                        disabled={openingHours[day].isClosed}
+                        onChange={e =>
+                          setOpeningHours({
+                            ...openingHours,
+                            [day]: {
+                              ...openingHours[day],
+                              open: e.target.value
+                            }
+                          })
+                        }
+                        className="border border-[#E8D5B7] rounded-xl px-3 py-2"
+                      />
+
+                      <input
+                        type="time"
+                        value={openingHours[day].close}
+                        disabled={openingHours[day].isClosed}
+                        onChange={e =>
+                          setOpeningHours({
+                            ...openingHours,
+                            [day]: {
+                              ...openingHours[day],
+                              close: e.target.value
+                            }
+                          })
+                        }
+                        className="border border-[#E8D5B7] rounded-xl px-3 py-2"
+                      />
+
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={openingHours[day].isClosed}
+                          onChange={e =>
+                            setOpeningHours({
+                              ...openingHours,
+                              [day]: {
+                                ...openingHours[day],
+                                isClosed: e.target.checked
+                              }
+                            })
+                          }
+                        />
+                        Closed
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              {/* {days.map(day => (
                 <div key={day} style={{ display: 'grid', gridTemplateColumns: '120px 1fr 1fr 100px', gap: 10, marginBottom: 10 }}>
                   <span style={{ textTransform: 'capitalize' }}>{day}</span>
 
@@ -295,10 +420,9 @@ export default function AddCafePage() {
                     Closed
                   </label>
                 </div>
-              ))}
+              ))} */}
             </section>
 
-            {/* ACTIONS */}
             <div style={{ display: 'flex', gap: 10 }}>
               <button type="button" onClick={() => router.back()} style={secondaryBtn}>
                 Cancel

@@ -25,6 +25,7 @@ export default function Navbar() {
         </span>
       </Link>
 
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
         {role === 'admin' && (
           <Link href="/admin/flag" style={{ color: '#6B3F1F', textDecoration: 'none', fontSize: '14px' }}>
             Flags
@@ -36,8 +37,6 @@ export default function Navbar() {
             Users
           </Link>
         )}
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
         <Link href="/explore" style={{ color: '#6B3F1F', textDecoration: 'none', fontSize: '14px' }}>
           Explore
         </Link>

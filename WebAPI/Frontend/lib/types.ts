@@ -24,6 +24,9 @@ export interface Cafe {
   paymentOptionTags: string[]
   drinks: string[]
   openingHours: Record<string, OpeningHours>
+  contact?: {
+    website?: string
+  }
   averageRating?: number
   totalReviews?: number
   createdAt?: string
