@@ -6,9 +6,14 @@
     <!-- Change this to your server's IP/domain for production -->
     <string name="api_base_url">http://10.0.2.2:5239/api/</string>
 
+    <!-- App branding -->
+    <string name="app_display_name">BrewMap</string>
+
     <!-- Auth screens -->
-    <string name="login_title">Login</string>
-    <string name="register_title">Create Account</string>
+    <string name="login_title">Welcome back</string>
+    <string name="login_subtitle">Sign in to your account</string>
+    <string name="register_title">Create your account</string>
+    <string name="register_subtitle">Join the BrewMap community</string>
 
     <!-- Hints -->
     <string name="hint_email">Email</string>
