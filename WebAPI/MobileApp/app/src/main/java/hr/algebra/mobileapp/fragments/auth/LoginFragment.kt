@@ -83,7 +83,7 @@ class LoginFragment : Fragment() {
                 )
 
                 if (response.success) {
-                    TokenManager.saveToken(response.message, rememberMe = true)
+                    TokenManager.saveToken(response.token, rememberMe = true)
                     navigateToMain()
                 } else {
                     tilEmail.error = response.message

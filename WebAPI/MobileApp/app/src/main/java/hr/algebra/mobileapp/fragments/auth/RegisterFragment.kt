@@ -103,7 +103,7 @@ class RegisterFragment : Fragment() {
                 )
 
                 if (response.success) {
-                    TokenManager.saveToken(response.message, rememberMe = true)
+                    TokenManager.saveToken(response.token, rememberMe = true)
                     navigateToMain()
                 } else {
                     // Surface the server's message in the most relevant field
