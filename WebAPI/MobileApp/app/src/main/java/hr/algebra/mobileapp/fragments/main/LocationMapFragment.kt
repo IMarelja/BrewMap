@@ -143,6 +143,7 @@ class LocationMapFragment : Fragment() {
 
         if (myLocationOverlay == null) {
             val overlay = MyLocationNewOverlay(GpsMyLocationProvider(requireContext()), mapView)
+            applyFixedMyLocationIcon(overlay)
             overlay.enableMyLocation()
             overlay.enableFollowLocation()
             mapView.overlays.add(overlay)
@@ -156,8 +157,20 @@ class LocationMapFragment : Fragment() {
                 }
             }
         } else {
+            myLocationOverlay?.let { applyFixedMyLocationIcon(it) }
             myLocationOverlay?.enableMyLocation()
         }
+    }
+
+    private fun applyFixedMyLocationIcon(overlay: MyLocationNewOverlay) {
+        val personBitmap = BitmapFactory.decodeResource(
+            requireContext().resources,
+            org.osmdroid.library.R.drawable.person
+        ) ?: return
+
+        overlay.setPersonIcon(personBitmap)
+        // Keep the same icon while moving so it doesn't switch to the white arrow.
+        overlay.setDirectionArrow(personBitmap, personBitmap)
     }
 
     private fun schedulePinsReload() {
