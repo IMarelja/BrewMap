@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">MobileApp</string>
 
+    <!-- API Configuration -->
+    <!-- Emulator: 10.0.2.2 maps to host machine's localhost -->
+    <!-- Change this to your server's IP/domain for production -->
+    <string name="api_base_url">http://10.0.2.2:5239/api/</string>
+
     <!-- Auth screens -->
     <string name="login_title">Login</string>
     <string name="register_title">Create Account</string>
