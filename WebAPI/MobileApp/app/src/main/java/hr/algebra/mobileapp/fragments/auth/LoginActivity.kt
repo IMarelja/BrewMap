@@ -1,9 +1,10 @@
-package hr.algebra.mobileapp
+package hr.algebra.mobileapp.fragments.auth
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import hr.algebra.mobileapp.R
 
 class LoginActivity : AppCompatActivity() {
 

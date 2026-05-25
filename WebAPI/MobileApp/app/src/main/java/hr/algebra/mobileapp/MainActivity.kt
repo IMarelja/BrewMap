@@ -10,7 +10,6 @@ import androidx.core.view.WindowInsetsCompat
 import com.google.gson.GsonBuilder
 import com.google.gson.internal.bind.DateTypeAdapter
 import hr.algebra.mobileapp.api.API
-import hr.algebra.mobileapp.api.Auth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -27,12 +26,6 @@ class MainActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
-        }
-        runBlocking {
-            withContext(Dispatchers.IO) {
-                Auth.register("test@email.com", "test-user", "test-pass")
-                Auth.login("test-user", "test-pass", true)
-            }
         }
     }
 }

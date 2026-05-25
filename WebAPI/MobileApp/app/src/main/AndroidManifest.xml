@@ -16,7 +16,7 @@
 
         <!-- Login/Register screen — app entry point -->
         <activity
-            android:name=".LoginActivity"
+            android:name=".fragments.auth.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
