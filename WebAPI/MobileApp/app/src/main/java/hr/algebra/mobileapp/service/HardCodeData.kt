@@ -1,13 +1,17 @@
 package hr.algebra.mobileapp.service
 
 import hr.algebra.mobileapp.models.Address
+import hr.algebra.mobileapp.models.AggregatedRating
+import hr.algebra.mobileapp.models.Category
 import hr.algebra.mobileapp.models.DayOpeningHours
+import hr.algebra.mobileapp.models.Drink
 import hr.algebra.mobileapp.models.Location
+import hr.algebra.mobileapp.models.PaymentOption
 
 /**
  * Shared in-memory seed data for all hard-code service stubs.
  *
- * Instantiated **once** by [ServiceProvider] only when `USE_HARDCODE = true`,
+ * Instantiated **once** by [ServiceProvider] only when hard-code mode is active,
  * then injected into every hard-code service via constructor.  Neither stub
  * creates or duplicates this data — they all read from (and, in the case of
  * [users], write to) the single shared instance.
@@ -52,6 +56,25 @@ class HardCodeData {
             password = "Password1!",
             role     = "user"
         )
+    )
+
+    // ── Categories ────────────────────────────────────────────────────────────
+
+    /** Matches the category tags used in [locations]. */
+    val categories: List<Category> = listOf(
+        Category(tag = "cafe",        name = "Cafe"),
+        Category(tag = "bar",         name = "Bar"),
+        Category(tag = "coffeeshop",  name = "Coffee Shop"),
+        Category(tag = "restaurant",  name = "Restaurant")
+    )
+
+    // ── Payment options ───────────────────────────────────────────────────────
+
+    /** Matches the payment option tags used in [locations]. */
+    val paymentOptions: List<PaymentOption> = listOf(
+        PaymentOption(tag = "cash",   name = "Cash"),
+        PaymentOption(tag = "card",   name = "Credit / Debit Card"),
+        PaymentOption(tag = "mobile", name = "Mobile Payment")
     )
 
     // ── Locations ─────────────────────────────────────────────────────────────
@@ -144,7 +167,63 @@ class HardCodeData {
         )
     )
 
+    // ── Drinks ────────────────────────────────────────────────────────────────
+
+    /**
+     * Seed drinks spread across several seeded locations.
+     * Each drink maps to one [Location] via [Drink.availableAtLocationId].
+     */
+    val drinks: List<Drink> = listOf(
+
+        // Pivana (hc-loc-001) — 3 drinks
+        drink("hc-drk-001", "Ožujsko Pivo",       "Classic Croatian lager on tap.",    "hc-loc-001", 4.8, 3),
+        drink("hc-drk-002", "Karlovačko Tamno",   "Dark lager with a malty finish.",   "hc-loc-001", 4.5, 2),
+        drink("hc-drk-003", "Aperol Spritz",       "Refreshing Italian aperitif.",      "hc-loc-001", 4.7, 1),
+
+        // Vinkl (hc-loc-002) — 2 drinks
+        drink("hc-drk-004", "Flat White",          "Double ristretto with steamed milk.", "hc-loc-002", 4.2, 2),
+        drink("hc-drk-005", "Craft IPA",           "Hoppy local India pale ale.",        "hc-loc-002", 3.8, 1),
+
+        // Botaničar (hc-loc-003) — 2 drinks
+        drink("hc-drk-006", "Cold Brew",           "12-hour cold-extracted coffee.",    "hc-loc-003", 4.5, 2),
+        drink("hc-drk-007", "Gin & Tonic",         "Premium gin with Fever-Tree tonic.", "hc-loc-003", 3.5, 1),
+
+        // Caffe Bar SKA (hc-loc-004) — 2 drinks
+        drink("hc-drk-008", "Espresso",            "Short, intense double shot.",       "hc-loc-004", 4.6, 2),
+        drink("hc-drk-009", "Cappuccino",          "Classic Italian-style cappuccino.", "hc-loc-004", 4.4, 1),
+
+        // Leggiero Malešnica (hc-loc-007) — 2 drinks
+        drink("hc-drk-010", "Cortado",             "Equal parts espresso and warm milk.", "hc-loc-007", 3.7, 2),
+        drink("hc-drk-011", "Oat Milk Latte",      "Espresso with steamed oat milk.",  "hc-loc-007", 3.3, 1),
+
+        // Mr. Jack Bar (hc-loc-008) — 2 drinks
+        drink("hc-drk-012", "Jack Daniel's Cola",  "Bourbon and cola over ice.",        "hc-loc-008", 4.1, 2),
+        drink("hc-drk-013", "Whiskey Sour",        "Whiskey, lemon juice, simple syrup.", "hc-loc-008", 3.9, 1),
+
+        // Cafe Vanilla (hc-loc-009) — 2 drinks
+        drink("hc-drk-014", "Vanilla Latte",       "Espresso with vanilla-infused milk.", "hc-loc-009", 4.6, 2),
+        drink("hc-drk-015", "Hot Chocolate",       "Thick Belgian chocolate drink.",    "hc-loc-009", 4.4, 1),
+
+        // Koncept Mlinček (hc-loc-010) — 2 drinks
+        drink("hc-drk-016", "Specialty Filter",   "Single-origin pour-over coffee.",  "hc-loc-010", 4.7, 2),
+        drink("hc-drk-017", "Matcha Latte",        "Ceremonial matcha with oat milk.", "hc-loc-010", 4.3, 1)
+    )
+
     // ── Private seed-builder helpers ──────────────────────────────────────────
+
+    private fun drink(
+        id: String, name: String, description: String,
+        locationId: String, avgRating: Double, ratingCount: Int
+    ) = Drink(
+        id                    = id,
+        name                  = name,
+        description           = description,
+        availableAtLocationId = locationId,
+        createdByUserId       = "hc-001",
+        createdAt             = "2025-01-01T00:00:00Z",
+        updatedAt             = "2025-01-01T00:00:00Z",
+        aggregatedRating      = AggregatedRating(average = avgRating, count = ratingCount)
+    )
 
     private fun loc(
         id: String, name: String, description: String,
