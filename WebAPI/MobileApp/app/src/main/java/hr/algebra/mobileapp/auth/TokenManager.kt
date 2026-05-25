@@ -51,10 +51,14 @@ object TokenManager {
      *                   Defaults to **true** to match the client-side convention.
      */
     fun saveToken(token: String?, rememberMe: Boolean = true) {
+        if (token == null) {
+            Log.w(TAG, "saveToken called with null — nothing saved")
+            return
+        }
         memoryToken = token
         if (rememberMe) {
-            prefs.edit().putString(KEY_JWT, token).apply()
-            Log.d(TAG, "Token persisted to SharedPreferences")
+            val ok = prefs.edit().putString(KEY_JWT, token).commit()   // commit = synchronous write
+            Log.d(TAG, "Token persisted to SharedPreferences (commit=$ok) prefix=${token.take(20)}")
         } else {
             // Make sure no stale persisted token from a previous "remember me"
             // session lingers while this session uses only memory.
@@ -70,7 +74,14 @@ object TokenManager {
      * An expired token is removed from both memory and storage automatically.
      */
     fun getToken(): String? {
-        val token = memoryToken ?: prefs.getString(KEY_JWT, null) ?: return null
+        val fromMemory = memoryToken
+        val fromPrefs  = if (fromMemory == null) prefs.getString(KEY_JWT, null) else null
+        val token      = fromMemory ?: fromPrefs
+
+        Log.d(TAG, "getToken: memory=${fromMemory?.take(20) ?: "null"}  prefs=${fromPrefs?.take(20) ?: "null"}")
+
+        if (token == null) return null
+
         // Warm the memory cache so subsequent calls avoid a SharedPreferences read.
         if (memoryToken == null) memoryToken = token
 
