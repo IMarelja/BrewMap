@@ -19,6 +19,10 @@ import hr.algebra.mobileapp.service.paymentoption.IPaymentOptionService
 import hr.algebra.mobileapp.service.paymentoption.PaymentOptionServiceApi
 import hr.algebra.mobileapp.service.paymentoption.PaymentOptionServiceHardCode
 import hr.algebra.mobileapp.service.paymentoption.PaymentOptionServicePersistent
+import hr.algebra.mobileapp.service.review.IReviewService
+import hr.algebra.mobileapp.service.review.ReviewServiceApi
+import hr.algebra.mobileapp.service.review.ReviewServiceHardCode
+import hr.algebra.mobileapp.service.review.ReviewServicePersistent
 
 /**
  * Application-wide service locator.
@@ -47,6 +51,7 @@ import hr.algebra.mobileapp.service.paymentoption.PaymentOptionServicePersistent
  * ServiceProvider.drink.getByLocationId(locationId)
  * ServiceProvider.category.getAll()
  * ServiceProvider.paymentOption.getAll()
+ * ServiceProvider.review.getByLocationId(locationId)
  * ```
  */
 object ServiceProvider {
@@ -110,5 +115,17 @@ object ServiceProvider {
         Mode.HARD_CODE  -> PaymentOptionServiceHardCode(hardCodeData!!)
         Mode.API        -> PaymentOptionServiceApi()
         Mode.PERSISTENT -> PaymentOptionServicePersistent()
+    }
+
+    // ── Review ────────────────────────────────────────────────────────────────
+
+    /**
+     * Reviews — getById, getByLocationId, getByDrinkId, getMyReviews, getByUserId.
+     * Note: [IReviewService.getMyReviews] is never cached in persistent mode.
+     */
+    val review: IReviewService = when (MODE) {
+        Mode.HARD_CODE  -> ReviewServiceHardCode(hardCodeData!!)
+        Mode.API        -> ReviewServiceApi()
+        Mode.PERSISTENT -> ReviewServicePersistent()
     }
 }

@@ -7,6 +7,7 @@ import hr.algebra.mobileapp.models.DayOpeningHours
 import hr.algebra.mobileapp.models.Drink
 import hr.algebra.mobileapp.models.Location
 import hr.algebra.mobileapp.models.PaymentOption
+import hr.algebra.mobileapp.models.Review
 
 /**
  * Shared in-memory seed data for all hard-code service stubs.
@@ -209,7 +210,98 @@ class HardCodeData {
         drink("hc-drk-017", "Matcha Latte",        "Ceremonial matcha with oat milk.", "hc-loc-010", 4.3, 1)
     )
 
+    // ── Reviews ───────────────────────────────────────────────────────────────
+
+    /**
+     * Seed reviews for seeded locations and drinks.
+     * Ratings match the [averageRating] / [AggregatedRating.average] values
+     * already set on those objects.
+     *
+     * targetType = "location" for location reviews,
+     * targetType = "product"  for drink reviews  (mirrors the backend).
+     */
+    val reviews: List<Review> = listOf(
+
+        // ── Location reviews ──────────────────────────────────────────────────
+
+        // Pivana (hc-loc-001) — 3 reviews → avg 4.67
+        rev("hc-rev-001", "hc-001", "location", "hc-loc-001", 5, "Best craft beer in town!"),
+        rev("hc-rev-002", "hc-002", "location", "hc-loc-001", 5, "Great vibe and cold beer."),
+        rev("hc-rev-003", "hc-003", "location", "hc-loc-001", 4, "Solid place, a bit loud."),
+
+        // Vinkl (hc-loc-002) — 2 reviews → avg 4.0
+        rev("hc-rev-004", "hc-002", "location", "hc-loc-002", 4, "Quick coffee, friendly staff."),
+        rev("hc-rev-005", "hc-003", "location", "hc-loc-002", 4, "Nice after-work spot."),
+
+        // Botaničar (hc-loc-003) — 2 reviews → avg 4.0
+        rev("hc-rev-006", "hc-001", "location", "hc-loc-003", 4, "Lovely garden terrace."),
+        rev("hc-rev-007", "hc-002", "location", "hc-loc-003", 4, "Great specialty coffee."),
+
+        // Caffe Bar SKA (hc-loc-004) — 2 reviews → avg 4.5
+        rev("hc-rev-008", "hc-002", "location", "hc-loc-004", 4, "Dependable espresso."),
+        rev("hc-rev-009", "hc-003", "location", "hc-loc-004", 5, "Love the terrace scene."),
+
+        // Leggiero Malešnica (hc-loc-007) — 2 reviews → avg 3.5
+        rev("hc-rev-010", "hc-002", "location", "hc-loc-007", 3, "Decent coffee, nothing special."),
+        rev("hc-rev-011", "hc-003", "location", "hc-loc-007", 4, "Comfortable seating."),
+
+        // Mr. Jack Bar (hc-loc-008) — 2 reviews → avg 4.0
+        rev("hc-rev-012", "hc-001", "location", "hc-loc-008", 4, "Classic bourbon cocktails."),
+        rev("hc-rev-013", "hc-002", "location", "hc-loc-008", 4, "Good atmosphere."),
+
+        // Cafe Vanilla (hc-loc-009) — 2 reviews → avg 4.5
+        rev("hc-rev-014", "hc-001", "location", "hc-loc-009", 4, "Fresh pastries every morning."),
+        rev("hc-rev-015", "hc-003", "location", "hc-loc-009", 5, "Best vanilla latte in Zagreb!"),
+
+        // Koncept Mlinček (hc-loc-010) — 2 reviews → avg 4.5
+        rev("hc-rev-016", "hc-002", "location", "hc-loc-010", 4, "Elegant interior, great coffee."),
+        rev("hc-rev-017", "hc-003", "location", "hc-loc-010", 5, "Wonderful specialty filter."),
+
+        // ── Drink reviews ─────────────────────────────────────────────────────
+
+        // Ožujsko Pivo (hc-drk-001) — 3 reviews → avg 4.8
+        rev("hc-rev-018", "hc-001", "product", "hc-drk-001", 5, "Crisp and refreshing."),
+        rev("hc-rev-019", "hc-002", "product", "hc-drk-001", 5, "Classic Croatian lager."),
+        rev("hc-rev-020", "hc-003", "product", "hc-drk-001", 4, "Good on tap."),
+
+        // Karlovačko Tamno (hc-drk-002) — 2 reviews → avg 4.5
+        rev("hc-rev-021", "hc-002", "product", "hc-drk-002", 5, "Rich malty flavour."),
+        rev("hc-rev-022", "hc-003", "product", "hc-drk-002", 4, "Solid dark lager."),
+
+        // Cold Brew (hc-drk-006) — 2 reviews → avg 4.5
+        rev("hc-rev-023", "hc-001", "product", "hc-drk-006", 5, "Smooth and punchy."),
+        rev("hc-rev-024", "hc-002", "product", "hc-drk-006", 4, "Great cold brew."),
+
+        // Espresso (hc-drk-008) — 2 reviews → avg 4.6
+        rev("hc-rev-025", "hc-001", "product", "hc-drk-008", 5, "Perfect short shot."),
+        rev("hc-rev-026", "hc-003", "product", "hc-drk-008", 4, "Very intense, love it."),
+
+        // Vanilla Latte (hc-drk-014) — 2 reviews → avg 4.6
+        rev("hc-rev-027", "hc-002", "product", "hc-drk-014", 5, "Perfectly sweet."),
+        rev("hc-rev-028", "hc-003", "product", "hc-drk-014", 4, "Great flavour balance."),
+
+        // Specialty Filter (hc-drk-016) — 2 reviews → avg 4.7
+        rev("hc-rev-029", "hc-001", "product", "hc-drk-016", 5, "Incredible single origin."),
+        rev("hc-rev-030", "hc-002", "product", "hc-drk-016", 4, "Very well brewed.")
+    )
+
     // ── Private seed-builder helpers ──────────────────────────────────────────
+
+    private fun rev(
+        id: String, userId: String, targetType: String,
+        targetId: String, rating: Int, comment: String
+    ) = Review(
+        id          = id,
+        userId      = userId,
+        targetType  = targetType,
+        targetId    = targetId,
+        rating      = rating,
+        comment     = comment,
+        isVisible   = true,
+        reportCount = 0,
+        createdAt   = "2025-01-01T00:00:00Z",
+        updatedAt   = "2025-01-01T00:00:00Z"
+    )
 
     private fun drink(
         id: String, name: String, description: String,
