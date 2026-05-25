@@ -40,7 +40,6 @@ class AuthServiceHardCode(private val data: HardCodeData) : IAuthService {
         }
 
         val token = buildMockJwt(match.id, match.role, rememberMe)
-        TokenManager.saveToken(token, rememberMe)
         Log.d("AuthServiceHardCode", "login OK  user=${match.username}  role=${match.role}")
         return AuthResponse(
             success    = true,
