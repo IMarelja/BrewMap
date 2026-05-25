@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MobileApp</string>
+    <string name="app_name">BrewMap</string>
 
     <!-- API Configuration -->
     <!-- Emulator: 10.0.2.2 maps to host machine's localhost -->
