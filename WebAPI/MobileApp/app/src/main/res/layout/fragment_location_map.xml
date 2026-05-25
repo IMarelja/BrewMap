@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:paddingHorizontal="14dp"
             android:paddingVertical="10dp"
-            android:text="Tap a pin to see a short location description"
+            android:text="@string/tap_a_pin_to_see_a_short_location_description"
             android:textColor="@color/brew_brown"
             android:textSize="13sp" />
     </com.google.android.material.card.MaterialCardView>

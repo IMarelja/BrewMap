@@ -35,4 +35,17 @@
     <string name="error_login_failed">Login failed. Please try again.</string>
     <string name="error_register_failed">Registration failed. Please try again.</string>
     <string name="error_network">Network error. Check your connection and try again.</string>
+    <string name="drink_keyword">Drink keyword</string>
+    <string name="distance">Distance</string>
+    <string name="minimum_rating_any">Minimum rating: Any</string>
+    <string name="categories">Categories</string>
+    <string name="payment_options">Payment options</string>
+    <string name="search">Search</string>
+    <string name="advnaced_search">Advnaced search</string>
+    <string name="search_locations">Search locations</string>
+    <string name="tap_a_pin_to_see_a_short_location_description">Tap a pin to see a short location description</string>
+    <string name="drinks">Drinks</string>
+    <string name="reviews">Reviews</string>
+    <string name="map">Map</string>
+    <string name="log_out">Log out</string>
 </resources>
