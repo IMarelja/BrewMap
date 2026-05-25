@@ -1,21 +1,13 @@
 package hr.algebra.mobileapp
 
-import android.net.http.HttpResponseCache.install
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.google.gson.GsonBuilder
-import com.google.gson.internal.bind.DateTypeAdapter
-import hr.algebra.mobileapp.api.API
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import java.io.Console
-import java.util.Date
-import kotlin.invoke
+import hr.algebra.mobileapp.auth.TokenManager
+import hr.algebra.mobileapp.fragments.auth.LoginActivity
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,5 +19,23 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+    }
+
+    /**
+     * Clear the stored JWT and send the user back to the login screen.
+     *
+     * Call this from any fragment or menu action that implements "Log out".
+     * Example:
+     * ```kotlin
+     * (requireActivity() as MainActivity).logout()
+     * ```
+     */
+    fun logout() {
+        TokenManager.clearToken()
+        val intent = Intent(this, LoginActivity::class.java)
+        // Clear the back stack so the user can't navigate back into the app.
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 }

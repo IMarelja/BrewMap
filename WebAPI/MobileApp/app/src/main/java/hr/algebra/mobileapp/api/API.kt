@@ -5,10 +5,12 @@ import com.google.gson.GsonBuilder
 import com.google.gson.internal.bind.DateTypeAdapter
 import hr.algebra.mobileapp.BrewMapApp
 import hr.algebra.mobileapp.R
+import hr.algebra.mobileapp.auth.TokenManager
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
+import io.ktor.http.HttpHeaders
 import java.util.Date
 
 class API {
@@ -20,6 +22,13 @@ class API {
         private val baseUrl: String
             get() = BrewMapApp.appContext.getString(R.string.api_base_url)
 
+        /**
+         * Creates a Ktor HTTP client pre-configured with:
+         * - the base API URL
+         * - an `Authorization: Bearer <token>` header whenever a valid JWT is
+         *   stored in [TokenManager] (automatically omitted for anonymous calls
+         *   such as login and register, which run before any token is saved).
+         */
         fun createClient(): Requestable {
             val gson: Gson = GsonBuilder()
                 .registerTypeAdapter(Date::class.java, DateTypeAdapter())
@@ -29,6 +38,10 @@ class API {
                 install(ContentNegotiation)
                 defaultRequest {
                     url(baseUrl)
+                    // Attach Bearer token if one is available and not expired.
+                    TokenManager.getToken()?.let { token ->
+                        headers.append(HttpHeaders.Authorization, "Bearer $token")
+                    }
                 }
             }
 

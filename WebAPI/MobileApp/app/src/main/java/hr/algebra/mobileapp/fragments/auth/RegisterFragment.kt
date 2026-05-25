@@ -2,30 +2,33 @@ package hr.algebra.mobileapp.fragments.auth
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import hr.algebra.mobileapp.MainActivity
 import hr.algebra.mobileapp.R
+import hr.algebra.mobileapp.auth.TokenManager
+import hr.algebra.mobileapp.service.ServiceProvider
+import kotlinx.coroutines.launch
 
 class RegisterFragment : Fragment() {
 
-    private lateinit var tilUsername: TextInputLayout
-    private lateinit var tilEmail: TextInputLayout
-    private lateinit var tilPassword: TextInputLayout
+    private lateinit var tilUsername:        TextInputLayout
+    private lateinit var tilEmail:           TextInputLayout
+    private lateinit var tilPassword:        TextInputLayout
     private lateinit var tilConfirmPassword: TextInputLayout
-    private lateinit var etUsername: TextInputEditText
-    private lateinit var etEmail: TextInputEditText
-    private lateinit var etPassword: TextInputEditText
-    private lateinit var etConfirmPassword: TextInputEditText
-    private lateinit var btnSubmit: MaterialButton
-    private lateinit var btnGoToLogin: MaterialButton
+    private lateinit var etUsername:         TextInputEditText
+    private lateinit var etEmail:            TextInputEditText
+    private lateinit var etPassword:         TextInputEditText
+    private lateinit var etConfirmPassword:  TextInputEditText
+    private lateinit var btnSubmit:     MaterialButton
+    private lateinit var btnGoToLogin:  MaterialButton
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,13 +47,12 @@ class RegisterFragment : Fragment() {
         etEmail            = view.findViewById(R.id.et_email)
         etPassword         = view.findViewById(R.id.et_password)
         etConfirmPassword  = view.findViewById(R.id.et_confirm_password)
-        btnSubmit          = view.findViewById(R.id.btn_register_submit)
-        btnGoToLogin       = view.findViewById(R.id.btn_go_to_login)
+        btnSubmit      = view.findViewById(R.id.btn_register_submit)
+        btnGoToLogin   = view.findViewById(R.id.btn_go_to_login)
 
         btnSubmit.setOnClickListener { onRegisterSubmit() }
 
         btnGoToLogin.setOnClickListener {
-            // Pop back to LoginFragment (added to back stack in LoginActivity)
             requireActivity().supportFragmentManager.popBackStack()
         }
     }
@@ -87,13 +89,45 @@ class RegisterFragment : Fragment() {
         }
         if (!isValid) return
 
-        // Log / fetch the data (swap for a real API call when ready)
-        Log.d("RegisterFragment", "Register attempt → username=$username, email=$email, password=$password")
-        Toast.makeText(requireContext(), "Registering $username…", Toast.LENGTH_SHORT).show()
+        // Disable button while the request is in flight
+        btnSubmit.isEnabled = false
 
-        // Navigate to MainActivity
-        val intent = Intent(requireContext(), MainActivity::class.java)
-        startActivity(intent)
+        // Registration always returns a 60-min JWT; TokenManager persists it
+        // so the user lands in MainActivity without a second login step.
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val response = ServiceProvider.auth.register(
+                    email    = email,
+                    username = username,
+                    password = password
+                )
+
+                if (response.success) {
+                    TokenManager.saveToken(response.message, rememberMe = true)
+                    navigateToMain()
+                } else {
+                    // Surface the server's message in the most relevant field
+                    val msg = response.message ?: getString(R.string.error_register_failed)
+                    when {
+                        msg.contains("username", ignoreCase = true) -> tilUsername.error = msg
+                        msg.contains("email",    ignoreCase = true) -> tilEmail.error    = msg
+                        else                                         -> tilEmail.error    = msg
+                    }
+                    btnSubmit.isEnabled = true
+                }
+            } catch (e: Exception) {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.error_network),
+                    Toast.LENGTH_LONG
+                ).show()
+                btnSubmit.isEnabled = true
+            }
+        }
+    }
+
+    private fun navigateToMain() {
+        startActivity(Intent(requireContext(), MainActivity::class.java))
         requireActivity().finish()
     }
 }

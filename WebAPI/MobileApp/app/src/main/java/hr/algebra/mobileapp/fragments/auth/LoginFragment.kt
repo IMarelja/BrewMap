@@ -2,26 +2,28 @@ package hr.algebra.mobileapp.fragments.auth
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import hr.algebra.mobileapp.fragments.auth.LoginActivity
 import hr.algebra.mobileapp.MainActivity
 import hr.algebra.mobileapp.R
+import hr.algebra.mobileapp.auth.TokenManager
+import hr.algebra.mobileapp.service.ServiceProvider
+import kotlinx.coroutines.launch
 
 class LoginFragment : Fragment() {
 
-    private lateinit var tilEmail: TextInputLayout
+    private lateinit var tilEmail:    TextInputLayout
     private lateinit var tilPassword: TextInputLayout
-    private lateinit var etEmail: TextInputEditText
-    private lateinit var etPassword: TextInputEditText
-    private lateinit var btnSubmit: MaterialButton
+    private lateinit var etEmail:     TextInputEditText
+    private lateinit var etPassword:  TextInputEditText
+    private lateinit var btnSubmit:       MaterialButton
     private lateinit var btnGoToRegister: MaterialButton
 
     override fun onCreateView(
@@ -67,13 +69,40 @@ class LoginFragment : Fragment() {
         }
         if (!isValid) return
 
-        // Log / fetch the data (swap for a real API call when ready)
-        Log.d("LoginFragment", "Login attempt → email=$email, password=$password")
-        Toast.makeText(requireContext(), "Logging in as $email…", Toast.LENGTH_SHORT).show()
+        // Disable button while the request is in flight
+        btnSubmit.isEnabled = false
 
-        // Navigate to MainActivity
-        val intent = Intent(requireContext(), MainActivity::class.java)
-        startActivity(intent)
+        // rememberMe defaults to true — the server will issue a 30-day JWT
+        // which TokenManager will persist to EncryptedSharedPreferences.
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val response = ServiceProvider.auth.login(
+                    user       = email,
+                    password   = password,
+                    rememberMe = true
+                )
+
+                if (response.success) {
+                    TokenManager.saveToken(response.message, rememberMe = true)
+                    navigateToMain()
+                } else {
+                    tilEmail.error = response.message
+                        ?: getString(R.string.error_login_failed)
+                    btnSubmit.isEnabled = true
+                }
+            } catch (e: Exception) {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.error_network),
+                    Toast.LENGTH_LONG
+                ).show()
+                btnSubmit.isEnabled = true
+            }
+        }
+    }
+
+    private fun navigateToMain() {
+        startActivity(Intent(requireContext(), MainActivity::class.java))
         requireActivity().finish()
     }
 }

@@ -52,6 +52,11 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.kotlinx.serialization.json)
+    // Token storage — Android Keystore-backed EncryptedSharedPreferences
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    // Lifecycle-aware coroutine scopes (lifecycleScope in fragments/activities)
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
