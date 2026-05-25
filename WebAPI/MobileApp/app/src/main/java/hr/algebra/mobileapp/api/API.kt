@@ -25,7 +25,7 @@ class API {
             val client = HttpClient(Android) {
                 install(ContentNegotiation)
                 defaultRequest {
-                    url("http://localhost:5239/")
+                    url("http://10.0.2.2:5239/api/")
                 }
             }
 
