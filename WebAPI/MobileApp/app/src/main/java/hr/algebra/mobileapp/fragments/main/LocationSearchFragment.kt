@@ -15,7 +15,6 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
@@ -75,8 +74,10 @@ class LocationSearchFragment : Fragment() {
         tvSearchState = view.findViewById(R.id.tv_search_state)
         rvSearchResults = view.findViewById(R.id.rv_search_results)
 
-        rvSearchResults.layoutManager = LinearLayoutManager(requireContext())
+        rvSearchResults.layoutManager = NonScrollableLinearLayoutManager(requireContext())
         rvSearchResults.adapter = adapter
+        rvSearchResults.isNestedScrollingEnabled = false
+        rvSearchResults.setHasFixedSize(false)
 
         setupAdvancedSearch()
         loadAdvancedFilterOptions()
@@ -238,6 +239,7 @@ class LocationSearchFragment : Fragment() {
                     radiusMeters = selectedRadius.meters
                 )
                 adapter.submitData(results)
+                rvSearchResults.post { rvSearchResults.requestLayout() }
                 tvSearchState.text = if (results.isEmpty()) {
                     "No locations found"
                 } else {
