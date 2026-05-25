@@ -20,15 +20,6 @@
         app:strokeColor="@color/brew_light"
         app:strokeWidth="1dp">
 
-        <TextView
-            android:id="@+id/tv_map_hint"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="10dp"
-            android:text="@string/tap_a_pin_to_see_a_short_location_description"
-            android:textColor="@color/brew_brown"
-            android:textSize="13sp" />
     </com.google.android.material.card.MaterialCardView>
 
     <ProgressBar

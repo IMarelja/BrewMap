@@ -1,6 +1,10 @@
 package hr.algebra.mobileapp.fragments.main
 
 import android.os.Bundle
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,10 +21,13 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import org.osmdroid.events.MapAdapter
+import org.osmdroid.events.ZoomEvent
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import kotlin.math.roundToInt
 
 class LocationDetailFragment : Fragment() {
 
@@ -33,6 +40,11 @@ class LocationDetailFragment : Fragment() {
     private lateinit var mapView: MapView
     private lateinit var btnReviews: MaterialButton
     private lateinit var btnDrinks: MaterialButton
+    private var detailMarker: Marker? = null
+    private val pinBitmap: Bitmap? by lazy {
+        BitmapFactory.decodeResource(resources, R.drawable.pin)
+    }
+    private val scaledPinIconCache = mutableMapOf<Int, Drawable?>()
 
     private var locationId: String = ""
     private var activeSection: Section = Section.NONE
@@ -58,6 +70,12 @@ class LocationDetailFragment : Fragment() {
 
         mapView.setTileSource(TileSourceFactory.MAPNIK)
         mapView.setMultiTouchControls(true)
+        mapView.addMapListener(object : MapAdapter() {
+            override fun onZoom(event: ZoomEvent?): Boolean {
+                applyDetailPinScaleForCurrentZoom()
+                return true
+            }
+        })
 
         locationId = requireArguments().getString(ARG_LOCATION_ID).orEmpty()
         if (locationId.isBlank()) {
@@ -93,6 +111,8 @@ class LocationDetailFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        detailMarker = null
+        scaledPinIconCache.clear()
         mapView.onDetach()
         super.onDestroyView()
     }
@@ -148,15 +168,74 @@ class LocationDetailFragment : Fragment() {
         mapView.controller.setCenter(point)
 
         mapView.overlays.removeAll { it is Marker }
+        val pinSizeDp = zoomToPinSizeDp(mapView.zoomLevelDouble)
+        val pinVisible = pinSizeDp > MapPinScaleConfig.PIN_HIDE_AT_OR_BELOW_DP
         val marker = Marker(mapView).apply {
             position = point
+            icon = createScaledPinDrawable(dpToPx(pinSizeDp))
+            setVisible(pinVisible)
             setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
             title = location.name
             snippet = location.address.street
         }
+        detailMarker = marker
         mapView.overlays.add(marker)
-        marker.showInfoWindow()
+        if (pinVisible) marker.showInfoWindow()
         mapView.invalidate()
+    }
+
+    private fun applyDetailPinScaleForCurrentZoom() {
+        val pinSizeDp = zoomToPinSizeDp(mapView.zoomLevelDouble)
+        val pinVisible = pinSizeDp > MapPinScaleConfig.PIN_HIDE_AT_OR_BELOW_DP
+        detailMarker?.let { marker ->
+            marker.icon = createScaledPinDrawable(dpToPx(pinSizeDp))
+            marker.setVisible(pinVisible)
+            if (!pinVisible && marker.isInfoWindowShown) {
+                marker.closeInfoWindow()
+            }
+        }
+        mapView.invalidate()
+    }
+
+    private fun createScaledPinDrawable(targetHeightPx: Int) =
+        scaledPinIconCache.getOrPut(targetHeightPx.coerceAtLeast(1)) {
+            val source = pinBitmap ?: return@getOrPut null
+            if (source.width <= 0 || source.height <= 0) return@getOrPut null
+
+            val safeHeightPx = targetHeightPx.coerceAtLeast(1)
+            val targetWidthPx = (safeHeightPx.toFloat() * source.width / source.height)
+                .roundToInt()
+                .coerceAtLeast(1)
+            val scaledBitmap = Bitmap.createScaledBitmap(source, targetWidthPx, safeHeightPx, true)
+            BitmapDrawable(resources, scaledBitmap)
+        }
+
+    private fun zoomToPinSizeDp(zoomLevel: Double): Float {
+        val clampedZoom = zoomLevel.coerceIn(
+            MapPinScaleConfig.PIN_ZOOM_OUT_LEVEL,
+            MapPinScaleConfig.PIN_ZOOM_IN_LEVEL
+        )
+        return if (clampedZoom <= MapPinScaleConfig.PIN_DEFAULT_ZOOM_LEVEL) {
+            val denominator = (
+                MapPinScaleConfig.PIN_DEFAULT_ZOOM_LEVEL - MapPinScaleConfig.PIN_ZOOM_OUT_LEVEL
+            ).takeIf { it > 0.0 } ?: 1.0
+            val progress = ((clampedZoom - MapPinScaleConfig.PIN_ZOOM_OUT_LEVEL) / denominator).toFloat()
+            lerp(MapPinScaleConfig.PIN_MIN_VISIBLE_DP, MapPinScaleConfig.PIN_DEFAULT_DP, progress)
+        } else {
+            val denominator = (
+                MapPinScaleConfig.PIN_ZOOM_IN_LEVEL - MapPinScaleConfig.PIN_DEFAULT_ZOOM_LEVEL
+            ).takeIf { it > 0.0 } ?: 1.0
+            val progress = ((clampedZoom - MapPinScaleConfig.PIN_DEFAULT_ZOOM_LEVEL) / denominator).toFloat()
+            lerp(MapPinScaleConfig.PIN_DEFAULT_DP, MapPinScaleConfig.PIN_MAX_DP, progress)
+        }
+    }
+
+    private fun dpToPx(dp: Float): Int {
+        return (dp * resources.displayMetrics.density).roundToInt().coerceAtLeast(1)
+    }
+
+    private fun lerp(start: Float, end: Float, t: Float): Float {
+        return start + (end - start) * t.coerceIn(0f, 1f)
     }
 
     private fun showSection(section: Section) {

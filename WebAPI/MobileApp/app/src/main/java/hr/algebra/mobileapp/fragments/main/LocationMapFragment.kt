@@ -2,6 +2,10 @@ package hr.algebra.mobileapp.fragments.main
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -30,11 +34,18 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import kotlin.math.roundToInt
 
 class LocationMapFragment : Fragment() {
 
     private lateinit var mapView: MapView
     private lateinit var progressPins: ProgressBar
+    private val pinBitmap: Bitmap? by lazy {
+        BitmapFactory.decodeResource(resources, R.drawable.pin)
+    }
+    private val scaledPinIconCache = mutableMapOf<Int, Drawable?>()
+    private var lastAppliedPinHeightPx: Int = -1
+    private var lastPinsVisible: Boolean? = null
 
     private val markerLocationCache = mutableMapOf<String, Location>()
     private val loadingLocationIds = mutableSetOf<String>()
@@ -67,7 +78,7 @@ class LocationMapFragment : Fragment() {
 
         mapView.setTileSource(TileSourceFactory.MAPNIK)
         mapView.setMultiTouchControls(true)
-        mapView.controller.setZoom(DEFAULT_ZOOM)
+        mapView.controller.setZoom(MapPinScaleConfig.PIN_DEFAULT_ZOOM_LEVEL)
         mapView.controller.setCenter(GeoPoint(DEFAULT_LATITUDE, DEFAULT_LONGITUDE))
 
         mapView.addMapListener(object : MapAdapter() {
@@ -77,6 +88,7 @@ class LocationMapFragment : Fragment() {
             }
 
             override fun onZoom(event: ZoomEvent?): Boolean {
+                applyPinScaleForCurrentZoom()
                 schedulePinsReload()
                 return true
             }
@@ -100,6 +112,7 @@ class LocationMapFragment : Fragment() {
 
     override fun onDestroyView() {
         uiHandler.removeCallbacks(debouncedPinsReload)
+        scaledPinIconCache.clear()
         mapView.overlays.clear()
         mapView.onDetach()
         myLocationOverlay = null
@@ -186,10 +199,17 @@ class LocationMapFragment : Fragment() {
 
     private fun renderPins(pins: List<Pin>) {
         mapView.overlays.removeAll { it is Marker }
+        val pinSizeDp = zoomToPinSizeDp(mapView.zoomLevelDouble)
+        val pinsVisible = pinSizeDp > MapPinScaleConfig.PIN_HIDE_AT_OR_BELOW_DP
+        val pinHeightPx = dpToPx(pinSizeDp)
+        lastAppliedPinHeightPx = pinHeightPx
+        lastPinsVisible = pinsVisible
 
         pins.forEach { pin ->
             val marker = Marker(mapView).apply {
                 position = GeoPoint(pin.latitude, pin.longitude)
+                icon = createScaledPinDrawable(pinHeightPx)
+                setVisible(pinsVisible)
                 setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                 title = "Location"
                 snippet = "Tap pin again in a moment"
@@ -209,6 +229,63 @@ class LocationMapFragment : Fragment() {
         }
 
         mapView.invalidate()
+    }
+
+    private fun applyPinScaleForCurrentZoom() {
+        val pinSizeDp = zoomToPinSizeDp(mapView.zoomLevelDouble)
+        val pinsVisible = pinSizeDp > MapPinScaleConfig.PIN_HIDE_AT_OR_BELOW_DP
+        val pinHeightPx = dpToPx(pinSizeDp)
+        if (pinHeightPx == lastAppliedPinHeightPx && pinsVisible == lastPinsVisible) return
+        lastAppliedPinHeightPx = pinHeightPx
+        lastPinsVisible = pinsVisible
+
+        mapView.overlays.forEach { overlay ->
+            val marker = overlay as? Marker ?: return@forEach
+            marker.icon = createScaledPinDrawable(pinHeightPx)
+            marker.setVisible(pinsVisible)
+        }
+        mapView.invalidate()
+    }
+
+    private fun createScaledPinDrawable(targetHeightPx: Int) =
+        scaledPinIconCache.getOrPut(targetHeightPx.coerceAtLeast(1)) {
+            val source = pinBitmap ?: return@getOrPut null
+            if (source.width <= 0 || source.height <= 0) return@getOrPut null
+
+            val safeHeightPx = targetHeightPx.coerceAtLeast(1)
+            val targetWidthPx = (safeHeightPx.toFloat() * source.width / source.height)
+                .roundToInt()
+                .coerceAtLeast(1)
+            val scaledBitmap = Bitmap.createScaledBitmap(source, targetWidthPx, safeHeightPx, true)
+            BitmapDrawable(resources, scaledBitmap)
+        }
+
+    private fun zoomToPinSizeDp(zoomLevel: Double): Float {
+        val clampedZoom = zoomLevel.coerceIn(
+            MapPinScaleConfig.PIN_ZOOM_OUT_LEVEL,
+            MapPinScaleConfig.PIN_ZOOM_IN_LEVEL
+        )
+        return if (clampedZoom <= MapPinScaleConfig.PIN_DEFAULT_ZOOM_LEVEL) {
+            val denominator = (
+                MapPinScaleConfig.PIN_DEFAULT_ZOOM_LEVEL - MapPinScaleConfig.PIN_ZOOM_OUT_LEVEL
+            ).takeIf { it > 0.0 } ?: 1.0
+            val progress = ((clampedZoom - MapPinScaleConfig.PIN_ZOOM_OUT_LEVEL) / denominator).toFloat()
+            lerp(MapPinScaleConfig.PIN_MIN_VISIBLE_DP, MapPinScaleConfig.PIN_DEFAULT_DP, progress)
+        } else {
+            val denominator = (
+                MapPinScaleConfig.PIN_ZOOM_IN_LEVEL - MapPinScaleConfig.PIN_DEFAULT_ZOOM_LEVEL
+            ).takeIf { it > 0.0 } ?: 1.0
+            val progress = ((clampedZoom - MapPinScaleConfig.PIN_DEFAULT_ZOOM_LEVEL) / denominator).toFloat()
+            lerp(MapPinScaleConfig.PIN_DEFAULT_DP, MapPinScaleConfig.PIN_MAX_DP, progress)
+        }
+    }
+
+    private fun dpToPx(dp: Float): Int {
+        return (dp * resources.displayMetrics.density).roundToInt().coerceAtLeast(1)
+    }
+
+    private fun lerp(start: Float, end: Float, t: Float): Float {
+        return start + (end - start) * t.coerceIn(0f, 1f)
     }
 
     private fun onPinClicked(marker: Marker, locationId: String) {
@@ -270,6 +347,5 @@ class LocationMapFragment : Fragment() {
     companion object {
         private const val DEFAULT_LATITUDE = 45.8150
         private const val DEFAULT_LONGITUDE = 15.9819
-        private const val DEFAULT_ZOOM = 13.0
     }
 }
