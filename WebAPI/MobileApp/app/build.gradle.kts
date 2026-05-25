@@ -42,6 +42,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation("androidx.fragment:fragment-ktx:1.8.6")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation(libs.retrofit)
     implementation(libs.adapter.rxjava2)
     implementation(libs.converter.gson)
@@ -56,6 +58,8 @@ dependencies {
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
     // Lifecycle-aware coroutine scopes (lifecycleScope in fragments/activities)
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
+    // OpenStreetMap rendering
+    implementation("org.osmdroid:osmdroid-android:6.1.20")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

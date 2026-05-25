@@ -1,0 +1,44 @@
+package hr.algebra.mobileapp.adapters
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import hr.algebra.mobileapp.R
+import hr.algebra.mobileapp.models.Drink
+
+class DrinkAdapter : RecyclerView.Adapter<DrinkAdapter.DrinkViewHolder>() {
+
+    private val items = mutableListOf<Drink>()
+
+    fun submitData(drinks: List<Drink>) {
+        items.clear()
+        items.addAll(drinks)
+        notifyDataSetChanged()
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DrinkViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_drink, parent, false)
+        return DrinkViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: DrinkViewHolder, position: Int) {
+        holder.bind(items[position])
+    }
+
+    override fun getItemCount(): Int = items.size
+
+    class DrinkViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val tvName: TextView = itemView.findViewById(R.id.tv_drink_name)
+        private val tvRating: TextView = itemView.findViewById(R.id.tv_drink_rating)
+        private val tvDescription: TextView = itemView.findViewById(R.id.tv_drink_description)
+
+        fun bind(drink: Drink) {
+            tvName.text = drink.name
+            tvRating.text = "Score ${"%.1f".format(drink.aggregatedRating.average)} (${drink.aggregatedRating.count} ratings)"
+            tvDescription.text = drink.description ?: ""
+        }
+    }
+}
