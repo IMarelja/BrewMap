@@ -78,7 +78,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Reviews" />
+                android:text="@string/reviews" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_drinks"
@@ -87,7 +87,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_weight="1"
-                android:text="Drinks" />
+                android:text="@string/drinks" />
         </LinearLayout>
 
         <androidx.fragment.app.FragmentContainerView

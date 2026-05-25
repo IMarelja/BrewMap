@@ -19,6 +19,7 @@ import hr.algebra.mobileapp.R
 import hr.algebra.mobileapp.models.Location
 import hr.algebra.mobileapp.models.Pin
 import hr.algebra.mobileapp.service.ServiceProvider
+import hr.algebra.mobileapp.state.MapViewportStore
 import kotlinx.coroutines.launch
 import org.osmdroid.events.MapAdapter
 import org.osmdroid.events.ScrollEvent
@@ -42,6 +43,7 @@ class LocationMapFragment : Fragment() {
 
     private val uiHandler = Handler(Looper.getMainLooper())
     private val debouncedPinsReload = Runnable {
+        persistCurrentCenter()
         loadPinsForCurrentBounds()
     }
 
@@ -172,6 +174,14 @@ class LocationMapFragment : Fragment() {
                 progressPins.visibility = View.GONE
             }
         }
+    }
+
+    private fun persistCurrentCenter() {
+        val center = mapView.mapCenter ?: return
+        MapViewportStore.saveCenter(
+            latitude = center.latitude,
+            longitude = center.longitude
+        )
     }
 
     private fun renderPins(pins: List<Pin>) {
