@@ -25,8 +25,25 @@ using BrewMapAPI.Service.User;
 using BrewMapAPI.Repository.Users;
 using BrewMapAPI.Service.Category;
 using BrewMapAPI.Service.PaymentOption;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var projectRootPath = Path.GetFullPath(
+    Path.Combine(builder.Environment.ContentRootPath, "..", "..", ".."));
+var envPath = Path.Combine(projectRootPath, ".env");
+if (File.Exists(envPath))
+{
+    Env.Load(envPath);
+}
+
+var bindIp = Environment.GetEnvironmentVariable("BIND_IP") ?? "127.0.0.1";
+var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "5239";
+var httpsPort = Environment.GetEnvironmentVariable("HTTPS_PORT") ?? "7000";
+
+builder.WebHost.UseUrls(
+    $"http://{bindIp}:{httpPort}",
+    $"https://{bindIp}:{httpsPort}");
 
 // Configure strong-typed settings for MongoDB
 builder.Services.Configure<DatabaseSettings>(
