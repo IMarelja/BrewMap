@@ -23,6 +23,9 @@ const [comment, setComment] = useState('')
 const [rating, setRating] = useState(5)
 const [submitting, setSubmitting] = useState(false)
 
+const [error, setError] = useState('')
+const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+
   useEffect(() => {
   if (!id) return
 
@@ -62,6 +65,14 @@ const submitReview = async (e: React.FormEvent) => {
   }
 }
 
+const showToast = (message: string, type: 'success' | 'error' = 'error') => {
+  setToast({ message, type })
+
+  setTimeout(() => {
+    setToast(null)
+  }, 3000)
+}
+
 const deleteReview = async (reviewId: string) => {
   const confirmed = window.confirm(
     'Are you sure you want to delete this review?'
@@ -75,7 +86,7 @@ const deleteReview = async (reviewId: string) => {
     setReviews(prev => prev.filter(r => r.id !== reviewId))
   } catch (err) {
     console.error(err)
-    alert('Failed to delete review.')
+    showToast('Failed to delete review', 'error')
   }
 }
 
@@ -92,7 +103,7 @@ const deleteDrink = async () => {
     router.push(`/cafe/${locationId}`)
   } catch (err) {
     console.error(err)
-    alert('Failed to delete drink.')
+    showToast('Failed to delete drink', 'error')
   }
 }
 
@@ -100,6 +111,25 @@ const deleteDrink = async () => {
     <ProtectedRoute>
       <div style={{ minHeight: '100vh', background: '#F5EFE6' }}>
         <Navbar />
+        
+            {toast && (
+            <div
+                style={{
+                position: 'fixed',
+                top: '20px',
+                right: '20px',
+                background: toast.type === 'success' ? '#166534' : '#991B1B',
+                color: '#fff',
+                padding: '10px 16px',
+                borderRadius: '8px',
+                zIndex: 9999,
+                fontSize: '14px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                }}
+            >
+                {toast.message}
+            </div>
+            )}
 
         {loading ? (
           <div

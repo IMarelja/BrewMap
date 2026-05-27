@@ -20,6 +20,7 @@ export default function CafeDetailPage() {
   const [rating, setRating] = useState(5)
   const [submitting, setSubmitting] = useState(false)
   const [drinks, setDrinks] = useState<Drink[]>([])
+const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
 
   useEffect(() => {
     Promise.all([
@@ -57,6 +58,14 @@ export default function CafeDetailPage() {
     }
   }
 
+  const showToast = (message: string, type: 'success' | 'error' = 'error') => {
+    setToast({ message, type })
+
+    setTimeout(() => {
+      setToast(null)
+    }, 3000)
+  }
+
   const deleteReview = async (reviewId: string) => {
   const confirmed = window.confirm(
     'Are you sure you want to delete this review?'
@@ -70,7 +79,7 @@ export default function CafeDetailPage() {
     setReviews(prev => prev.filter(r => r.id !== reviewId))
   } catch (err) {
     console.error(err)
-    alert('Failed to delete review.')
+    showToast('Failed to delete review', 'error')
   }
 }
 
@@ -87,7 +96,7 @@ const deleteCafe = async () => {
     router.push('/search')
   } catch (err) {
     console.error(err)
-    alert('Failed to delete cafe.')
+    showToast('Failed to delete cafe.', 'error')
   }
 }
 
@@ -98,6 +107,25 @@ const deleteCafe = async () => {
     <ProtectedRoute>
       <div style={{ minHeight: '100vh', background: '#F5EFE6' }}>
         <Navbar />
+
+        {toast && (
+          <div
+            style={{
+              position: 'fixed',
+              top: '20px',
+              right: '20px',
+              background: toast.type === 'success' ? '#166534' : '#991B1B',
+              color: '#fff',
+              padding: '10px 16px',
+              borderRadius: '8px',
+              zIndex: 9999,
+              fontSize: '14px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+            }}
+          >
+            {toast.message}
+          </div>
+        )}
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '4rem', color: '#6B3F1F' }}>
