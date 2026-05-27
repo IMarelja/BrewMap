@@ -45,9 +45,14 @@ import hr.algebra.mobileapp.service.user.UserServiceHardCode
  * | `API`               | Live BrewMap REST API, no local cache           |
  * | `PERSISTENT`        | Live API with on-device cache ([hr.algebra.mobileapp.cache.PersistentCache]) |
  *
+ * ## Initialization
+ * Every service property is **lazy** — it is constructed only the first time it is accessed.
+ * In `API` / `PERSISTENT` mode, [HardCodeData] is never allocated at all because no lazy
+ * property ever references it in those modes. [MODE] is the only eagerly-evaluated field.
+ *
  * ## Usage
  * ```kotlin
- * ServiceProvider.authService.login(userService, password, rememberMe)
+ * ServiceProvider.authService.login(user, password, rememberMe)
  * ServiceProvider.locationService.search(lon, lat, query = "coffee")
  * ServiceProvider.locationService.create(request)
  * ServiceProvider.drinkService.getByLocationId(locationId)
@@ -60,8 +65,8 @@ import hr.algebra.mobileapp.service.user.UserServiceHardCode
 object ServiceProvider {
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Mode is sourced from BuildConfig.APP_MODE, which is injected at compile
-    // time from APP_MODE in the repository root .env file.
+    // MODE is the only eagerly-evaluated field — it is a simple enum lookup
+    // from BuildConfig and must be ready before any lazy initializer runs.
     // ─────────────────────────────────────────────────────────────────────────
     private val MODE: Mode = Mode.fromKey(BuildConfig.APP_MODE)
     // ─────────────────────────────────────────────────────────────────────────
@@ -81,79 +86,101 @@ object ServiceProvider {
         }
     }
 
-    /** Shared seed data — only created when [MODE] is [Mode.HARD_CODE]. */
-    private val hardCodeData: HardCodeData? =
-        if (MODE == Mode.HARD_CODE) HardCodeData() else null
+    /**
+     * Shared seed data for the HARD_CODE mode.
+     *
+     * Lazy so it is only allocated when a HARD_CODE service property is first accessed.
+     * In API / PERSISTENT mode no service property ever reads this field, so [HardCodeData]
+     * is never constructed.
+     */
+    private val hardCodeData: HardCodeData by lazy { HardCodeData() }
 
     // ── Auth ──────────────────────────────────────────────────────────────────
 
     /** Authentication service — login, register */
-    val authService: IAuthService = when (MODE) {
-        Mode.HARD_CODE  -> AuthServiceHardCode(hardCodeData!!)
-        Mode.API -> AuthServiceApi()
-        Mode.PERSISTENT -> AuthServiceApi()
+    val authService: IAuthService by lazy {
+        when (MODE) {
+            Mode.HARD_CODE  -> AuthServiceHardCode(hardCodeData)
+            Mode.API -> AuthServiceApi()
+            Mode.PERSISTENT -> AuthServiceApi()
+        }
     }
 
     // ── Location ──────────────────────────────────────────────────────────────
 
     /** Location service — getById, search, getPins, create, update */
-    val locationService: ILocationService = when (MODE) {
-        Mode.HARD_CODE  -> LocationServiceHardCode(hardCodeData!!)
-        Mode.API        -> LocationServiceApi()
-        Mode.PERSISTENT -> LocationServicePersistent()
+    val locationService: ILocationService by lazy {
+        when (MODE) {
+            Mode.HARD_CODE  -> LocationServiceHardCode(hardCodeData)
+            Mode.API        -> LocationServiceApi()
+            Mode.PERSISTENT -> LocationServicePersistent()
+        }
     }
 
     // ── Drink ─────────────────────────────────────────────────────────────────
 
     /** Drink service — getById, getByLocationId, getBestDrinkByLocationId, create, update */
-    val drinkService: IDrinkService = when (MODE) {
-        Mode.HARD_CODE  -> DrinkServiceHardCode(hardCodeData!!)
-        Mode.API        -> DrinkServiceApi()
-        Mode.PERSISTENT -> DrinkServicePersistent()
+    val drinkService: IDrinkService by lazy {
+        when (MODE) {
+            Mode.HARD_CODE  -> DrinkServiceHardCode(hardCodeData)
+            Mode.API        -> DrinkServiceApi()
+            Mode.PERSISTENT -> DrinkServicePersistent()
+        }
     }
 
     // ── Category ─────────────────────────────────────────────────────────────
 
-    /** Category service — getByTag, getAll */
-    val categoryService: ICategoryService = when (MODE) {
-        Mode.HARD_CODE  -> CategoryServiceHardCode(hardCodeData!!)
-        Mode.API        -> CategoryServiceApi()
-        Mode.PERSISTENT -> CategoryServicePersistent()
+    /** Category service — getAll, getByTag */
+    val categoryService: ICategoryService by lazy {
+        when (MODE) {
+            Mode.HARD_CODE  -> CategoryServiceHardCode(hardCodeData)
+            Mode.API        -> CategoryServiceApi()
+            Mode.PERSISTENT -> CategoryServicePersistent()
+        }
     }
 
     // ── Payment option ────────────────────────────────────────────────────────
 
-    /** Payment Option service — getByTag, getAll */
-    val paymentOptionService: IPaymentOptionService = when (MODE) {
-        Mode.HARD_CODE  -> PaymentOptionServiceHardCode(hardCodeData!!)
-        Mode.API        -> PaymentOptionServiceApi()
-        Mode.PERSISTENT -> PaymentOptionServicePersistent()
+    /** Payment option service — getAll, getByTag */
+    val paymentOptionService: IPaymentOptionService by lazy {
+        when (MODE) {
+            Mode.HARD_CODE  -> PaymentOptionServiceHardCode(hardCodeData)
+            Mode.API        -> PaymentOptionServiceApi()
+            Mode.PERSISTENT -> PaymentOptionServicePersistent()
+        }
     }
 
     // ── Review ────────────────────────────────────────────────────────────────
 
-    /** Review service — getById, getByLocationId, getByDrinkId, getMyReviews, getByUserId, createForLocation, createForDrink, update, delete */
-    val reviewService: IReviewService = when (MODE) {
-        Mode.HARD_CODE  -> ReviewServiceHardCode(hardCodeData!!)
-        Mode.API        -> ReviewServiceApi()
-        Mode.PERSISTENT -> ReviewServicePersistent()
+    /** Review service — getById, getByLocationId, getByDrinkId, getMyReviews, getByUserId,
+     *  createForLocation, createForDrink, update, delete */
+    val reviewService: IReviewService by lazy {
+        when (MODE) {
+            Mode.HARD_CODE  -> ReviewServiceHardCode(hardCodeData)
+            Mode.API        -> ReviewServiceApi()
+            Mode.PERSISTENT -> ReviewServicePersistent()
+        }
     }
 
     // ── User ──────────────────────────────────────────────────────────────────
 
     /** User profile — getMyProfile, getUserById, updateEmail, updatePassword. */
-    val userService: IUserService = when (MODE) {
-        Mode.HARD_CODE  -> UserServiceHardCode(hardCodeData!!)
-        Mode.API,
-        Mode.PERSISTENT -> UserServiceApi()   // userService data is personal — no caching
+    val userService: IUserService by lazy {
+        when (MODE) {
+            Mode.HARD_CODE  -> UserServiceHardCode(hardCodeData)
+            Mode.API -> UserServiceApi()
+            Mode.PERSISTENT -> UserServiceApi()   // user data is personal — no caching
+        }
     }
 
     // ── Flag ──────────────────────────────────────────────────────────────────
 
-    /** Content reporting — create a flagService against a locationService, drinkService, reviewService, or userService. */
-    val flagService: IFlagService = when (MODE) {
-        Mode.HARD_CODE  -> FlagServiceHardCode()
-        Mode.API,
-        Mode.PERSISTENT -> FlagServiceApi()
+    /** Content reporting — create a flag against a location, drink, review, or user. */
+    val flagService: IFlagService by lazy {
+        when (MODE) {
+            Mode.HARD_CODE  -> FlagServiceHardCode()
+            Mode.API -> FlagServiceApi()
+            Mode.PERSISTENT -> FlagServiceApi()
+        }
     }
 }
