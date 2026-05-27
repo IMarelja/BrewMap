@@ -11,13 +11,6 @@ data class ReportTarget(
     val id: String
 )
 
-/** Request body for `POST api/Flag`. */
-data class CreateFlagRequest(
-    val target: ReportTarget,
-    val reason: String,
-    val description: String?
-)
-
 /**
  * Mirrors `ReadFlag` from the BrewMap API.
  *

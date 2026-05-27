@@ -87,6 +87,7 @@ object ServiceProvider {
 
     // ── Auth ──────────────────────────────────────────────────────────────────
 
+    /** Authentication service — login, register */
     val authService: IAuthService = when (MODE) {
         Mode.HARD_CODE  -> AuthServiceHardCode(hardCodeData!!)
         Mode.API -> AuthServiceApi()
@@ -95,6 +96,7 @@ object ServiceProvider {
 
     // ── Location ──────────────────────────────────────────────────────────────
 
+    /** Location service — getById, search, getPins, create, update */
     val locationService: ILocationService = when (MODE) {
         Mode.HARD_CODE  -> LocationServiceHardCode(hardCodeData!!)
         Mode.API        -> LocationServiceApi()
@@ -103,6 +105,7 @@ object ServiceProvider {
 
     // ── Drink ─────────────────────────────────────────────────────────────────
 
+    /** Drink service — getById, getByLocationId, getBestDrinkByLocationId, create, update */
     val drinkService: IDrinkService = when (MODE) {
         Mode.HARD_CODE  -> DrinkServiceHardCode(hardCodeData!!)
         Mode.API        -> DrinkServiceApi()
@@ -111,6 +114,7 @@ object ServiceProvider {
 
     // ── Category ─────────────────────────────────────────────────────────────
 
+    /** Category service — getByTag, getAll */
     val categoryService: ICategoryService = when (MODE) {
         Mode.HARD_CODE  -> CategoryServiceHardCode(hardCodeData!!)
         Mode.API        -> CategoryServiceApi()
@@ -119,6 +123,7 @@ object ServiceProvider {
 
     // ── Payment option ────────────────────────────────────────────────────────
 
+    /** Payment Option service — getByTag, getAll */
     val paymentOptionService: IPaymentOptionService = when (MODE) {
         Mode.HARD_CODE  -> PaymentOptionServiceHardCode(hardCodeData!!)
         Mode.API        -> PaymentOptionServiceApi()
@@ -127,6 +132,7 @@ object ServiceProvider {
 
     // ── Review ────────────────────────────────────────────────────────────────
 
+    /** Review service — getById, getByLocationId, getByDrinkId, getMyReviews, getByUserId, createForLocation, createForDrink, update, delete */
     val reviewService: IReviewService = when (MODE) {
         Mode.HARD_CODE  -> ReviewServiceHardCode(hardCodeData!!)
         Mode.API        -> ReviewServiceApi()
