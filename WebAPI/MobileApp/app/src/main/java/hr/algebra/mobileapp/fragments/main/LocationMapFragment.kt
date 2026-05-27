@@ -169,8 +169,6 @@ class LocationMapFragment : Fragment() {
         ) ?: return
 
         overlay.setPersonIcon(personBitmap)
-        // Keep the same icon while moving so it doesn't switch to the white arrow.
-        overlay.setDirectionArrow(personBitmap, personBitmap)
     }
 
     private fun schedulePinsReload() {
