@@ -7,11 +7,12 @@
                                         developer-installed certificates
     <certificates src="system" />     → allows https:// with CA-signed certificates
 -->
-<network-security-config>
+<network-security-config xmlns:tools="http://schemas.android.com/tools">
     <base-config cleartextTrafficPermitted="true">
         <trust-anchors>
             <certificates src="system" />
-            <certificates src="user" />
+            <certificates src="user"
+                tools:ignore="AcceptsUserCertificates" />
         </trust-anchors>
     </base-config>
 </network-security-config>
