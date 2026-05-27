@@ -35,6 +35,22 @@ val bindApiUrl: String = readEnvValue(envFile, "BIND_API_URL")
         "Add for example: BIND_API_URL=http://10.0.2.2:5239/api/"
     )
 
+val validAppModes = listOf("HARD_CODE", "API", "PERSISTENT")
+val appMode: String = readEnvValue(envFile, "APP_MODE")
+    ?.takeIf { it.isNotBlank() }
+    ?.also { mode ->
+        if (mode !in validAppModes) {
+            error(
+                "APP_MODE='$mode' in ${envFile.absolutePath} is not valid. " +
+                "Allowed values: ${validAppModes.joinToString()}"
+            )
+        }
+    }
+    ?: error(
+        "APP_MODE is missing or empty in ${envFile.absolutePath}. " +
+        "Add one of: APP_MODE=HARD_CODE | API | PERSISTENT"
+    )
+
 android {
     namespace = "hr.algebra.mobileapp"
     compileSdk = 36
@@ -50,6 +66,8 @@ android {
 
         // Exposed as BuildConfig.API_BASE_URL, sourced from root .env:BIND_API_URL.
         buildConfigField("String", "API_BASE_URL", "\"$bindApiUrl\"")
+        // Exposed as BuildConfig.APP_MODE, sourced from root .env:APP_MODE.
+        buildConfigField("String", "APP_MODE", "\"$appMode\"")
     }
 
     buildFeatures {

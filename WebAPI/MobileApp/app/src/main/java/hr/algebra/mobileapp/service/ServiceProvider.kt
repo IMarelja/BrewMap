@@ -26,6 +26,7 @@ import hr.algebra.mobileapp.service.review.IReviewService
 import hr.algebra.mobileapp.service.review.ReviewServiceApi
 import hr.algebra.mobileapp.service.review.ReviewServiceHardCode
 import hr.algebra.mobileapp.service.review.ReviewServicePersistent
+import hr.algebra.mobileapp.BuildConfig
 import hr.algebra.mobileapp.service.user.IUserService
 import hr.algebra.mobileapp.service.user.UserServiceApi
 import hr.algebra.mobileapp.service.user.UserServiceHardCode
@@ -33,15 +34,16 @@ import hr.algebra.mobileapp.service.user.UserServiceHardCode
 /**
  * Application-wide service locator.
  *
- * A **single toggle** switches the entire app between three data modes.
- * Change [MODE] and rebuild — every service switches together.
+ * The active mode is driven by `APP_MODE` in the repository root `.env` file.
+ * Change it there and rebuild — every service switches together.
+ * The build fails immediately if the value is missing or not one of the three valid keys.
  *
  * ## Modes
- * | Value               | Data source                                     |
+ * | `.env` value        | Data source                                     |
  * |---------------------|-------------------------------------------------|
- * | [Mode.HARD_CODE]    | In-memory seed data, no network (default)       |
- * | [Mode.API]          | Live BrewMap REST API, no local cache           |
- * | [Mode.PERSISTENT]   | Live API with on-device cache ([hr.algebra.mobileapp.cache.PersistentCache]) |
+ * | `HARD_CODE`         | In-memory seed data, no network                 |
+ * | `API`               | Live BrewMap REST API, no local cache           |
+ * | `PERSISTENT`        | Live API with on-device cache ([hr.algebra.mobileapp.cache.PersistentCache]) |
  *
  * ## Usage
  * ```kotlin
@@ -58,12 +60,26 @@ import hr.algebra.mobileapp.service.user.UserServiceHardCode
 object ServiceProvider {
 
     // ─────────────────────────────────────────────────────────────────────────
-    // 🔧  TOGGLE — flip this one line to switch ALL services simultaneously
+    // Mode is sourced from BuildConfig.APP_MODE, which is injected at compile
+    // time from APP_MODE in the repository root .env file.
     // ─────────────────────────────────────────────────────────────────────────
-    private val MODE = Mode.HARD_CODE
+    private val MODE: Mode = Mode.fromKey(BuildConfig.APP_MODE)
     // ─────────────────────────────────────────────────────────────────────────
 
-    enum class Mode { HARD_CODE, API, PERSISTENT }
+    enum class Mode(val key: String) {
+        HARD_CODE("HARD_CODE"),
+        API("API"),
+        PERSISTENT("PERSISTENT");
+
+        companion object {
+            fun fromKey(value: String): Mode =
+                entries.firstOrNull { it.key == value }
+                    ?: error(
+                        "Unknown APP_MODE '$value'. " +
+                        "Valid values: ${entries.joinToString { it.key }}"
+                    )
+        }
+    }
 
     /** Shared seed data — only created when [MODE] is [Mode.HARD_CODE]. */
     private val hardCodeData: HardCodeData? =
@@ -73,7 +89,7 @@ object ServiceProvider {
 
     val auth: IAuthService = when (MODE) {
         Mode.HARD_CODE  -> AuthServiceHardCode(hardCodeData!!)
-        Mode.API,
+        Mode.API -> AuthServiceApi()
         Mode.PERSISTENT -> AuthServiceApi()
     }
 
