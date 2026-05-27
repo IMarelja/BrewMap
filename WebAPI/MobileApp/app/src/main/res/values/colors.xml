@@ -11,4 +11,12 @@
     <color name="brew_light">#E8D5B7</color>    <!-- light tan — borders, dividers         -->
     <color name="brew_input_bg">#FDFAF7</color> <!-- near-white — input field background   -->
     <color name="brew_card">#FFFFFF</color>     <!-- white — card / form surface           -->
+
+    <!-- Auth form feedback box -->
+    <color name="auth_error_bg">#FCE8E6</color>
+    <color name="auth_error_border">#D93025</color>
+    <color name="auth_error_text">#8A1D18</color>
+    <color name="auth_success_bg">#E6F4EA</color>
+    <color name="auth_success_border">#1E8E3E</color>
+    <color name="auth_success_text">#0D652D</color>
 </resources>

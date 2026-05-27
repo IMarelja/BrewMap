@@ -2,15 +2,18 @@ package hr.algebra.mobileapp.fragments.auth
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.method.ScrollingMovementMethod
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+import androidx.core.content.ContextCompat
 import hr.algebra.mobileapp.MainActivity
 import hr.algebra.mobileapp.R
 import hr.algebra.mobileapp.auth.TokenManager
@@ -19,10 +22,10 @@ import kotlinx.coroutines.launch
 
 class LoginFragment : Fragment() {
 
-    private lateinit var tilEmail:    TextInputLayout
-    private lateinit var tilPassword: TextInputLayout
     private lateinit var etEmail:     TextInputEditText
     private lateinit var etPassword:  TextInputEditText
+    private lateinit var authMessageCard: MaterialCardView
+    private lateinit var authMessageText: TextView
     private lateinit var btnSubmit:       MaterialButton
     private lateinit var btnGoToRegister: MaterialButton
 
@@ -35,12 +38,13 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        tilEmail       = view.findViewById(R.id.til_email)
-        tilPassword    = view.findViewById(R.id.til_password)
         etEmail        = view.findViewById(R.id.et_email)
         etPassword     = view.findViewById(R.id.et_password)
+        authMessageCard = view.findViewById(R.id.auth_message_card)
+        authMessageText = view.findViewById(R.id.auth_message_text)
         btnSubmit      = view.findViewById(R.id.btn_login_submit)
         btnGoToRegister = view.findViewById(R.id.btn_go_to_register)
+        authMessageText.movementMethod = ScrollingMovementMethod.getInstance()
 
         btnSubmit.setOnClickListener { onLoginSubmit() }
 
@@ -53,21 +57,21 @@ class LoginFragment : Fragment() {
         val email    = etEmail.text?.toString()?.trim() ?: ""
         val password = etPassword.text?.toString()?.trim() ?: ""
 
-        // Reset errors
-        tilEmail.error    = null
-        tilPassword.error = null
+        hideFormMessage()
 
-        // Basic validation
-        var isValid = true
+        val validationErrors = mutableListOf<String>()
         if (email.isEmpty()) {
-            tilEmail.error = getString(R.string.error_empty_email)
-            isValid = false
+            validationErrors += getString(R.string.error_empty_email)
+        } else if (email.contains("@") && !isValidEmail(email)) {
+            validationErrors += getString(R.string.error_invalid_email)
         }
         if (password.isEmpty()) {
-            tilPassword.error = getString(R.string.error_empty_password)
-            isValid = false
+            validationErrors += getString(R.string.error_empty_password)
         }
-        if (!isValid) return
+        if (validationErrors.isNotEmpty()) {
+            showFormMessage(validationErrors.joinToString("\n"), isError = true)
+            return
+        }
 
         // Disable button while the request is in flight
         btnSubmit.isEnabled = false
@@ -86,16 +90,14 @@ class LoginFragment : Fragment() {
                     TokenManager.saveToken(response.token, rememberMe = true)
                     navigateToMain()
                 } else {
-                    tilEmail.error = response.message
-                        ?: getString(R.string.error_login_failed)
+                    showFormMessage(
+                        response.message ?: getString(R.string.error_login_failed),
+                        isError = true
+                    )
                     btnSubmit.isEnabled = true
                 }
             } catch (e: Exception) {
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.error_network),
-                    Toast.LENGTH_LONG
-                ).show()
+                showFormMessage(getString(R.string.error_network), isError = true)
                 btnSubmit.isEnabled = true
             }
         }
@@ -105,4 +107,24 @@ class LoginFragment : Fragment() {
         startActivity(Intent(requireContext(), MainActivity::class.java))
         requireActivity().finish()
     }
+
+    private fun showFormMessage(message: String, isError: Boolean) {
+        authMessageText.text = message
+        val bgColor = if (isError) R.color.auth_error_bg else R.color.auth_success_bg
+        val borderColor = if (isError) R.color.auth_error_border else R.color.auth_success_border
+        val textColor = if (isError) R.color.auth_error_text else R.color.auth_success_text
+
+        authMessageCard.setCardBackgroundColor(ContextCompat.getColor(requireContext(), bgColor))
+        authMessageCard.strokeColor = ContextCompat.getColor(requireContext(), borderColor)
+        authMessageText.setTextColor(ContextCompat.getColor(requireContext(), textColor))
+        authMessageCard.visibility = View.VISIBLE
+    }
+
+    private fun hideFormMessage() {
+        authMessageText.text = ""
+        authMessageCard.visibility = View.GONE
+    }
+
+    private fun isValidEmail(value: String): Boolean =
+        Patterns.EMAIL_ADDRESS.matcher(value).matches()
 }

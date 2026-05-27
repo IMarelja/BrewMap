@@ -2,15 +2,18 @@ package hr.algebra.mobileapp.fragments.auth
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.method.ScrollingMovementMethod
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import hr.algebra.mobileapp.MainActivity
 import hr.algebra.mobileapp.R
 import hr.algebra.mobileapp.auth.TokenManager
@@ -19,14 +22,12 @@ import kotlinx.coroutines.launch
 
 class RegisterFragment : Fragment() {
 
-    private lateinit var tilUsername:        TextInputLayout
-    private lateinit var tilEmail:           TextInputLayout
-    private lateinit var tilPassword:        TextInputLayout
-    private lateinit var tilConfirmPassword: TextInputLayout
     private lateinit var etUsername:         TextInputEditText
     private lateinit var etEmail:            TextInputEditText
     private lateinit var etPassword:         TextInputEditText
     private lateinit var etConfirmPassword:  TextInputEditText
+    private lateinit var authMessageCard:    MaterialCardView
+    private lateinit var authMessageText:    TextView
     private lateinit var btnSubmit:     MaterialButton
     private lateinit var btnGoToLogin:  MaterialButton
 
@@ -39,16 +40,15 @@ class RegisterFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        tilUsername        = view.findViewById(R.id.til_username)
-        tilEmail           = view.findViewById(R.id.til_email)
-        tilPassword        = view.findViewById(R.id.til_password)
-        tilConfirmPassword = view.findViewById(R.id.til_confirm_password)
         etUsername         = view.findViewById(R.id.et_username)
         etEmail            = view.findViewById(R.id.et_email)
         etPassword         = view.findViewById(R.id.et_password)
         etConfirmPassword  = view.findViewById(R.id.et_confirm_password)
+        authMessageCard    = view.findViewById(R.id.auth_message_card)
+        authMessageText    = view.findViewById(R.id.auth_message_text)
         btnSubmit      = view.findViewById(R.id.btn_register_submit)
         btnGoToLogin   = view.findViewById(R.id.btn_go_to_login)
+        authMessageText.movementMethod = ScrollingMovementMethod.getInstance()
 
         btnSubmit.setOnClickListener { onRegisterSubmit() }
 
@@ -63,31 +63,30 @@ class RegisterFragment : Fragment() {
         val password        = etPassword.text?.toString()?.trim() ?: ""
         val confirmPassword = etConfirmPassword.text?.toString()?.trim() ?: ""
 
-        // Reset errors
-        tilUsername.error        = null
-        tilEmail.error           = null
-        tilPassword.error        = null
-        tilConfirmPassword.error = null
+        hideFormMessage()
 
-        // Basic validation
-        var isValid = true
+        val validationErrors = mutableListOf<String>()
         if (username.isEmpty()) {
-            tilUsername.error = getString(R.string.error_empty_username)
-            isValid = false
+            validationErrors += getString(R.string.error_empty_username)
         }
         if (email.isEmpty()) {
-            tilEmail.error = getString(R.string.error_empty_email)
-            isValid = false
+            validationErrors += getString(R.string.error_empty_email)
+        } else if (!isValidEmail(email)) {
+            validationErrors += getString(R.string.error_invalid_email)
         }
         if (password.isEmpty()) {
-            tilPassword.error = getString(R.string.error_empty_password)
-            isValid = false
+            validationErrors += getString(R.string.error_empty_password)
+        }
+        if (confirmPassword.isEmpty()) {
+            validationErrors += getString(R.string.error_empty_confirm_password)
         }
         if (confirmPassword != password) {
-            tilConfirmPassword.error = getString(R.string.error_passwords_no_match)
-            isValid = false
+            validationErrors += getString(R.string.error_passwords_no_match)
         }
-        if (!isValid) return
+        if (validationErrors.isNotEmpty()) {
+            showFormMessage(validationErrors.joinToString("\n"), isError = true)
+            return
+        }
 
         // Disable button while the request is in flight
         btnSubmit.isEnabled = false
@@ -106,21 +105,14 @@ class RegisterFragment : Fragment() {
                     TokenManager.saveToken(response.token, rememberMe = true)
                     navigateToMain()
                 } else {
-                    // Surface the server's message in the most relevant field
-                    val msg = response.message ?: getString(R.string.error_register_failed)
-                    when {
-                        msg.contains("username", ignoreCase = true) -> tilUsername.error = msg
-                        msg.contains("email",    ignoreCase = true) -> tilEmail.error    = msg
-                        else                                         -> tilEmail.error    = msg
-                    }
+                    showFormMessage(
+                        response.message ?: getString(R.string.error_register_failed),
+                        isError = true
+                    )
                     btnSubmit.isEnabled = true
                 }
             } catch (e: Exception) {
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.error_network),
-                    Toast.LENGTH_LONG
-                ).show()
+                showFormMessage(getString(R.string.error_network), isError = true)
                 btnSubmit.isEnabled = true
             }
         }
@@ -130,4 +122,24 @@ class RegisterFragment : Fragment() {
         startActivity(Intent(requireContext(), MainActivity::class.java))
         requireActivity().finish()
     }
+
+    private fun showFormMessage(message: String, isError: Boolean) {
+        authMessageText.text = message
+        val bgColor = if (isError) R.color.auth_error_bg else R.color.auth_success_bg
+        val borderColor = if (isError) R.color.auth_error_border else R.color.auth_success_border
+        val textColor = if (isError) R.color.auth_error_text else R.color.auth_success_text
+
+        authMessageCard.setCardBackgroundColor(ContextCompat.getColor(requireContext(), bgColor))
+        authMessageCard.strokeColor = ContextCompat.getColor(requireContext(), borderColor)
+        authMessageText.setTextColor(ContextCompat.getColor(requireContext(), textColor))
+        authMessageCard.visibility = View.VISIBLE
+    }
+
+    private fun hideFormMessage() {
+        authMessageText.text = ""
+        authMessageCard.visibility = View.GONE
+    }
+
+    private fun isValidEmail(value: String): Boolean =
+        Patterns.EMAIL_ADDRESS.matcher(value).matches()
 }
