@@ -5,7 +5,8 @@ import { useParams, useRouter } from 'next/navigation'
 import ProtectedRoute from '@/components/auth/protected-route'
 import Navbar from '@/components/ui/navbar'
 import api from '@/lib/api'
-import { Cafe, Review } from '@/lib/types'
+import { Cafe, Drink, Review } from '@/lib/types'
+import { isAdmin } from '@/lib/auth'
 
 export default function CafeDetailPage() {
   const { id } = useParams()
@@ -18,7 +19,7 @@ export default function CafeDetailPage() {
   const [comment, setComment] = useState('')
   const [rating, setRating] = useState(5)
   const [submitting, setSubmitting] = useState(false)
-  const [drinks, setDrinks] = useState<any[]>([])
+  const [drinks, setDrinks] = useState<Drink[]>([])
 
   useEffect(() => {
     Promise.all([
@@ -55,6 +56,40 @@ export default function CafeDetailPage() {
       setSubmitting(false)
     }
   }
+
+  const deleteReview = async (reviewId: string) => {
+  const confirmed = window.confirm(
+    'Are you sure you want to delete this review?'
+  )
+
+  if (!confirmed) return
+
+  try {
+    await api.delete(`/api/Review/${reviewId}`)
+
+    setReviews(prev => prev.filter(r => r.id !== reviewId))
+  } catch (err) {
+    console.error(err)
+    alert('Failed to delete review.')
+  }
+}
+
+const deleteCafe = async () => {
+  const confirmed = window.confirm(
+    'Are you sure you want to delete this cafe?'
+  )
+
+  if (!confirmed) return
+
+  try {
+    await api.delete(`/api/Locations/${id}`)
+
+    router.push('/search')
+  } catch (err) {
+    console.error(err)
+    alert('Failed to delete cafe.')
+  }
+}
 
   const formatDay = (day: string) =>
     day.charAt(0).toUpperCase() + day.slice(1)
@@ -110,8 +145,8 @@ export default function CafeDetailPage() {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              gap: '1rem',
-              marginBottom: '0.5rem'
+              marginBottom: '1rem',
+              gap: '1rem'
             }}
           >
             <h1
@@ -124,30 +159,54 @@ export default function CafeDetailPage() {
               {cafe.name}
             </h1>
 
-            <button
-              onClick={() =>
-                router.push(`/cafe/edit-cafe?locationId=${cafe.id}`)
-              }
+            <div
               style={{
-                background: '#4A2C19',
-                color: '#F5EFE6',
-                border: 'none',
-                padding: '8px 14px',
-                borderRadius: '8px',
-                fontSize: '13px',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap'
+                display: 'flex',
+                gap: '10px'
               }}
             >
-              Edit Cafe
-            </button>
+              <button
+                onClick={() =>
+                  router.push(`/cafe/edit-cafe?locationId=${cafe.id}`)
+                }
+                style={{
+                  background: '#4A2C19',
+                  color: '#F5EFE6',
+                  border: 'none',
+                  padding: '8px 14px',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                Edit Cafe
+              </button>
+
+            {isAdmin() && (
+              <button
+                onClick={deleteCafe}
+                style={{
+                  background: '#991B1B',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '8px 14px',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                Delete Cafe
+              </button>
+            )}
+            </div>
           </div>
 
             <p style={{ color: '#6B3F1F', marginBottom: '0.5rem' }}>
               📍 {cafe.address.street}, {cafe.address.city}
             </p>
 
-            {/* CATEGORY (NEW) */}
             <p style={{ color: '#6B3F1F', marginBottom: '1rem' }}>
               🏷 Category: {cafe.categoryTag}
             </p>
@@ -176,7 +235,6 @@ export default function CafeDetailPage() {
               </p>
             )}
 
-            {/* ADD DRINK BUTTON */}
             <div style={{ marginBottom: '2rem' }}>
               <button
                 onClick={() => router.push(`/drinks/create-drinks?locationId=${cafe.id}`)}
@@ -194,7 +252,6 @@ export default function CafeDetailPage() {
               </button>
             </div>
 
-            {/* DRINK SLIDER */}
 {drinks.length > 0 && (
   <div style={{ marginBottom: '2rem' }}>
     <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '1rem' }}>
@@ -213,7 +270,7 @@ export default function CafeDetailPage() {
       {drinks.map((drink, i) => (
         <div
           key={i}
-          onClick={() => router.push(`/drinks/edit-drinks?drinkId=${drink.id}&locationId=${cafe.id}`)}
+          onClick={() => router.push(`/drinks/${drink.id}?locationId=${cafe.id}`)}
           style={{
             minWidth: '180px',
             background: '#fff',
@@ -352,8 +409,8 @@ export default function CafeDetailPage() {
                     Rating
                     </label> 
                     <select value={rating} onChange={e => setRating(Number(e.target.value))} style={{ padding: '8px 12px', border: '1px solid #E8D5B7', borderRadius: '8px', background: '#FDFAF7', fontSize: '14px' }}>
-                      {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} ★
-
+                      {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>
+                        {n} ★
                       </option>)} 
                       </select> 
                       </div> 
@@ -393,7 +450,24 @@ export default function CafeDetailPage() {
                       <span>{'★'.repeat(r.rating)}</span>
                     </div>
                     <p>{r.comment}</p>
+                    {isAdmin() && (
+                      <button
+                        onClick={() => deleteReview(r.id)}
+                        style={{
+                          background: '#991B1B',
+                          color: '#fff',
+                          border: 'none',
+                          padding: '6px 12px',
+                          borderRadius: '8px',
+                          fontSize: '12px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Delete
+                      </button>
+                    )}
                   </div>
+                  
                 ))
               )}
             </div>

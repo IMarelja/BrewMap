@@ -59,7 +59,6 @@ export default function SearchPage() {
       .finally(() => setLoading(false))
   }
 
-  // Debounced search (NOW includes all filters)
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchSearch()

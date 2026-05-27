@@ -70,3 +70,7 @@ export function getUserFromToken() {
     return null;
   }
 }
+export function isAdmin(): boolean {
+  const decoded = getUserFromToken()
+  return decoded?.role === 'admin'
+}

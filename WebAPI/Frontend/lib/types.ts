@@ -60,7 +60,7 @@ export interface Review {
 export interface Drink {
   id: string
   name: string
-  price?: number
+  description?: string
 }
 
 export interface Category {
