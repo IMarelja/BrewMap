@@ -3,7 +3,7 @@ package hr.algebra.mobileapp.models.flag
 /**
  * Identifies the reported entity.
  *
- * [type] — one of: `"locationService"`, `"product"` (drinkService), `"reviewService"`, `"userService"`.
+ * [type] — one of: `"location"`, `"product"` (drink), `"review"`, `"user"`.
  * [id]   — MongoDB ObjectId string of the entity.
  */
 data class ReportTarget(

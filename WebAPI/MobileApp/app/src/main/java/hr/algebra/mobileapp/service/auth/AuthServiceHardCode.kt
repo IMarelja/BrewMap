@@ -2,9 +2,10 @@ package hr.algebra.mobileapp.service.auth
 
 import android.util.Base64
 import android.util.Log
-import android.util.Patterns
+import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.models.auth.AuthResponse
 import hr.algebra.mobileapp.service.HardCodeData
+import hr.algebra.mobileapp.service.RequestBodyValidator
 
 /**
  * **Test / offline** authService service — no network required.
@@ -26,62 +27,44 @@ class AuthServiceHardCode(private val data: HardCodeData) : IAuthService {
         user: String,
         password: String,
         rememberMe: Boolean
-    ): AuthResponse {
-        if (user.contains("@") && !isValidEmail(user)) {
-            return AuthResponse(
-                success = false,
-                token = null,
-                message = "Please enter a valid email address.",
-                statusCode = 400
-            )
+    ): ServiceResult<AuthResponse> {
+        val validationErrors = RequestBodyValidator.validateLogin(user, password)
+        if (validationErrors.isNotEmpty()) {
+            return ServiceResult.failure(validationErrors)
         }
 
         val match = data.users.find { it.username == user || it.email == user }
 
         if (match == null || match.password != password) {
             Log.d("AuthServiceHardCode", "login failed for '$user'")
-            return AuthResponse(
-                success    = false,
-                token      = null,
-                message    = "Username/email or password are incorrect.",
-                statusCode = 401
-            )
+            return ServiceResult.failure("Username/email or password are incorrect.")
         }
 
         val token = buildMockJwt(match.id, match.role, rememberMe)
         Log.d("AuthServiceHardCode", "login OK  userService=${match.username}  role=${match.role}")
-        return AuthResponse(
+        return ServiceResult.success(AuthResponse(
             success    = true,
             token      = token,
             message    = "Login successful.",
             statusCode = 200
-        )
+        ))
     }
 
     override suspend fun register(
         email: String,
         username: String,
         password: String
-    ): AuthResponse {
-        if (!isValidEmail(email)) {
-            return AuthResponse(
-                success = false,
-                token = null,
-                message = "Please enter a valid email address.",
-                statusCode = 400
-            )
+    ): ServiceResult<AuthResponse> {
+        val validationErrors = RequestBodyValidator.validateRegister(email, username, password)
+        if (validationErrors.isNotEmpty()) {
+            return ServiceResult.failure(validationErrors)
         }
 
         val conflict = data.users.find { it.username == username || it.email == email }
         if (conflict != null) {
             val field = if (conflict.email == email) "e-mail" else "username"
             Log.d("AuthServiceHardCode", "register conflict on $field")
-            return AuthResponse(
-                success    = false,
-                token      = null,
-                message    = "An account with that $field already exists.",
-                statusCode = 409
-            )
+            return ServiceResult.failure("An account with that $field already exists.")
         }
 
         val newId = "hc-new-${System.currentTimeMillis()}"
@@ -97,12 +80,12 @@ class AuthServiceHardCode(private val data: HardCodeData) : IAuthService {
 
         val token = buildMockJwt(newId, "userService", rememberMe = false)
         Log.d("AuthServiceHardCode", "register OK  username=$username")
-        return AuthResponse(
+        return ServiceResult.success(AuthResponse(
             success    = true,
             token      = token,
             message    = "Registration successful.",
             statusCode = 201
-        )
+        ))
     }
 
     // ── Mock JWT builder ──────────────────────────────────────────────────────
@@ -132,7 +115,4 @@ class AuthServiceHardCode(private val data: HardCodeData) : IAuthService {
             value.toByteArray(Charsets.UTF_8),
             Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING
         )
-
-    private fun isValidEmail(value: String): Boolean =
-        Patterns.EMAIL_ADDRESS.matcher(value).matches()
 }

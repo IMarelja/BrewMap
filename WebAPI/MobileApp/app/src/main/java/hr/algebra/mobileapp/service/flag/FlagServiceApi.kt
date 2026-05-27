@@ -7,6 +7,7 @@ import hr.algebra.mobileapp.api.HttpMethod
 import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.api.toServiceResult
 import hr.algebra.mobileapp.models.flag.Flag
+import hr.algebra.mobileapp.service.RequestBodyValidator
 
 /**
  * **Production** flagService service — delegates to `POST api/Flag`.
@@ -19,6 +20,11 @@ class FlagServiceApi : IFlagService {
         reason: String,
         description: String?
     ): ServiceResult<Flag> {
+        val validationErrors = RequestBodyValidator.validateCreateFlag(targetType, targetId, reason)
+        if (validationErrors.isNotEmpty()) {
+            return ServiceResult.failure(validationErrors)
+        }
+
         val client = API.createClient()
         val body = mapOf(
             "target"      to mapOf("type" to targetType, "id" to targetId),

@@ -54,7 +54,7 @@ import hr.algebra.mobileapp.service.user.UserServiceHardCode
  * ServiceProvider.drinkService.create(request)
  * ServiceProvider.reviewService.createForLocation(locationId, rating = 5, comment = "Great!")
  * ServiceProvider.userService.getMyProfile()
- * ServiceProvider.flagService.create("locationService", locationId, reason = "Spam", description = null)
+ * ServiceProvider.flagService.create("location", locationId, reason = "Spam", description = null)
  * ```
  */
 object ServiceProvider {

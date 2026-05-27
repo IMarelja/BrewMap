@@ -95,18 +95,19 @@ class RegisterFragment : Fragment() {
         // so the userService lands in MainActivity without a second login step.
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val response = ServiceProvider.authService.register(
+                val result = ServiceProvider.authService.register(
                     email    = email,
                     username = username,
                     password = password
                 )
+                val response = result.data
 
-                if (response.success) {
+                if (result.isSuccess && response?.success == true) {
                     TokenManager.saveToken(response.token, rememberMe = true)
                     navigateToMain()
                 } else {
                     showFormMessage(
-                        response.message ?: getString(R.string.error_register_failed),
+                        result.errorMessage() ?: response?.message ?: getString(R.string.error_register_failed),
                         isError = true
                     )
                     btnSubmit.isEnabled = true

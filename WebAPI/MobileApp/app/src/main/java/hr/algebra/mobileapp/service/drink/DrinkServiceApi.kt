@@ -9,6 +9,7 @@ import hr.algebra.mobileapp.api.toServiceResult
 import hr.algebra.mobileapp.models.drink.BestDrink
 import hr.algebra.mobileapp.models.drink.CreateDrinkRequest
 import hr.algebra.mobileapp.models.drink.Drink
+import hr.algebra.mobileapp.service.RequestBodyValidator
 
 /**
  * **Production** drinkService service — delegates every call to the BrewMap REST API.
@@ -57,6 +58,11 @@ class DrinkServiceApi : IDrinkService {
     // ── POST api/Drink ────────────────────────────────────────────────────────
 
     override suspend fun create(request: CreateDrinkRequest): ServiceResult<Drink> {
+        val validationErrors = RequestBodyValidator.validateCreateDrink(request.name, request.locationId)
+        if (validationErrors.isNotEmpty()) {
+            return ServiceResult.failure(validationErrors)
+        }
+
         val client = API.createClient()
         val result = client.request(
             endpoint     = "Drink",
@@ -71,6 +77,11 @@ class DrinkServiceApi : IDrinkService {
     // ── PUT api/Drink/{id} ────────────────────────────────────────────────────
 
     override suspend fun update(id: String, name: String, description: String?): ServiceResult<Drink> {
+        val validationErrors = RequestBodyValidator.validateUpdateDrink(name)
+        if (validationErrors.isNotEmpty()) {
+            return ServiceResult.failure(validationErrors)
+        }
+
         val client = API.createClient()
         val body = mapOf("name" to name, "description" to description)
         val result = client.request(

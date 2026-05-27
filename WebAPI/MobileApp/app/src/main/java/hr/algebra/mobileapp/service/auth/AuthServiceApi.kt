@@ -1,14 +1,15 @@
 package hr.algebra.mobileapp.service.auth
 
 import android.util.Log
-import android.util.Patterns
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import hr.algebra.mobileapp.api.API
 import hr.algebra.mobileapp.api.ApiResult
 import hr.algebra.mobileapp.api.HttpMethod
+import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.auth.TokenManager
 import hr.algebra.mobileapp.models.auth.AuthResponse
+import hr.algebra.mobileapp.service.RequestBodyValidator
 
 /**
  * **Production** authService service — delegates every call to the BrewMap REST API.
@@ -29,18 +30,14 @@ class AuthServiceApi : IAuthService {
         user: String,
         password: String,
         rememberMe: Boolean
-    ): AuthResponse {
-        if (user.contains("@") && !isValidEmail(user)) {
-            return AuthResponse(
-                success = false,
-                token = null,
-                message = "Please enter a valid email address.",
-                statusCode = 400
-            )
+    ): ServiceResult<AuthResponse> {
+        val validationErrors = RequestBodyValidator.validateLogin(user, password)
+        if (validationErrors.isNotEmpty()) {
+            return ServiceResult.failure(validationErrors)
         }
 
         val body = mapOf(
-            "userService"       to user,
+            "user"       to user,
             "password"   to password,
             "rememberMe" to rememberMe
         )
@@ -52,29 +49,29 @@ class AuthServiceApi : IAuthService {
             responseType           = object : TypeToken<AuthResponse>() {},
             allowUnauthorizedBody  = true   // 401 = wrong credentials, not session expired
         )
+        if (resultRequest is ApiResult.NetworkError) {
+            return ServiceResult.networkError()
+        }
         val result = mapAuthResult(resultRequest, "Login failed. Please try again.")
         Log.d("AuthServiceApi", "login response: $result")
 
         if (result.success && result.token != null) {
             TokenManager.saveToken(result.token, rememberMe)
             Log.d("AuthServiceApi", "JWT saved (rememberMe=$rememberMe)")
+            return ServiceResult.success(result)
         }
 
-        return result
+        return ServiceResult.failure(result.message ?: "Login failed. Please try again.")
     }
 
     override suspend fun register(
         email: String,
         username: String,
         password: String
-    ): AuthResponse {
-        if (!isValidEmail(email)) {
-            return AuthResponse(
-                success = false,
-                token = null,
-                message = "Please enter a valid email address.",
-                statusCode = 400
-            )
+    ): ServiceResult<AuthResponse> {
+        val validationErrors = RequestBodyValidator.validateRegister(email, username, password)
+        if (validationErrors.isNotEmpty()) {
+            return ServiceResult.failure(validationErrors)
         }
 
         val body = mapOf(
@@ -90,6 +87,9 @@ class AuthServiceApi : IAuthService {
             responseType           = object : TypeToken<AuthResponse>() {},
             allowUnauthorizedBody  = true   // 401 = e.g. username already taken, not session expired
         )
+        if (resultRequest is ApiResult.NetworkError) {
+            return ServiceResult.networkError()
+        }
         val result = mapAuthResult(resultRequest, "Registration failed. Please try again.")
         Log.d("AuthServiceApi", "register response: $result")
 
@@ -98,9 +98,10 @@ class AuthServiceApi : IAuthService {
         if (result.success && result.token != null) {
             TokenManager.saveToken(result.token, rememberMe = true)
             Log.d("AuthServiceApi", "JWT saved after registration")
+            return ServiceResult.success(result)
         }
 
-        return result
+        return ServiceResult.failure(result.message ?: "Registration failed. Please try again.")
     }
 
     private fun mapAuthResult(result: ApiResult<AuthResponse>, fallbackMessage: String): AuthResponse =
@@ -147,7 +148,4 @@ class AuthServiceApi : IAuthService {
             )
         }
     }
-
-    private fun isValidEmail(value: String): Boolean =
-        Patterns.EMAIL_ADDRESS.matcher(value).matches()
 }

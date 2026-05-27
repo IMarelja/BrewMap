@@ -1,5 +1,6 @@
 package hr.algebra.mobileapp.service.auth
 
+import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.models.auth.AuthResponse
 
 /**
@@ -19,7 +20,7 @@ interface IAuthService {
      * @param password   plain-text password
      * @param rememberMe whether the server should issue a long-lived token
      */
-    suspend fun login(user: String, password: String, rememberMe: Boolean): AuthResponse
+    suspend fun login(user: String, password: String, rememberMe: Boolean): ServiceResult<AuthResponse>
 
     /**
      * Create a new account.
@@ -28,5 +29,5 @@ interface IAuthService {
      * @param username desired display name
      * @param password plain-text password chosen by the userService
      */
-    suspend fun register(email: String, username: String, password: String): AuthResponse
+    suspend fun register(email: String, username: String, password: String): ServiceResult<AuthResponse>
 }

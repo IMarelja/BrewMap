@@ -18,7 +18,7 @@ interface IFlagService {
     /**
      * `POST api/Flag` — reports a piece of content.
      *
-     * @param targetType one of: `"locationService"`, `"product"`, `"reviewService"`, `"userService"`
+     * @param targetType one of: `"location"`, `"product"`, `"review"`, `"user"`
      * @param targetId   MongoDB ObjectId of the entity being reported
      * @param reason     short description (≥ 3 chars, required by the backend)
      * @param description optional longer explanation

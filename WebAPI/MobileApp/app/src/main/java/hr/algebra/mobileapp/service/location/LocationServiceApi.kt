@@ -10,6 +10,7 @@ import hr.algebra.mobileapp.models.location.CreateLocationRequest
 import hr.algebra.mobileapp.models.location.Location
 import hr.algebra.mobileapp.models.location.Pin
 import hr.algebra.mobileapp.models.location.UpdateLocationRequest
+import hr.algebra.mobileapp.service.RequestBodyValidator
 import java.net.URLEncoder
 
 /**
@@ -83,6 +84,11 @@ class LocationServiceApi : ILocationService {
     // ── POST api/Locations ────────────────────────────────────────────────────
 
     override suspend fun create(request: CreateLocationRequest): ServiceResult<Location> {
+        val validationErrors = RequestBodyValidator.validateCreateLocation(request)
+        if (validationErrors.isNotEmpty()) {
+            return ServiceResult.failure(validationErrors)
+        }
+
         val client = API.createClient()
         val result = client.request(
             endpoint     = "Locations",
@@ -97,6 +103,11 @@ class LocationServiceApi : ILocationService {
     // ── PUT api/Locations/{id} ────────────────────────────────────────────────
 
     override suspend fun update(id: String, request: UpdateLocationRequest): ServiceResult<Location> {
+        val validationErrors = RequestBodyValidator.validateUpdateLocation(request)
+        if (validationErrors.isNotEmpty()) {
+            return ServiceResult.failure(validationErrors)
+        }
+
         val client = API.createClient()
         val result = client.request(
             endpoint     = "Locations/$id",

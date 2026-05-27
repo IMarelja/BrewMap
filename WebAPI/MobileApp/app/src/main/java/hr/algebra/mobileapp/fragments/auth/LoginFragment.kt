@@ -80,18 +80,19 @@ class LoginFragment : Fragment() {
         // which TokenManager will persist to EncryptedSharedPreferences.
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val response = ServiceProvider.authService.login(
+                val result = ServiceProvider.authService.login(
                     user       = email,
                     password   = password,
                     rememberMe = true
                 )
+                val response = result.data
 
-                if (response.success) {
+                if (result.isSuccess && response?.success == true) {
                     TokenManager.saveToken(response.token, rememberMe = true)
                     navigateToMain()
                 } else {
                     showFormMessage(
-                        response.message ?: getString(R.string.error_login_failed),
+                        result.errorMessage() ?: response?.message ?: getString(R.string.error_login_failed),
                         isError = true
                     )
                     btnSubmit.isEnabled = true
