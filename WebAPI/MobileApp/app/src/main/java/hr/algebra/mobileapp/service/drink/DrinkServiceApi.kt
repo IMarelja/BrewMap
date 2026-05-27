@@ -29,12 +29,12 @@ class DrinkServiceApi : IDrinkService {
         return result
     }
 
-    // ── GET api/Drink/locationService/{locationId} ───────────────────────────────────
+    // ── GET api/Drink/location/{locationId} ───────────────────────────────────
 
     override suspend fun getByLocationId(locationId: String): ServiceResult<List<Drink>> {
         val client = API.createClient()
         val result = client.request(
-            endpoint     = "Drink/locationService/$locationId",
+            endpoint     = "Drink/location/$locationId",
             method       = HttpMethod.GET,
             responseType = object : TypeToken<List<Drink>>() {}
         ).toServiceResult("Could not load drinks.")
@@ -42,12 +42,12 @@ class DrinkServiceApi : IDrinkService {
         return result
     }
 
-    // ── GET api/Drink/locationService/{locationId}/best-drinkService ────────────────────────
+    // ── GET api/Drink/location/{locationId}/best-drinkService ────────────────────────
 
     override suspend fun getBestDrinkByLocationId(locationId: String): ServiceResult<BestDrink?> {
         val client = API.createClient()
         val result = client.request(
-            endpoint     = "Drink/locationService/$locationId/best-drinkService",
+            endpoint     = "Drink/location/$locationId/best-drink",
             method       = HttpMethod.GET,
             responseType = object : TypeToken<BestDrink?>() {}
         ).toServiceResult(treatNotFoundAsEmpty = true)

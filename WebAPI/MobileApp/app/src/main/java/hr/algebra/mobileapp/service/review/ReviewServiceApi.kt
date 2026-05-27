@@ -26,12 +26,12 @@ class ReviewServiceApi : IReviewService {
         return result
     }
 
-    // ── GET api/Review/locationService/{locationId} ──────────────────────────────────
+    // ── GET api/Review/location/{locationId} ──────────────────────────────────
 
     override suspend fun getByLocationId(locationId: String): ServiceResult<List<Review>> {
         val client = API.createClient()
         val result = client.request(
-            endpoint     = "Review/locationService/$locationId",
+            endpoint     = "Review/location/$locationId",
             method       = HttpMethod.GET,
             responseType = object : TypeToken<List<Review>>() {}
         ).toServiceResult("Could not load reviews.")
@@ -39,12 +39,12 @@ class ReviewServiceApi : IReviewService {
         return result
     }
 
-    // ── GET api/Review/drinkService/{drinkId} ────────────────────────────────────────
+    // ── GET api/Review/drink/{drinkId} ────────────────────────────────────────
 
     override suspend fun getByDrinkId(drinkId: String): ServiceResult<List<Review>> {
         val client = API.createClient()
         val result = client.request(
-            endpoint     = "Review/drinkService/$drinkId",
+            endpoint     = "Review/drink/$drinkId",
             method       = HttpMethod.GET,
             responseType = object : TypeToken<List<Review>>() {}
         ).toServiceResult("Could not load reviews.")
