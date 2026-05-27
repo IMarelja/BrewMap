@@ -98,6 +98,32 @@ object TokenManager {
     fun isLoggedIn(): Boolean = getToken() != null
 
     /**
+     * Decodes the `id` claim from the stored JWT without verifying the signature.
+     *
+     * Used by hard-code service stubs that need to associate in-memory write
+     * operations (create review, update profile, …) with the currently logged-in user.
+     *
+     * Returns `null` when there is no token or the token cannot be parsed.
+     */
+    fun getUserId(): String? {
+        val token = getToken() ?: return null
+        return try {
+            val parts = token.split(".")
+            if (parts.size < 2) return null
+            val payloadBytes = Base64.decode(
+                parts[1],
+                Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP
+            )
+            JSONObject(String(payloadBytes, Charsets.UTF_8))
+                .optString("id")
+                .takeIf { it.isNotEmpty() }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to decode user ID from JWT", e)
+            null
+        }
+    }
+
+    /**
      * Remove the token from memory **and** encrypted storage.
      * Call this on user-initiated logout or when the server rejects the token.
      */

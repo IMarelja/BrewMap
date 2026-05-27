@@ -4,15 +4,14 @@ import android.util.Log
 import com.google.gson.reflect.TypeToken
 import hr.algebra.mobileapp.api.API
 import hr.algebra.mobileapp.api.HttpMethod
+import hr.algebra.mobileapp.models.CreateLocationRequest
 import hr.algebra.mobileapp.models.Location
 import hr.algebra.mobileapp.models.Pin
+import hr.algebra.mobileapp.models.UpdateLocationRequest
 import java.net.URLEncoder
 
 /**
- * **Production** product service — delegates every call to the BrewMap REST API.
- *
- * Base URL is read from `res/values/strings.xml` → `api_base_url`
- * (see [hr.algebra.mobileapp.api.API.Companion.createClient]).
+ * **Production** location service — delegates every call to the BrewMap REST API.
  */
 class LocationServiceApi : ILocationService {
 
@@ -24,8 +23,8 @@ class LocationServiceApi : ILocationService {
             endpoint     = "Locations/$id",
             method       = HttpMethod.GET,
             responseType = object : TypeToken<Location>() {}
-        )
-        Log.d("ProductServiceApi", "getById($id) → $res")
+        ).getOrThrow()
+        Log.d("LocationServiceApi", "getById($id) → $res")
         return res
     }
 
@@ -42,36 +41,31 @@ class LocationServiceApi : ILocationService {
         radiusMeters: Double
     ): List<Location> {
         val params = buildList {
-            // required geo params always come first
             add("longitude=$longitude")
             add("latitude=$latitude")
             add("radiusMeters=$radiusMeters")
-
-            query?.let           { add("query=${encode(it)}") }
-            minRating?.let       { add("minRating=$it") }
-            drinkQuery?.let      { add("drinkQuery=${encode(it)}") }
-            categoryTags?.forEach    { add("categoryTags=${encode(it)}") }
+            query?.let              { add("query=${encode(it)}") }
+            minRating?.let          { add("minRating=$it") }
+            drinkQuery?.let         { add("drinkQuery=${encode(it)}") }
+            categoryTags?.forEach   { add("categoryTags=${encode(it)}") }
             paymentOptionTags?.forEach { add("paymentOptionTags=${encode(it)}") }
         }
-
         val endpoint = "Locations/search?" + params.joinToString("&")
         val client = API.createClient()
         val res = client.request(
             endpoint     = endpoint,
             method       = HttpMethod.GET,
             responseType = object : TypeToken<List<Location>>() {}
-        )
-        Log.d("ProductServiceApi", "search → ${res.size} results")
+        ).getOrThrow()
+        Log.d("LocationServiceApi", "search → ${res.size} results")
         return res
     }
 
     // ── GET api/Locations/pins ────────────────────────────────────────────────
 
     override suspend fun getPins(
-        minLon: Double,
-        maxLon: Double,
-        minLat: Double,
-        maxLat: Double
+        minLon: Double, maxLon: Double,
+        minLat: Double, maxLat: Double
     ): List<Pin> {
         val endpoint = "Locations/pins?minLon=$minLon&maxLon=$maxLon&minLat=$minLat&maxLat=$maxLat"
         val client = API.createClient()
@@ -79,13 +73,40 @@ class LocationServiceApi : ILocationService {
             endpoint     = endpoint,
             method       = HttpMethod.GET,
             responseType = object : TypeToken<List<Pin>>() {}
-        )
-        Log.d("ProductServiceApi", "getPins → ${res.size} pins")
+        ).getOrThrow()
+        Log.d("LocationServiceApi", "getPins → ${res.size} pins")
+        return res
+    }
+
+    // ── POST api/Locations ────────────────────────────────────────────────────
+
+    override suspend fun create(request: CreateLocationRequest): Location {
+        val client = API.createClient()
+        val res = client.request(
+            endpoint     = "Locations",
+            method       = HttpMethod.POST,
+            body         = request,
+            responseType = object : TypeToken<Location>() {}
+        ).getOrThrow()
+        Log.d("LocationServiceApi", "create → ${res.id}")
+        return res
+    }
+
+    // ── PUT api/Locations/{id} ────────────────────────────────────────────────
+
+    override suspend fun update(id: String, request: UpdateLocationRequest): Location {
+        val client = API.createClient()
+        val res = client.request(
+            endpoint     = "Locations/$id",
+            method       = HttpMethod.PUT,
+            body         = request,
+            responseType = object : TypeToken<Location>() {}
+        ).getOrThrow()
+        Log.d("LocationServiceApi", "update($id) → done")
         return res
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private fun encode(value: String): String =
-        URLEncoder.encode(value, "UTF-8")
+    private fun encode(value: String): String = URLEncoder.encode(value, "UTF-8")
 }

@@ -1,25 +1,21 @@
 package hr.algebra.mobileapp.service.review
 
-import android.util.Base64
 import android.util.Log
 import hr.algebra.mobileapp.auth.TokenManager
 import hr.algebra.mobileapp.models.Review
 import hr.algebra.mobileapp.service.HardCodeData
-import org.json.JSONObject
+import java.time.Instant
 
 /**
  * **Test / offline** review service — no network required.
  *
- * All seed data lives in [HardCodeData], which is created once by
- * [hr.algebra.mobileapp.service.ServiceProvider] and shared across every
- * hard-code stub. This class only contains query logic.
- *
- * [getMyReviews] decodes the current JWT from [TokenManager] to resolve the
- * logged-in user's ID, then filters [HardCodeData.reviews] by that ID.
- * The mock JWT produced by `AuthServiceHardCode` stores the user ID in the
- * `id` claim.
+ * Write operations mutate [HardCodeData.reviews] in memory.
+ * [getMyReviews] and write operations decode the logged-in user's ID via
+ * [TokenManager.getUserId].
  */
 class ReviewServiceHardCode(private val data: HardCodeData) : IReviewService {
+
+    // ── Read ──────────────────────────────────────────────────────────────────
 
     override suspend fun getById(id: String): Review? =
         data.reviews.find { it.id == id && it.isVisible }
@@ -31,7 +27,7 @@ class ReviewServiceHardCode(private val data: HardCodeData) : IReviewService {
         data.reviews.filter { it.targetType == "product" && it.targetId == drinkId && it.isVisible }
 
     override suspend fun getMyReviews(): List<Review> {
-        val userId = currentUserId()
+        val userId = TokenManager.getUserId()
         if (userId == null) {
             Log.w("ReviewServiceHardCode", "getMyReviews() called with no active session")
             return emptyList()
@@ -42,25 +38,61 @@ class ReviewServiceHardCode(private val data: HardCodeData) : IReviewService {
     override suspend fun getByUserId(userId: String): List<Review> =
         data.reviews.filter { it.userId == userId && it.isVisible }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // ── Write ─────────────────────────────────────────────────────────────────
 
-    /**
-     * Decode the `id` claim from the mock JWT.
-     * Returns null if no token is stored or the token is malformed.
-     */
-    private fun currentUserId(): String? {
-        val token = TokenManager.getToken() ?: return null
-        return try {
-            val parts = token.split(".")
-            if (parts.size < 2) return null
-            val payload = String(
-                Base64.decode(parts[1], Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP),
-                Charsets.UTF_8
-            )
-            JSONObject(payload).optString("id").takeIf { it.isNotEmpty() }
-        } catch (e: Exception) {
-            Log.e("ReviewServiceHardCode", "Failed to decode user ID from JWT", e)
-            null
-        }
+    override suspend fun createForLocation(locationId: String, rating: Int, comment: String?): Review {
+        val userId = TokenManager.getUserId() ?: throw IllegalStateException("Not authenticated")
+        val now = Instant.now().toString()
+        val review = Review(
+            id          = "hc-rev-${System.currentTimeMillis()}",
+            userId      = userId,
+            targetType  = "location",
+            targetId    = locationId,
+            rating      = rating,
+            comment     = comment,
+            isVisible   = true,
+            reportCount = 0,
+            createdAt   = now,
+            updatedAt   = now
+        )
+        data.reviews.add(review)
+        return review
+    }
+
+    override suspend fun createForDrink(drinkId: String, rating: Int, comment: String?): Review {
+        val userId = TokenManager.getUserId() ?: throw IllegalStateException("Not authenticated")
+        val now = Instant.now().toString()
+        val review = Review(
+            id          = "hc-rev-${System.currentTimeMillis()}",
+            userId      = userId,
+            targetType  = "product",
+            targetId    = drinkId,
+            rating      = rating,
+            comment     = comment,
+            isVisible   = true,
+            reportCount = 0,
+            createdAt   = now,
+            updatedAt   = now
+        )
+        data.reviews.add(review)
+        return review
+    }
+
+    override suspend fun update(reviewId: String, rating: Int?, comment: String?): Review {
+        val index = data.reviews.indexOfFirst { it.id == reviewId }
+        if (index == -1) throw NoSuchElementException("Review not found: $reviewId")
+        val old = data.reviews[index]
+        val updated = old.copy(
+            rating    = rating ?: old.rating,
+            comment   = comment ?: old.comment,
+            updatedAt = Instant.now().toString()
+        )
+        data.reviews[index] = updated
+        return updated
+    }
+
+    override suspend fun delete(reviewId: String) {
+        val removed = data.reviews.removeIf { it.id == reviewId }
+        if (!removed) throw NoSuchElementException("Review not found: $reviewId")
     }
 }

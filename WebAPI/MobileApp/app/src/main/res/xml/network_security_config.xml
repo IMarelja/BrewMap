@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Supports both http:// and https:// URLs set in local.properties.
+
+    cleartextTrafficPermitted="true"  → allows http:// URLs
+    <certificates src="user" />       → allows https:// with self-signed /
+                                        developer-installed certificates
+    <certificates src="system" />     → allows https:// with CA-signed certificates
+-->
 <network-security-config>
     <base-config cleartextTrafficPermitted="true">
         <trust-anchors>
             <certificates src="system" />
+            <certificates src="user" />
         </trust-anchors>
     </base-config>
 </network-security-config>

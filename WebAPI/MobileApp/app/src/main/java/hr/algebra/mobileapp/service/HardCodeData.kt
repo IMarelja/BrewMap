@@ -80,8 +80,8 @@ class HardCodeData {
 
     // ── Locations ─────────────────────────────────────────────────────────────
 
-    /** Immutable seed — 12 Zagreb venues from `init-db/02-seed.js`. */
-    val locations: List<Location> = listOf(
+    /** Mutable so [hr.algebra.mobileapp.service.location.LocationServiceHardCode] can create/update locations. */
+    val locations: MutableList<Location> = mutableListOf(
         loc(
             id = "hc-loc-001", name = "Pivana",
             description = "Spacious neighborhood pub with craft beer on tap, classic bar snacks, and a relaxed evening crowd.",
@@ -174,7 +174,8 @@ class HardCodeData {
      * Seed drinks spread across several seeded locations.
      * Each drink maps to one [Location] via [Drink.availableAtLocationId].
      */
-    val drinks: List<Drink> = listOf(
+    /** Mutable so [hr.algebra.mobileapp.service.drink.DrinkServiceHardCode] can create/update drinks. */
+    val drinks: MutableList<Drink> = mutableListOf(
 
         // Pivana (hc-loc-001) — 3 drinks
         drink("hc-drk-001", "Ožujsko Pivo",       "Classic Croatian lager on tap.",    "hc-loc-001", 4.8, 3),
@@ -220,7 +221,8 @@ class HardCodeData {
      * targetType = "location" for location reviews,
      * targetType = "product"  for drink reviews  (mirrors the backend).
      */
-    val reviews: List<Review> = listOf(
+    /** Mutable so [hr.algebra.mobileapp.service.review.ReviewServiceHardCode] can create/update/delete reviews. */
+    val reviews: MutableList<Review> = mutableListOf(
 
         // ── Location reviews ──────────────────────────────────────────────────
 

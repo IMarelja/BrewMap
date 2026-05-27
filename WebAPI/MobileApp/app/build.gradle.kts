@@ -1,7 +1,39 @@
+import java.io.File
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
 }
+
+// Read BIND_API_URL from the repository root .env (../../.env from this module).
+// Build fails fast if the file or key is missing, so incorrect environments never compile.
+val envFile = rootProject.file("../../../.env")
+if (!envFile.exists()) {
+    error(".env file not found at ${envFile.absolutePath}. Create it and set BIND_API_URL.")
+}
+
+fun readEnvValue(file: File, key: String): String? {
+    return file.readLines()
+        .asSequence()
+        .map { it.trim() }
+        .filter { it.isNotEmpty() && !it.startsWith("#") }
+        .mapNotNull { line ->
+            val idx = line.indexOf('=')
+            if (idx <= 0) return@mapNotNull null
+            val k = line.substring(0, idx).trim()
+            val rawValue = line.substring(idx + 1).trim()
+            if (k != key) return@mapNotNull null
+            rawValue.substringBefore("#").trim().trim('"').trim('\'')
+        }
+        .firstOrNull()
+}
+
+val bindApiUrl: String = readEnvValue(envFile, "BIND_API_URL")
+    ?.takeIf { it.isNotBlank() }
+    ?: error(
+        "BIND_API_URL is missing or empty in ${envFile.absolutePath}. " +
+        "Add for example: BIND_API_URL=http://10.0.2.2:5239/api/"
+    )
 
 android {
     namespace = "hr.algebra.mobileapp"
@@ -15,6 +47,13 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Exposed as BuildConfig.API_BASE_URL, sourced from root .env:BIND_API_URL.
+        buildConfigField("String", "API_BASE_URL", "\"$bindApiUrl\"")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {

@@ -5,15 +5,11 @@ import com.google.gson.reflect.TypeToken
 import hr.algebra.mobileapp.api.API
 import hr.algebra.mobileapp.api.HttpMethod
 import hr.algebra.mobileapp.models.BestDrink
+import hr.algebra.mobileapp.models.CreateDrinkRequest
 import hr.algebra.mobileapp.models.Drink
 
 /**
  * **Production** drink service — delegates every call to the BrewMap REST API.
- *
- * All endpoints require a valid JWT; the token is injected automatically by
- * [hr.algebra.mobileapp.api.API.createClient] via [hr.algebra.mobileapp.auth.TokenManager].
- *
- * Base URL is read from `res/values/strings.xml` → `api_base_url`.
  */
 class DrinkServiceApi : IDrinkService {
 
@@ -25,7 +21,7 @@ class DrinkServiceApi : IDrinkService {
             endpoint     = "Drink/$id",
             method       = HttpMethod.GET,
             responseType = object : TypeToken<Drink>() {}
-        )
+        ).getOrThrow()
         Log.d("DrinkServiceApi", "getById($id) → $res")
         return res
     }
@@ -38,7 +34,7 @@ class DrinkServiceApi : IDrinkService {
             endpoint     = "Drink/location/$locationId",
             method       = HttpMethod.GET,
             responseType = object : TypeToken<List<Drink>>() {}
-        )
+        ).getOrThrow()
         Log.d("DrinkServiceApi", "getByLocationId($locationId) → ${res.size} drinks")
         return res
     }
@@ -52,13 +48,41 @@ class DrinkServiceApi : IDrinkService {
                 endpoint     = "Drink/location/$locationId/best-drink",
                 method       = HttpMethod.GET,
                 responseType = object : TypeToken<BestDrink>() {}
-            )
+            ).getOrThrow()
             Log.d("DrinkServiceApi", "getBestDrink($locationId) → $res")
             res
         } catch (e: Exception) {
-            // 404 — location has no rated drinks
             Log.d("DrinkServiceApi", "getBestDrink($locationId) → null (${e.message})")
             null
         }
+    }
+
+    // ── POST api/Drink ────────────────────────────────────────────────────────
+
+    override suspend fun create(request: CreateDrinkRequest): Drink {
+        val client = API.createClient()
+        val res = client.request(
+            endpoint     = "Drink",
+            method       = HttpMethod.POST,
+            body         = request,
+            responseType = object : TypeToken<Drink>() {}
+        ).getOrThrow()
+        Log.d("DrinkServiceApi", "create → ${res.id}")
+        return res
+    }
+
+    // ── PUT api/Drink/{id} ────────────────────────────────────────────────────
+
+    override suspend fun update(id: String, name: String, description: String?): Drink {
+        val client = API.createClient()
+        val body = mapOf("name" to name, "description" to description)
+        val res = client.request(
+            endpoint     = "Drink/$id",
+            method       = HttpMethod.PUT,
+            body         = body,
+            responseType = object : TypeToken<Drink>() {}
+        ).getOrThrow()
+        Log.d("DrinkServiceApi", "update($id) → done")
+        return res
     }
 }

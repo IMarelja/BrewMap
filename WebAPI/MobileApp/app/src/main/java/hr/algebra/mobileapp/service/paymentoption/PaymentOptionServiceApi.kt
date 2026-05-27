@@ -24,7 +24,7 @@ class PaymentOptionServiceApi : IPaymentOptionService {
             endpoint     = "PaymentOption",
             method       = HttpMethod.GET,
             responseType = object : TypeToken<List<PaymentOption>>() {}
-        )
+        ).getOrThrow()
         Log.d("PaymentOptionServiceApi", "getAll() → ${res.size} payment options")
         return res
     }
@@ -38,7 +38,7 @@ class PaymentOptionServiceApi : IPaymentOptionService {
                 endpoint     = "PaymentOption/$tag",
                 method       = HttpMethod.GET,
                 responseType = object : TypeToken<PaymentOption>() {}
-            )
+            ).getOrThrow()
             Log.d("PaymentOptionServiceApi", "getByTag($tag) → $res")
             res
         } catch (e: Exception) {

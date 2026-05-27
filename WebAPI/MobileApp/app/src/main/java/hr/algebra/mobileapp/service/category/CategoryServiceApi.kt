@@ -24,7 +24,7 @@ class CategoryServiceApi : ICategoryService {
             endpoint     = "Category",
             method       = HttpMethod.GET,
             responseType = object : TypeToken<List<Category>>() {}
-        )
+        ).getOrThrow()
         Log.d("CategoryServiceApi", "getAll() → ${res.size} categories")
         return res
     }
@@ -38,7 +38,7 @@ class CategoryServiceApi : ICategoryService {
                 endpoint     = "Category/$tag",
                 method       = HttpMethod.GET,
                 responseType = object : TypeToken<Category>() {}
-            )
+            ).getOrThrow()
             Log.d("CategoryServiceApi", "getByTag($tag) → $res")
             res
         } catch (e: Exception) {

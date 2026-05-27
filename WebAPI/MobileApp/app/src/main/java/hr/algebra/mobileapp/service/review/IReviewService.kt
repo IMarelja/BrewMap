@@ -3,45 +3,34 @@ package hr.algebra.mobileapp.service.review
 import hr.algebra.mobileapp.models.Review
 
 /**
- * Contract for review read operations.
+ * Contract for review read **and write** operations.
  *
- * Three implementations are available:
- *  - [ReviewServiceApi]        — real HTTP calls to `api/Review`  (requires auth token)
- *  - [ReviewServiceHardCode]   — in-memory stub, no network needed
- *  - [ReviewServicePersistent] — API-backed with on-device cache ([hr.algebra.mobileapp.cache.PersistentCache])
- *
- * Switch between them via [hr.algebra.mobileapp.service.ServiceProvider].
+ * Three implementations:
+ *  - [ReviewServiceApi]        — live BrewMap REST API  (requires auth token)
+ *  - [ReviewServiceHardCode]   — in-memory stub, no network
+ *  - [ReviewServicePersistent] — API-backed with on-device cache
  */
 interface IReviewService {
 
-    /**
-     * Fetch a single review by its MongoDB ObjectId.
-     * Maps to `GET api/Review/{id}`.
-     * Returns null when the review does not exist or is not visible.
-     */
+    // ── Read ──────────────────────────────────────────────────────────────────
+
     suspend fun getById(id: String): Review?
-
-    /**
-     * Fetch all visible reviews for a location.
-     * Maps to `GET api/Review/location/{locationId}`.
-     */
     suspend fun getByLocationId(locationId: String): List<Review>
-
-    /**
-     * Fetch all visible reviews for a drink.
-     * Maps to `GET api/Review/drink/{drinkId}`.
-     */
     suspend fun getByDrinkId(drinkId: String): List<Review>
-
-    /**
-     * Fetch all reviews written by the currently authenticated user.
-     * Maps to `GET api/Review/mine` (JWT identity is read server-side).
-     */
     suspend fun getMyReviews(): List<Review>
-
-    /**
-     * Fetch all visible reviews written by any user.
-     * Maps to `GET api/Review/byUser/{userId}`.
-     */
     suspend fun getByUserId(userId: String): List<Review>
+
+    // ── Write ─────────────────────────────────────────────────────────────────
+
+    /** `POST api/Review/location/{locationId}` — rating must be 1–5. */
+    suspend fun createForLocation(locationId: String, rating: Int, comment: String?): Review
+
+    /** `POST api/Review/drink/{drinkId}` — rating must be 1–5. */
+    suspend fun createForDrink(drinkId: String, rating: Int, comment: String?): Review
+
+    /** `PUT api/Review/{id}` — pass null for fields that should not change. */
+    suspend fun update(reviewId: String, rating: Int?, comment: String?): Review
+
+    /** `DELETE api/Review/{id}`. */
+    suspend fun delete(reviewId: String)
 }

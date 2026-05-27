@@ -2,9 +2,8 @@
     <string name="app_name">BrewMap</string>
 
     <!-- API Configuration -->
-    <!-- Emulator: 10.0.2.2 maps to host machine's localhost -->
-    <!-- Change this to your server's IP/domain for production -->
-    <string name="api_base_url">http://10.0.2.2:5239/api/</string>
+    <!-- Set BIND_API_URL in repository root .env — supports http:// and https:// -->
+    <!-- The value is baked into BuildConfig.API_BASE_URL at build time.      -->
 
     <!-- App branding -->
     <string name="app_display_name">BrewMap</string>

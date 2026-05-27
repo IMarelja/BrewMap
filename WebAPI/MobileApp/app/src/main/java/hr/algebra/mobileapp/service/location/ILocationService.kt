@@ -1,46 +1,26 @@
 package hr.algebra.mobileapp.service.location
 
+import hr.algebra.mobileapp.models.CreateLocationRequest
 import hr.algebra.mobileapp.models.Location
 import hr.algebra.mobileapp.models.Pin
+import hr.algebra.mobileapp.models.UpdateLocationRequest
 
 /**
- * Contract for the three read-only location ("product") endpoints exposed by
- * `LocationsController` in the BrewMap API.
+ * Contract for location read **and write** operations.
  *
- * Two implementations are available:
- *  - [LocationServiceApi]      — real HTTP calls to the BrewMap backend
- *  - [LocationServiceHardCode] — in-memory stub with seeded Zagreb venues, no network needed
- *
- * Switch between them in [ProductServiceProvider].
+ * Three implementations:
+ *  - [LocationServiceApi]        — live BrewMap REST API
+ *  - [LocationServiceHardCode]   — in-memory stub, no network
+ *  - [LocationServicePersistent] — API-backed with on-device cache
  */
 interface ILocationService {
 
-    /**
-     * Fetch a single location by its ID.
-     *
-     * `GET api/Locations/{id}`
-     *
-     * @param id MongoDB ObjectId string of the location.
-     * @return the matching [Location].
-     * @throws NoSuchElementException if no location with that id exists.
-     */
+    // ── Read ──────────────────────────────────────────────────────────────────
+
+    /** `GET api/Locations/{id}` */
     suspend fun getById(id: String): Location
 
-    /**
-     * Search locations near a coordinate, with optional text and filter params.
-     *
-     * `GET api/Locations/search`
-     *
-     * @param query          free-text match against name / description (optional)
-     * @param minRating      minimum average rating, inclusive (optional)
-     * @param drinkQuery     free-text match against drinks at the location (optional)
-     * @param categoryTags   keep only locations whose `categoryTag` is in this list (optional)
-     * @param paymentOptionTags keep only locations that accept **all** of these payment methods (optional)
-     * @param longitude      centre of the search radius (required)
-     * @param latitude       centre of the search radius (required)
-     * @param radiusMeters   search radius in metres; defaults to 5 000 m
-     * @return list of matching [Location]s, may be empty.
-     */
+    /** `GET api/Locations/search` */
     suspend fun search(
         longitude: Double,
         latitude: Double,
@@ -52,21 +32,17 @@ interface ILocationService {
         radiusMeters: Double = 5_000.0
     ): List<Location>
 
-    /**
-     * Fetch lightweight map pins for all active locations within a bounding box.
-     *
-     * `GET api/Locations/pins`
-     *
-     * @param minLon western edge of the bounding box
-     * @param maxLon eastern edge
-     * @param minLat southern edge
-     * @param maxLat northern edge
-     * @return list of [Pin]s whose coordinates fall inside the box, may be empty.
-     */
+    /** `GET api/Locations/pins` */
     suspend fun getPins(
-        minLon: Double,
-        maxLon: Double,
-        minLat: Double,
-        maxLat: Double
+        minLon: Double, maxLon: Double,
+        minLat: Double, maxLat: Double
     ): List<Pin>
+
+    // ── Write ─────────────────────────────────────────────────────────────────
+
+    /** `POST api/Locations` — creates a new location. Returns the created resource. */
+    suspend fun create(request: CreateLocationRequest): Location
+
+    /** `PUT api/Locations/{id}` — updates an existing location. Returns the updated resource. */
+    suspend fun update(id: String, request: UpdateLocationRequest): Location
 }

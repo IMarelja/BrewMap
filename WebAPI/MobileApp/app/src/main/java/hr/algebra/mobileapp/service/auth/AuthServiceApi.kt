@@ -37,7 +37,7 @@ class AuthServiceApi : IAuthService {
             method       = HttpMethod.PATCH,
             body         = body,
             responseType = object : TypeToken<AuthResponse>() {}
-        )
+        ).getOrThrow()
         Log.d("AuthServiceApi", "login response: $res")
 
         if (res.success && res.token != null) {
@@ -64,7 +64,7 @@ class AuthServiceApi : IAuthService {
             method       = HttpMethod.POST,
             body         = body,
             responseType = object : TypeToken<AuthResponse>() {}
-        )
+        ).getOrThrow()
         Log.d("AuthServiceApi", "register response: $res")
 
         // Register always returns a 60-min token; persist it so the user

@@ -11,6 +11,9 @@ import hr.algebra.mobileapp.service.drink.DrinkServiceApi
 import hr.algebra.mobileapp.service.drink.DrinkServiceHardCode
 import hr.algebra.mobileapp.service.drink.DrinkServicePersistent
 import hr.algebra.mobileapp.service.drink.IDrinkService
+import hr.algebra.mobileapp.service.flag.FlagServiceApi
+import hr.algebra.mobileapp.service.flag.FlagServiceHardCode
+import hr.algebra.mobileapp.service.flag.IFlagService
 import hr.algebra.mobileapp.service.location.ILocationService
 import hr.algebra.mobileapp.service.location.LocationServiceApi
 import hr.algebra.mobileapp.service.location.LocationServiceHardCode
@@ -23,6 +26,9 @@ import hr.algebra.mobileapp.service.review.IReviewService
 import hr.algebra.mobileapp.service.review.ReviewServiceApi
 import hr.algebra.mobileapp.service.review.ReviewServiceHardCode
 import hr.algebra.mobileapp.service.review.ReviewServicePersistent
+import hr.algebra.mobileapp.service.user.IUserService
+import hr.algebra.mobileapp.service.user.UserServiceApi
+import hr.algebra.mobileapp.service.user.UserServiceHardCode
 
 /**
  * Application-wide service locator.
@@ -37,21 +43,16 @@ import hr.algebra.mobileapp.service.review.ReviewServicePersistent
  * | [Mode.API]          | Live BrewMap REST API, no local cache           |
  * | [Mode.PERSISTENT]   | Live API with on-device cache ([hr.algebra.mobileapp.cache.PersistentCache]) |
  *
- * ## How to switch
- * ```kotlin
- * private val MODE = Mode.HARD_CODE   // ← offline / seeded data
- * private val MODE = Mode.API         // ← always-fresh API calls
- * private val MODE = Mode.PERSISTENT  // ← API + SharedPreferences cache
- * ```
- *
  * ## Usage
  * ```kotlin
  * ServiceProvider.auth.login(user, password, rememberMe)
  * ServiceProvider.location.search(lon, lat, query = "coffee")
+ * ServiceProvider.location.create(request)
  * ServiceProvider.drink.getByLocationId(locationId)
- * ServiceProvider.category.getAll()
- * ServiceProvider.paymentOption.getAll()
- * ServiceProvider.review.getByLocationId(locationId)
+ * ServiceProvider.drink.create(request)
+ * ServiceProvider.review.createForLocation(locationId, rating = 5, comment = "Great!")
+ * ServiceProvider.user.getMyProfile()
+ * ServiceProvider.flag.create("location", locationId, reason = "Spam", description = null)
  * ```
  */
 object ServiceProvider {
@@ -64,26 +65,20 @@ object ServiceProvider {
 
     enum class Mode { HARD_CODE, API, PERSISTENT }
 
-    /**
-     * Shared seed data — only created when [MODE] is [Mode.HARD_CODE].
-     * Passed by reference into every hard-code service so they all operate
-     * on the same lists.
-     */
+    /** Shared seed data — only created when [MODE] is [Mode.HARD_CODE]. */
     private val hardCodeData: HardCodeData? =
         if (MODE == Mode.HARD_CODE) HardCodeData() else null
 
     // ── Auth ──────────────────────────────────────────────────────────────────
 
-    /** Authentication — login and register. */
     val auth: IAuthService = when (MODE) {
         Mode.HARD_CODE  -> AuthServiceHardCode(hardCodeData!!)
         Mode.API,
-        Mode.PERSISTENT -> AuthServiceApi()   // auth has no cache layer
+        Mode.PERSISTENT -> AuthServiceApi()
     }
 
     // ── Location ──────────────────────────────────────────────────────────────
 
-    /** Locations — getById, search, and map pins. */
     val location: ILocationService = when (MODE) {
         Mode.HARD_CODE  -> LocationServiceHardCode(hardCodeData!!)
         Mode.API        -> LocationServiceApi()
@@ -92,7 +87,6 @@ object ServiceProvider {
 
     // ── Drink ─────────────────────────────────────────────────────────────────
 
-    /** Drinks — getById, getByLocationId, getBestDrinkByLocationId. */
     val drink: IDrinkService = when (MODE) {
         Mode.HARD_CODE  -> DrinkServiceHardCode(hardCodeData!!)
         Mode.API        -> DrinkServiceApi()
@@ -101,7 +95,6 @@ object ServiceProvider {
 
     // ── Category ─────────────────────────────────────────────────────────────
 
-    /** Categories — getAll, getByTag. */
     val category: ICategoryService = when (MODE) {
         Mode.HARD_CODE  -> CategoryServiceHardCode(hardCodeData!!)
         Mode.API        -> CategoryServiceApi()
@@ -110,7 +103,6 @@ object ServiceProvider {
 
     // ── Payment option ────────────────────────────────────────────────────────
 
-    /** Payment options — getAll, getByTag. */
     val paymentOption: IPaymentOptionService = when (MODE) {
         Mode.HARD_CODE  -> PaymentOptionServiceHardCode(hardCodeData!!)
         Mode.API        -> PaymentOptionServiceApi()
@@ -119,13 +111,27 @@ object ServiceProvider {
 
     // ── Review ────────────────────────────────────────────────────────────────
 
-    /**
-     * Reviews — getById, getByLocationId, getByDrinkId, getMyReviews, getByUserId.
-     * Note: [IReviewService.getMyReviews] is never cached in persistent mode.
-     */
     val review: IReviewService = when (MODE) {
         Mode.HARD_CODE  -> ReviewServiceHardCode(hardCodeData!!)
         Mode.API        -> ReviewServiceApi()
         Mode.PERSISTENT -> ReviewServicePersistent()
+    }
+
+    // ── User ──────────────────────────────────────────────────────────────────
+
+    /** User profile — getMyProfile, getUserById, updateEmail, updatePassword. */
+    val user: IUserService = when (MODE) {
+        Mode.HARD_CODE  -> UserServiceHardCode(hardCodeData!!)
+        Mode.API,
+        Mode.PERSISTENT -> UserServiceApi()   // user data is personal — no caching
+    }
+
+    // ── Flag ──────────────────────────────────────────────────────────────────
+
+    /** Content reporting — create a flag against a location, drink, review, or user. */
+    val flag: IFlagService = when (MODE) {
+        Mode.HARD_CODE  -> FlagServiceHardCode()
+        Mode.API,
+        Mode.PERSISTENT -> FlagServiceApi()
     }
 }
