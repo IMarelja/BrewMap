@@ -20,8 +20,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import hr.algebra.mobileapp.MainActivity
 import hr.algebra.mobileapp.R
-import hr.algebra.mobileapp.models.Location
-import hr.algebra.mobileapp.models.Pin
+import hr.algebra.mobileapp.models.location.Location
+import hr.algebra.mobileapp.models.location.Pin
 import hr.algebra.mobileapp.service.ServiceProvider
 import hr.algebra.mobileapp.state.MapViewportStore
 import kotlinx.coroutines.launch

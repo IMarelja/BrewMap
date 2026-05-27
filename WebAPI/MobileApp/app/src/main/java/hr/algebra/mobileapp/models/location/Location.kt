@@ -1,4 +1,4 @@
-package hr.algebra.mobileapp.models
+package hr.algebra.mobileapp.models.location
 
 /**
  * Mirrors `ReadLocation` from the BrewMap API.

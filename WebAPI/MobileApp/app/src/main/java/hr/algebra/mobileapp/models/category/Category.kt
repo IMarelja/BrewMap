@@ -1,4 +1,4 @@
-package hr.algebra.mobileapp.models
+package hr.algebra.mobileapp.models.category
 
 /**
  * Mirrors `ReadCategory` DTO from the BrewMap API.

@@ -2,6 +2,10 @@ package hr.algebra.mobileapp.service.location
 
 import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.models.*
+import hr.algebra.mobileapp.models.location.CreateLocationRequest
+import hr.algebra.mobileapp.models.location.Location
+import hr.algebra.mobileapp.models.location.Pin
+import hr.algebra.mobileapp.models.location.UpdateLocationRequest
 import hr.algebra.mobileapp.service.HardCodeData
 import java.time.Instant
 import kotlin.math.*
@@ -53,20 +57,20 @@ class LocationServiceHardCode(private val data: HardCodeData) : ILocationService
     override suspend fun create(request: CreateLocationRequest): ServiceResult<Location> {
         val now = Instant.now().toString()
         val location = Location(
-            id                = "hc-loc-${System.currentTimeMillis()}",
-            name              = request.name,
-            description       = request.description,
-            address           = request.address,
-            longitude         = request.longitude,
-            latitude          = request.latitude,
-            categoryTag       = request.categoryTag,
+            id = "hc-loc-${System.currentTimeMillis()}",
+            name = request.name,
+            description = request.description,
+            address = request.address,
+            longitude = request.longitude,
+            latitude = request.latitude,
+            categoryTag = request.categoryTag,
             paymentOptionTags = request.paymentOptionTags,
-            openingHours      = request.openingHours,
-            contact           = request.contact,
-            isActive          = true,
-            averageRating     = 0.0,
-            totalReviews      = 0,
-            createdAt         = now
+            openingHours = request.openingHours,
+            contact = request.contact,
+            isActive = true,
+            averageRating = 0.0,
+            totalReviews = 0,
+            createdAt = now
         )
         data.locations.add(location)
         return ServiceResult.success(location)

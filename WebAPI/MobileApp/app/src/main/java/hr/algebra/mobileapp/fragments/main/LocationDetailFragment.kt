@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import hr.algebra.mobileapp.R
-import hr.algebra.mobileapp.models.Location
+import hr.algebra.mobileapp.models.location.Location
 import hr.algebra.mobileapp.service.ServiceProvider
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll

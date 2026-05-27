@@ -4,7 +4,7 @@ import android.util.Log
 import com.google.gson.reflect.TypeToken
 import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.cache.PersistentCache
-import hr.algebra.mobileapp.models.Category
+import hr.algebra.mobileapp.models.category.Category
 
 /**
  * **Cache-aside** category service — serves data from [PersistentCache] when

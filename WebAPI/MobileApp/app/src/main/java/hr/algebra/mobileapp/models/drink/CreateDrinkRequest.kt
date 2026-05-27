@@ -1,4 +1,4 @@
-package hr.algebra.mobileapp.models
+package hr.algebra.mobileapp.models.drink
 
 /** Request body for `POST api/Drink`. */
 data class CreateDrinkRequest(

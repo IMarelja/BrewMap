@@ -4,7 +4,7 @@ import android.util.Log
 import com.google.gson.reflect.TypeToken
 import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.cache.PersistentCache
-import hr.algebra.mobileapp.models.PaymentOption
+import hr.algebra.mobileapp.models.paymentoption.PaymentOption
 
 /**
  * **Cache-aside** payment option service — serves data from [PersistentCache]

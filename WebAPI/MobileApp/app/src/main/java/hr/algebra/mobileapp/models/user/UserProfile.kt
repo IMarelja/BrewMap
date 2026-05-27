@@ -1,4 +1,4 @@
-package hr.algebra.mobileapp.models
+package hr.algebra.mobileapp.models.user
 
 /** Own profile — mirrors `MyUserProfileRead` from the BrewMap API. */
 data class UserProfile(

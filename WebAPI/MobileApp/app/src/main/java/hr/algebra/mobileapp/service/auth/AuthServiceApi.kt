@@ -8,7 +8,7 @@ import hr.algebra.mobileapp.api.API
 import hr.algebra.mobileapp.api.ApiResult
 import hr.algebra.mobileapp.api.HttpMethod
 import hr.algebra.mobileapp.auth.TokenManager
-import hr.algebra.mobileapp.models.AuthResponse
+import hr.algebra.mobileapp.models.auth.AuthResponse
 
 /**
  * **Production** auth service — delegates every call to the BrewMap REST API.

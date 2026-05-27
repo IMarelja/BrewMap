@@ -1,4 +1,4 @@
-package hr.algebra.mobileapp.models
+package hr.algebra.mobileapp.models.review
 
 /**
  * Mirrors `ReadReview` DTO from the BrewMap API.

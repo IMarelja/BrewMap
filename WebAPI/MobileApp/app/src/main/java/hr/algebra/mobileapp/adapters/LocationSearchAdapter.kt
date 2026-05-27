@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import hr.algebra.mobileapp.R
-import hr.algebra.mobileapp.models.Location
+import hr.algebra.mobileapp.models.location.Location
 
 class LocationSearchAdapter(
     private val onLocationClick: (Location) -> Unit

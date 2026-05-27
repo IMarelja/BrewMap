@@ -1,4 +1,4 @@
-package hr.algebra.mobileapp.models
+package hr.algebra.mobileapp.models.drink
 
 /**
  * Mirrors `ReadDrink` DTO from the BrewMap API.

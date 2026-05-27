@@ -1,4 +1,4 @@
-package hr.algebra.mobileapp.models
+package hr.algebra.mobileapp.models.paymentoption
 
 /**
  * Mirrors `ReadPaymentOption` DTO from the BrewMap API.

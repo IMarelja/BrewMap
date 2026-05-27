@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import hr.algebra.mobileapp.R
-import hr.algebra.mobileapp.models.Review
+import hr.algebra.mobileapp.models.review.Review
 
 class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
 

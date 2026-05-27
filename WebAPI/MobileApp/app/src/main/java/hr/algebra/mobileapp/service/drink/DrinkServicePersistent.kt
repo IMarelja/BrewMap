@@ -4,9 +4,9 @@ import android.util.Log
 import com.google.gson.reflect.TypeToken
 import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.cache.PersistentCache
-import hr.algebra.mobileapp.models.BestDrink
-import hr.algebra.mobileapp.models.CreateDrinkRequest
-import hr.algebra.mobileapp.models.Drink
+import hr.algebra.mobileapp.models.drink.BestDrink
+import hr.algebra.mobileapp.models.drink.CreateDrinkRequest
+import hr.algebra.mobileapp.models.drink.Drink
 
 /**
  * **Cache-aside** drink service.

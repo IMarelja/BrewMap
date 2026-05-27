@@ -1,7 +1,7 @@
 package hr.algebra.mobileapp.service.flag
 
 import hr.algebra.mobileapp.api.ServiceResult
-import hr.algebra.mobileapp.models.Flag
+import hr.algebra.mobileapp.models.flag.Flag
 
 /**
  * Contract for the user-facing flag (report) operation.

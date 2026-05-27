@@ -1,6 +1,6 @@
 package hr.algebra.mobileapp.service.auth
 
-import hr.algebra.mobileapp.models.AuthResponse
+import hr.algebra.mobileapp.models.auth.AuthResponse
 
 /**
  * Contract for authentication operations.

@@ -1,7 +1,7 @@
 package hr.algebra.mobileapp.service.category
 
 import hr.algebra.mobileapp.api.ServiceResult
-import hr.algebra.mobileapp.models.Category
+import hr.algebra.mobileapp.models.category.Category
 import hr.algebra.mobileapp.service.HardCodeData
 
 /**

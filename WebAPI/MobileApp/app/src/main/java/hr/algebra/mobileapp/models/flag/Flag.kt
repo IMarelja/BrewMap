@@ -1,4 +1,4 @@
-package hr.algebra.mobileapp.models
+package hr.algebra.mobileapp.models.flag
 
 /**
  * Identifies the reported entity.

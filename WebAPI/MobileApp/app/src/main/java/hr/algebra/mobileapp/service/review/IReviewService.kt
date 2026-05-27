@@ -1,7 +1,7 @@
 package hr.algebra.mobileapp.service.review
 
 import hr.algebra.mobileapp.api.ServiceResult
-import hr.algebra.mobileapp.models.Review
+import hr.algebra.mobileapp.models.review.Review
 
 /**
  * Contract for review read **and write** operations.

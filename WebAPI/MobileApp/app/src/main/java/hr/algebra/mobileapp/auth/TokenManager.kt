@@ -55,7 +55,7 @@ object TokenManager {
     /**
      * Store a JWT returned by the API.
      *
-     * @param token      raw JWT string from [hr.algebra.mobileapp.models.AuthResponse]
+     * @param token      raw JWT string from [hr.algebra.mobileapp.models.auth.AuthResponse]
      * @param rememberMe when true the token is written to encrypted on-device
      *                   storage; when false it lives only for this process lifetime.
      *                   Defaults to **true** to match the client-side convention.

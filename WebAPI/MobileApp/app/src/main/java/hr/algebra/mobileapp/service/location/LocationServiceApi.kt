@@ -6,10 +6,10 @@ import hr.algebra.mobileapp.api.API
 import hr.algebra.mobileapp.api.HttpMethod
 import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.api.toServiceResult
-import hr.algebra.mobileapp.models.CreateLocationRequest
-import hr.algebra.mobileapp.models.Location
-import hr.algebra.mobileapp.models.Pin
-import hr.algebra.mobileapp.models.UpdateLocationRequest
+import hr.algebra.mobileapp.models.location.CreateLocationRequest
+import hr.algebra.mobileapp.models.location.Location
+import hr.algebra.mobileapp.models.location.Pin
+import hr.algebra.mobileapp.models.location.UpdateLocationRequest
 import java.net.URLEncoder
 
 /**

@@ -6,9 +6,9 @@ import hr.algebra.mobileapp.api.API
 import hr.algebra.mobileapp.api.HttpMethod
 import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.api.toServiceResult
-import hr.algebra.mobileapp.models.BestDrink
-import hr.algebra.mobileapp.models.CreateDrinkRequest
-import hr.algebra.mobileapp.models.Drink
+import hr.algebra.mobileapp.models.drink.BestDrink
+import hr.algebra.mobileapp.models.drink.CreateDrinkRequest
+import hr.algebra.mobileapp.models.drink.Drink
 
 /**
  * **Production** drink service — delegates every call to the BrewMap REST API.

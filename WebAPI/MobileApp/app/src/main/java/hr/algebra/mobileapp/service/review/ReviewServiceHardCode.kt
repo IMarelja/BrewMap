@@ -3,7 +3,7 @@ package hr.algebra.mobileapp.service.review
 import android.util.Log
 import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.auth.TokenManager
-import hr.algebra.mobileapp.models.Review
+import hr.algebra.mobileapp.models.review.Review
 import hr.algebra.mobileapp.service.HardCodeData
 import java.time.Instant
 

@@ -2,8 +2,8 @@ package hr.algebra.mobileapp.service.flag
 
 import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.auth.TokenManager
-import hr.algebra.mobileapp.models.Flag
-import hr.algebra.mobileapp.models.ReportTarget
+import hr.algebra.mobileapp.models.flag.Flag
+import hr.algebra.mobileapp.models.flag.ReportTarget
 import java.time.Instant
 
 /**

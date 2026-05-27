@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import hr.algebra.mobileapp.R
-import hr.algebra.mobileapp.models.Drink
+import hr.algebra.mobileapp.models.drink.Drink
 
 class DrinkAdapter : RecyclerView.Adapter<DrinkAdapter.DrinkViewHolder>() {
 

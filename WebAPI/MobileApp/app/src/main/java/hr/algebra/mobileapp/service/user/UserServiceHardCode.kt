@@ -2,8 +2,8 @@ package hr.algebra.mobileapp.service.user
 
 import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.auth.TokenManager
-import hr.algebra.mobileapp.models.StrangerProfile
-import hr.algebra.mobileapp.models.UserProfile
+import hr.algebra.mobileapp.models.user.StrangerProfile
+import hr.algebra.mobileapp.models.user.UserProfile
 import hr.algebra.mobileapp.service.HardCodeData
 
 /**

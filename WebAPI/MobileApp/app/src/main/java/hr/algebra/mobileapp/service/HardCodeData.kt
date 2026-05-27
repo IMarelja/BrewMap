@@ -1,13 +1,13 @@
 package hr.algebra.mobileapp.service
 
-import hr.algebra.mobileapp.models.Address
-import hr.algebra.mobileapp.models.AggregatedRating
-import hr.algebra.mobileapp.models.Category
-import hr.algebra.mobileapp.models.DayOpeningHours
-import hr.algebra.mobileapp.models.Drink
-import hr.algebra.mobileapp.models.Location
-import hr.algebra.mobileapp.models.PaymentOption
-import hr.algebra.mobileapp.models.Review
+import hr.algebra.mobileapp.models.location.Address
+import hr.algebra.mobileapp.models.drink.AggregatedRating
+import hr.algebra.mobileapp.models.category.Category
+import hr.algebra.mobileapp.models.location.DayOpeningHours
+import hr.algebra.mobileapp.models.drink.Drink
+import hr.algebra.mobileapp.models.location.Location
+import hr.algebra.mobileapp.models.paymentoption.PaymentOption
+import hr.algebra.mobileapp.models.review.Review
 
 /**
  * Shared in-memory seed data for all hard-code service stubs.

@@ -6,8 +6,8 @@ import hr.algebra.mobileapp.api.API
 import hr.algebra.mobileapp.api.HttpMethod
 import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.api.toServiceResult
-import hr.algebra.mobileapp.models.StrangerProfile
-import hr.algebra.mobileapp.models.UserProfile
+import hr.algebra.mobileapp.models.user.StrangerProfile
+import hr.algebra.mobileapp.models.user.UserProfile
 
 /**
  * **Production** user service — delegates every call to the BrewMap REST API.

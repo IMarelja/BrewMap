@@ -3,7 +3,7 @@ package hr.algebra.mobileapp.service.auth
 import android.util.Base64
 import android.util.Log
 import android.util.Patterns
-import hr.algebra.mobileapp.models.AuthResponse
+import hr.algebra.mobileapp.models.auth.AuthResponse
 import hr.algebra.mobileapp.service.HardCodeData
 
 /**

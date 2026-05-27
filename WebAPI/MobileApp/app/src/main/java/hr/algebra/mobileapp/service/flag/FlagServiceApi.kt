@@ -6,7 +6,7 @@ import hr.algebra.mobileapp.api.API
 import hr.algebra.mobileapp.api.HttpMethod
 import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.api.toServiceResult
-import hr.algebra.mobileapp.models.Flag
+import hr.algebra.mobileapp.models.flag.Flag
 
 /**
  * **Production** flag service — delegates to `POST api/Flag`.

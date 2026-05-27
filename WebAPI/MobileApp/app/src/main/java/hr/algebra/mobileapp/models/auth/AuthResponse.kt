@@ -1,4 +1,4 @@
-package hr.algebra.mobileapp.models
+package hr.algebra.mobileapp.models.auth
 
 data class AuthResponse(
     val success: Boolean,

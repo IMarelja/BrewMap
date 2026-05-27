@@ -1,7 +1,7 @@
 package hr.algebra.mobileapp.service.paymentoption
 
 import hr.algebra.mobileapp.api.ServiceResult
-import hr.algebra.mobileapp.models.PaymentOption
+import hr.algebra.mobileapp.models.paymentoption.PaymentOption
 
 /**
  * Contract for payment option read operations.

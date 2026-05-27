@@ -2,10 +2,10 @@ package hr.algebra.mobileapp.service.drink
 
 import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.auth.TokenManager
-import hr.algebra.mobileapp.models.AggregatedRating
-import hr.algebra.mobileapp.models.BestDrink
-import hr.algebra.mobileapp.models.CreateDrinkRequest
-import hr.algebra.mobileapp.models.Drink
+import hr.algebra.mobileapp.models.drink.AggregatedRating
+import hr.algebra.mobileapp.models.drink.BestDrink
+import hr.algebra.mobileapp.models.drink.CreateDrinkRequest
+import hr.algebra.mobileapp.models.drink.Drink
 import hr.algebra.mobileapp.service.HardCodeData
 import java.time.Instant
 
