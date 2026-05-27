@@ -17,10 +17,18 @@ package hr.algebra.mobileapp.api
  */
 sealed class ApiResult<out T> {
 
-    data class Success<T>(val data: T)                    : ApiResult<T>()
-    data class HttpError(val code: Int, val body: String) : ApiResult<Nothing>()
-    object Unauthorized                                   : ApiResult<Nothing>()
-    data class NetworkError(val cause: Exception)         : ApiResult<Nothing>()
+    data class Success<T>(val data: T)                        : ApiResult<T>()
+    data class HttpError(val code: Int, val body: String)     : ApiResult<Nothing>()
+    object Unauthorized                                       : ApiResult<Nothing>()
+    /**
+     * A 401 response whose body was successfully deserialized into [T].
+     *
+     * Only returned when the call site passes `allowUnauthorizedBody = true`
+     * (e.g. Auth/login and Auth/register, where 401 means "bad credentials"
+     * rather than "session expired"). The token is **not** cleared in this path.
+     */
+    data class UnauthorizedSpecial<out T>(val data: T)        : ApiResult<T>()
+    data class NetworkError(val cause: Exception)             : ApiResult<Nothing>()
 
     /**
      * Returns [Success.data], or throws an [Exception] describing the failure.
@@ -28,9 +36,10 @@ sealed class ApiResult<out T> {
      * Use in service implementations where callers already use `try / catch`.
      */
     fun getOrThrow(): T = when (this) {
-        is Success      -> data
-        is HttpError    -> throw Exception("HTTP $code: $body")
-        is Unauthorized -> throw Exception("Session expired — please log in again")
-        is NetworkError -> throw cause
+        is Success             -> data
+        is HttpError           -> throw Exception("HTTP $code: $body")
+        is Unauthorized        -> throw Exception("Session expired — please log in again")
+        is UnauthorizedSpecial -> data   // body is typed; caller checks success flag
+        is NetworkError        -> throw cause
     }
 }

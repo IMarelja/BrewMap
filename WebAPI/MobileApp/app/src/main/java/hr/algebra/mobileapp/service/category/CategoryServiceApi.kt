@@ -4,6 +4,8 @@ import android.util.Log
 import com.google.gson.reflect.TypeToken
 import hr.algebra.mobileapp.api.API
 import hr.algebra.mobileapp.api.HttpMethod
+import hr.algebra.mobileapp.api.ServiceResult
+import hr.algebra.mobileapp.api.toServiceResult
 import hr.algebra.mobileapp.models.Category
 
 /**
@@ -11,40 +13,32 @@ import hr.algebra.mobileapp.models.Category
  *
  * All endpoints require a valid JWT; the token is injected automatically by
  * [hr.algebra.mobileapp.api.API.createClient] via [hr.algebra.mobileapp.auth.TokenManager].
- *
- * Base URL is read from `res/values/strings.xml` → `api_base_url`.
  */
 class CategoryServiceApi : ICategoryService {
 
     // ── GET api/Category ──────────────────────────────────────────────────────
 
-    override suspend fun getAll(): List<Category> {
+    override suspend fun getAll(): ServiceResult<List<Category>> {
         val client = API.createClient()
-        val res = client.request(
+        val result = client.request(
             endpoint     = "Category",
             method       = HttpMethod.GET,
             responseType = object : TypeToken<List<Category>>() {}
-        ).getOrThrow()
-        Log.d("CategoryServiceApi", "getAll() → ${res.size} categories")
-        return res
+        ).toServiceResult("Could not load categories.")
+        Log.d("CategoryServiceApi", "getAll() → success=${result.isSuccess}")
+        return result
     }
 
     // ── GET api/Category/{tag} ────────────────────────────────────────────────
 
-    override suspend fun getByTag(tag: String): Category? {
-        return try {
-            val client = API.createClient()
-            val res = client.request(
-                endpoint     = "Category/$tag",
-                method       = HttpMethod.GET,
-                responseType = object : TypeToken<Category>() {}
-            ).getOrThrow()
-            Log.d("CategoryServiceApi", "getByTag($tag) → $res")
-            res
-        } catch (e: Exception) {
-            // 404 — tag not found
-            Log.d("CategoryServiceApi", "getByTag($tag) → null (${e.message})")
-            null
-        }
+    override suspend fun getByTag(tag: String): ServiceResult<Category?> {
+        val client = API.createClient()
+        val result = client.request(
+            endpoint     = "Category/$tag",
+            method       = HttpMethod.GET,
+            responseType = object : TypeToken<Category?>() {}
+        ).toServiceResult(treatNotFoundAsEmpty = true)
+        Log.d("CategoryServiceApi", "getByTag($tag) → data=${result.data}")
+        return result
     }
 }

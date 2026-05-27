@@ -1,5 +1,6 @@
 package hr.algebra.mobileapp.service.drink
 
+import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.auth.TokenManager
 import hr.algebra.mobileapp.models.AggregatedRating
 import hr.algebra.mobileapp.models.BestDrink
@@ -17,23 +18,26 @@ class DrinkServiceHardCode(private val data: HardCodeData) : IDrinkService {
 
     // ── Read ──────────────────────────────────────────────────────────────────
 
-    override suspend fun getById(id: String): Drink =
-        data.drinks.find { it.id == id }
-            ?: throw NoSuchElementException("Drink not found: $id")
+    override suspend fun getById(id: String): ServiceResult<Drink> {
+        val drink = data.drinks.find { it.id == id }
+            ?: return ServiceResult.failure("Drink not found: $id")
+        return ServiceResult.success(drink)
+    }
 
-    override suspend fun getByLocationId(locationId: String): List<Drink> =
-        data.drinks.filter { it.availableAtLocationId == locationId }
+    override suspend fun getByLocationId(locationId: String): ServiceResult<List<Drink>> =
+        ServiceResult.success(data.drinks.filter { it.availableAtLocationId == locationId })
 
-    override suspend fun getBestDrinkByLocationId(locationId: String): BestDrink? {
-        return data.drinks
+    override suspend fun getBestDrinkByLocationId(locationId: String): ServiceResult<BestDrink?> {
+        val best = data.drinks
             .filter { it.availableAtLocationId == locationId && it.aggregatedRating.count > 0 }
             .maxByOrNull { it.aggregatedRating.average }
             ?.let { BestDrink(id = it.id, name = it.name, rating = it.aggregatedRating.average) }
+        return ServiceResult.success(best)
     }
 
     // ── Write ─────────────────────────────────────────────────────────────────
 
-    override suspend fun create(request: CreateDrinkRequest): Drink {
+    override suspend fun create(request: CreateDrinkRequest): ServiceResult<Drink> {
         val now = Instant.now().toString()
         val drink = Drink(
             id                    = "hc-drk-${System.currentTimeMillis()}",
@@ -46,18 +50,18 @@ class DrinkServiceHardCode(private val data: HardCodeData) : IDrinkService {
             aggregatedRating      = AggregatedRating(average = 0.0, count = 0)
         )
         data.drinks.add(drink)
-        return drink
+        return ServiceResult.success(drink)
     }
 
-    override suspend fun update(id: String, name: String, description: String?): Drink {
+    override suspend fun update(id: String, name: String, description: String?): ServiceResult<Drink> {
         val index = data.drinks.indexOfFirst { it.id == id }
-        if (index == -1) throw NoSuchElementException("Drink not found: $id")
+        if (index == -1) return ServiceResult.failure("Drink not found: $id")
         val updated = data.drinks[index].copy(
             name        = name,
             description = description,
             updatedAt   = Instant.now().toString()
         )
         data.drinks[index] = updated
-        return updated
+        return ServiceResult.success(updated)
     }
 }

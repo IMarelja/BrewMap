@@ -2,6 +2,7 @@ package hr.algebra.mobileapp.service.category
 
 import android.util.Log
 import com.google.gson.reflect.TypeToken
+import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.cache.PersistentCache
 import hr.algebra.mobileapp.models.Category
 
@@ -24,35 +25,36 @@ class CategoryServicePersistent : ICategoryService {
 
     private val api = CategoryServiceApi()
 
-    // ── ICategoryService ──────────────────────────────────────────────────────
-
-    override suspend fun getAll(): List<Category> {
+    override suspend fun getAll(): ServiceResult<List<Category>> {
         val key  = "category_all"
         val type = object : TypeToken<List<Category>>() {}
 
         PersistentCache.get(key, type)?.let {
             Log.d("CategoryServicePersistent", "cache hit: getAll() → ${it.size}")
-            return it
+            return ServiceResult.success(it)
         }
 
-        val fresh = api.getAll()
-        PersistentCache.put(key, fresh, PersistentCache.TTL_CATEGORIES)
-        return fresh
+        val result = api.getAll()
+        if (result.isSuccess && result.data != null) {
+            PersistentCache.put(key, result.data, PersistentCache.TTL_CATEGORIES)
+        }
+        return result
     }
 
-    override suspend fun getByTag(tag: String): Category? {
+    override suspend fun getByTag(tag: String): ServiceResult<Category?> {
         val key  = "category_$tag"
         val type = object : TypeToken<Category>() {}
 
         PersistentCache.get(key, type)?.let {
             Log.d("CategoryServicePersistent", "cache hit: getByTag($tag)")
-            return it
+            return ServiceResult.success(it)
         }
 
-        val fresh = api.getByTag(tag)
-        if (fresh != null) {
-            PersistentCache.put(key, fresh, PersistentCache.TTL_CATEGORIES)
+        val result = api.getByTag(tag)
+        // data == null means "tag not found" — valid, do not cache null so we re-check next time
+        if (result.isSuccess && result.data != null) {
+            PersistentCache.put(key, result.data, PersistentCache.TTL_CATEGORIES)
         }
-        return fresh
+        return result
     }
 }

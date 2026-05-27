@@ -1,5 +1,6 @@
 package hr.algebra.mobileapp.service.flag
 
+import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.models.Flag
 
 /**
@@ -8,6 +9,9 @@ import hr.algebra.mobileapp.models.Flag
  * Two implementations:
  *  - [FlagServiceApi]      — live BrewMap REST API (requires auth token)
  *  - [FlagServiceHardCode] — in-memory stub, no network
+ *
+ * Every method returns [ServiceResult]<T>. On success [ServiceResult.data] holds the result;
+ * on failure [ServiceResult.errors] contains one or more human-readable messages.
  */
 interface IFlagService {
 
@@ -24,5 +28,5 @@ interface IFlagService {
         targetId: String,
         reason: String,
         description: String?
-    ): Flag
+    ): ServiceResult<Flag>
 }

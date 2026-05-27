@@ -2,6 +2,7 @@ package hr.algebra.mobileapp.service.location
 
 import android.util.Log
 import com.google.gson.reflect.TypeToken
+import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.cache.PersistentCache
 import hr.algebra.mobileapp.models.CreateLocationRequest
 import hr.algebra.mobileapp.models.Location
@@ -12,7 +13,7 @@ import hr.algebra.mobileapp.models.UpdateLocationRequest
  * **Cache-aside** location service.
  *
  * Reads are served from [PersistentCache] with a 5-minute TTL.
- * Write operations bypass the cache and invalidate related entries
+ * Write operations bypass the cache and invalidate related entries on success
  * so subsequent reads reflect the change.
  */
 class LocationServicePersistent : ILocationService {
@@ -21,16 +22,18 @@ class LocationServicePersistent : ILocationService {
 
     // ── Read ──────────────────────────────────────────────────────────────────
 
-    override suspend fun getById(id: String): Location {
+    override suspend fun getById(id: String): ServiceResult<Location> {
         val key  = "loc_id_$id"
         val type = object : TypeToken<Location>() {}
         PersistentCache.get(key, type)?.let {
             Log.d("LocationServicePersistent", "cache hit: getById($id)")
-            return it
+            return ServiceResult.success(it)
         }
-        val fresh = api.getById(id)
-        PersistentCache.put(key, fresh, PersistentCache.TTL_LOCATIONS)
-        return fresh
+        val result = api.getById(id)
+        if (result.isSuccess && result.data != null) {
+            PersistentCache.put(key, result.data, PersistentCache.TTL_LOCATIONS)
+        }
+        return result
     }
 
     override suspend fun search(
@@ -38,7 +41,7 @@ class LocationServicePersistent : ILocationService {
         query: String?, minRating: Double?, drinkQuery: String?,
         categoryTags: List<String>?, paymentOptionTags: List<String>?,
         radiusMeters: Double
-    ): List<Location> {
+    ): ServiceResult<List<Location>> {
         val key = buildString {
             append("loc_search")
             append("_${lon4(longitude)}_${lat4(latitude)}_${radiusMeters.toInt()}")
@@ -51,42 +54,50 @@ class LocationServicePersistent : ILocationService {
         val type = object : TypeToken<List<Location>>() {}
         PersistentCache.get(key, type)?.let {
             Log.d("LocationServicePersistent", "cache hit: search → ${it.size}")
-            return it
+            return ServiceResult.success(it)
         }
-        val fresh = api.search(longitude, latitude, query, minRating, drinkQuery, categoryTags, paymentOptionTags, radiusMeters)
-        PersistentCache.put(key, fresh, PersistentCache.TTL_LOCATIONS)
-        return fresh
+        val result = api.search(longitude, latitude, query, minRating, drinkQuery, categoryTags, paymentOptionTags, radiusMeters)
+        if (result.isSuccess && result.data != null) {
+            PersistentCache.put(key, result.data, PersistentCache.TTL_LOCATIONS)
+        }
+        return result
     }
 
     override suspend fun getPins(
         minLon: Double, maxLon: Double,
         minLat: Double, maxLat: Double
-    ): List<Pin> {
+    ): ServiceResult<List<Pin>> {
         val key  = "loc_pins_${lon4(minLon)}_${lon4(maxLon)}_${lat4(minLat)}_${lat4(maxLat)}"
         val type = object : TypeToken<List<Pin>>() {}
         PersistentCache.get(key, type)?.let {
             Log.d("LocationServicePersistent", "cache hit: getPins → ${it.size}")
-            return it
+            return ServiceResult.success(it)
         }
-        val fresh = api.getPins(minLon, maxLon, minLat, maxLat)
-        PersistentCache.put(key, fresh, PersistentCache.TTL_LOCATIONS)
-        return fresh
+        val result = api.getPins(minLon, maxLon, minLat, maxLat)
+        if (result.isSuccess && result.data != null) {
+            PersistentCache.put(key, result.data, PersistentCache.TTL_LOCATIONS)
+        }
+        return result
     }
 
     // ── Write — bypass cache, invalidate on success ───────────────────────────
 
-    override suspend fun create(request: CreateLocationRequest): Location {
+    override suspend fun create(request: CreateLocationRequest): ServiceResult<Location> {
         val result = api.create(request)
-        // Invalidate pin/search caches — new location should appear on next fetch
-        PersistentCache.clear()
+        if (result.isSuccess) {
+            // Invalidate pin/search caches — new location should appear on next fetch
+            PersistentCache.clear()
+        }
         return result
     }
 
-    override suspend fun update(id: String, request: UpdateLocationRequest): Location {
+    override suspend fun update(id: String, request: UpdateLocationRequest): ServiceResult<Location> {
         val result = api.update(id, request)
-        PersistentCache.remove("loc_id_$id")
-        // Searches may have cached this location's old data
-        PersistentCache.clear()
+        if (result.isSuccess) {
+            PersistentCache.remove("loc_id_$id")
+            // Searches may have cached this location's old data
+            PersistentCache.clear()
+        }
         return result
     }
 

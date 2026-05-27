@@ -2,6 +2,7 @@ package hr.algebra.mobileapp.service.review
 
 import android.util.Log
 import com.google.gson.reflect.TypeToken
+import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.cache.PersistentCache
 import hr.algebra.mobileapp.models.Review
 
@@ -23,78 +24,96 @@ class ReviewServicePersistent : IReviewService {
 
     // ── Read ──────────────────────────────────────────────────────────────────
 
-    override suspend fun getById(id: String): Review? {
+    override suspend fun getById(id: String): ServiceResult<Review?> {
         val key  = "review_id_$id"
         val type = object : TypeToken<Review>() {}
         PersistentCache.get(key, type)?.let {
             Log.d("ReviewServicePersistent", "cache hit: getById($id)")
-            return it
+            return ServiceResult.success(it)
         }
-        val fresh = api.getById(id)
-        if (fresh != null) PersistentCache.put(key, fresh, TTL_REVIEWS)
-        return fresh
+        val result = api.getById(id)
+        // data == null means "review not found" — valid, do not cache null
+        if (result.isSuccess && result.data != null) {
+            PersistentCache.put(key, result.data, TTL_REVIEWS)
+        }
+        return result
     }
 
-    override suspend fun getByLocationId(locationId: String): List<Review> {
+    override suspend fun getByLocationId(locationId: String): ServiceResult<List<Review>> {
         val key  = "review_loc_$locationId"
         val type = object : TypeToken<List<Review>>() {}
         PersistentCache.get(key, type)?.let {
             Log.d("ReviewServicePersistent", "cache hit: getByLocationId($locationId)")
-            return it
+            return ServiceResult.success(it)
         }
-        val fresh = api.getByLocationId(locationId)
-        PersistentCache.put(key, fresh, TTL_REVIEWS)
-        return fresh
+        val result = api.getByLocationId(locationId)
+        if (result.isSuccess && result.data != null) {
+            PersistentCache.put(key, result.data, TTL_REVIEWS)
+        }
+        return result
     }
 
-    override suspend fun getByDrinkId(drinkId: String): List<Review> {
+    override suspend fun getByDrinkId(drinkId: String): ServiceResult<List<Review>> {
         val key  = "review_drink_$drinkId"
         val type = object : TypeToken<List<Review>>() {}
         PersistentCache.get(key, type)?.let {
             Log.d("ReviewServicePersistent", "cache hit: getByDrinkId($drinkId)")
-            return it
+            return ServiceResult.success(it)
         }
-        val fresh = api.getByDrinkId(drinkId)
-        PersistentCache.put(key, fresh, TTL_REVIEWS)
-        return fresh
+        val result = api.getByDrinkId(drinkId)
+        if (result.isSuccess && result.data != null) {
+            PersistentCache.put(key, result.data, TTL_REVIEWS)
+        }
+        return result
     }
 
-    override suspend fun getMyReviews(): List<Review> = api.getMyReviews()
+    override suspend fun getMyReviews(): ServiceResult<List<Review>> = api.getMyReviews()
 
-    override suspend fun getByUserId(userId: String): List<Review> {
+    override suspend fun getByUserId(userId: String): ServiceResult<List<Review>> {
         val key  = "review_user_$userId"
         val type = object : TypeToken<List<Review>>() {}
         PersistentCache.get(key, type)?.let {
             Log.d("ReviewServicePersistent", "cache hit: getByUserId($userId)")
-            return it
+            return ServiceResult.success(it)
         }
-        val fresh = api.getByUserId(userId)
-        PersistentCache.put(key, fresh, TTL_REVIEWS)
-        return fresh
+        val result = api.getByUserId(userId)
+        if (result.isSuccess && result.data != null) {
+            PersistentCache.put(key, result.data, TTL_REVIEWS)
+        }
+        return result
     }
 
     // ── Write — bypass cache, invalidate on success ───────────────────────────
 
-    override suspend fun createForLocation(locationId: String, rating: Int, comment: String?): Review {
+    override suspend fun createForLocation(locationId: String, rating: Int, comment: String?): ServiceResult<Review> {
         val result = api.createForLocation(locationId, rating, comment)
-        PersistentCache.remove("review_loc_$locationId")   // next read will refetch
+        if (result.isSuccess) {
+            PersistentCache.remove("review_loc_$locationId")
+        }
         return result
     }
 
-    override suspend fun createForDrink(drinkId: String, rating: Int, comment: String?): Review {
+    override suspend fun createForDrink(drinkId: String, rating: Int, comment: String?): ServiceResult<Review> {
         val result = api.createForDrink(drinkId, rating, comment)
-        PersistentCache.remove("review_drink_$drinkId")
+        if (result.isSuccess) {
+            PersistentCache.remove("review_drink_$drinkId")
+        }
         return result
     }
 
-    override suspend fun update(reviewId: String, rating: Int?, comment: String?): Review {
+    override suspend fun update(reviewId: String, rating: Int?, comment: String?): ServiceResult<Review> {
         val result = api.update(reviewId, rating, comment)
-        PersistentCache.remove("review_id_$reviewId")
+        if (result.isSuccess) {
+            PersistentCache.remove("review_id_$reviewId")
+        }
         return result
     }
 
-    override suspend fun delete(reviewId: String) {
-        api.delete(reviewId)
-        PersistentCache.remove("review_id_$reviewId")
+    override suspend fun delete(reviewId: String): ServiceResult<Unit> {
+        val result = api.delete(reviewId)
+        if (result.isSuccess) {
+            PersistentCache.remove("review_id_$reviewId")
+        }
+        return result
     }
 }

@@ -56,21 +56,26 @@ class LocationReviewsListFragment : Fragment() {
         tvReviewState.text = "Loading reviews..."
 
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val reviews = ServiceProvider.review.getByLocationId(locationId)
-                reviewAdapter.submitData(reviews)
-                rvReviews.post { rvReviews.requestLayout() }
-                tvReviewState.text = if (reviews.isEmpty()) {
-                    "No reviews for this location"
-                } else {
-                    "${reviews.size} reviews loaded"
+            val result = ServiceProvider.review.getByLocationId(locationId)
+            when {
+                result.isUnauthorized      -> { /* MainActivity navigating to login */ }
+                result.isNetworkError      -> tvReviewState.text = "No connection. Please check your internet."
+                result.errors.isNotEmpty() -> {
+                    reviewAdapter.submitData(emptyList())
+                    tvReviewState.text = result.errorMessage()
                 }
-            } catch (_: Exception) {
-                reviewAdapter.submitData(emptyList())
-                tvReviewState.text = "Failed to load reviews"
-            } finally {
-                progressReviews.visibility = View.GONE
+                else -> {
+                    val reviews = result.data!!
+                    reviewAdapter.submitData(reviews)
+                    rvReviews.post { rvReviews.requestLayout() }
+                    tvReviewState.text = if (reviews.isEmpty()) {
+                        "No reviews for this location"
+                    } else {
+                        "${reviews.size} reviews loaded"
+                    }
+                }
             }
+            progressReviews.visibility = View.GONE
         }
     }
 

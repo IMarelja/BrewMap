@@ -1,5 +1,6 @@
 package hr.algebra.mobileapp.service.user
 
+import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.auth.TokenManager
 import hr.algebra.mobileapp.models.StrangerProfile
 import hr.algebra.mobileapp.models.UserProfile
@@ -13,39 +14,44 @@ import hr.algebra.mobileapp.service.HardCodeData
  */
 class UserServiceHardCode(private val data: HardCodeData) : IUserService {
 
-    override suspend fun getMyProfile(): UserProfile {
-        val userId = TokenManager.getUserId() ?: throw IllegalStateException("Not authenticated")
-        val user   = data.users.find { it.id == userId }
-            ?: throw NoSuchElementException("User not found: $userId")
-        return UserProfile(id = user.id, username = user.username, email = user.email)
+    override suspend fun getMyProfile(): ServiceResult<UserProfile> {
+        val userId = TokenManager.getUserId()
+            ?: return ServiceResult.failure("Not authenticated")
+        val user = data.users.find { it.id == userId }
+            ?: return ServiceResult.failure("User not found")
+        return ServiceResult.success(UserProfile(id = user.id, username = user.username, email = user.email))
     }
 
-    override suspend fun getUserById(id: String): StrangerProfile {
+    override suspend fun getUserById(id: String): ServiceResult<StrangerProfile> {
         val user = data.users.find { it.id == id }
-            ?: throw NoSuchElementException("User not found: $id")
-        return StrangerProfile(id = user.id, username = user.username)
+            ?: return ServiceResult.failure("User not found")
+        return ServiceResult.success(StrangerProfile(id = user.id, username = user.username))
     }
 
-    override suspend fun updateEmail(newEmail: String, currentPassword: String) {
-        val userId = TokenManager.getUserId() ?: throw IllegalStateException("Not authenticated")
-        val index  = data.users.indexOfFirst { it.id == userId }
-        if (index == -1) throw NoSuchElementException("User not found: $userId")
+    override suspend fun updateEmail(newEmail: String, currentPassword: String): ServiceResult<Unit> {
+        val userId = TokenManager.getUserId()
+            ?: return ServiceResult.failure("Not authenticated")
+        val index = data.users.indexOfFirst { it.id == userId }
+        if (index == -1) return ServiceResult.failure("User not found")
         val user = data.users[index]
-        if (user.password != currentPassword) throw Exception("Incorrect password")
+        if (user.password != currentPassword) return ServiceResult.failure("Incorrect password")
         data.users[index] = user.copy(email = newEmail)
+        return ServiceResult.success(Unit)
     }
 
     override suspend fun updatePassword(
         currentPassword: String,
         newPassword: String,
         confirmNewPassword: String
-    ) {
-        val userId = TokenManager.getUserId() ?: throw IllegalStateException("Not authenticated")
-        val index  = data.users.indexOfFirst { it.id == userId }
-        if (index == -1) throw NoSuchElementException("User not found: $userId")
+    ): ServiceResult<Unit> {
+        val userId = TokenManager.getUserId()
+            ?: return ServiceResult.failure("Not authenticated")
+        val index = data.users.indexOfFirst { it.id == userId }
+        if (index == -1) return ServiceResult.failure("User not found")
         val user = data.users[index]
-        if (user.password != currentPassword)  throw Exception("Incorrect current password")
-        if (newPassword != confirmNewPassword) throw Exception("Passwords do not match")
+        if (user.password != currentPassword) return ServiceResult.failure("Incorrect current password")
+        if (newPassword != confirmNewPassword) return ServiceResult.failure("Passwords do not match")
         data.users[index] = user.copy(password = newPassword)
+        return ServiceResult.success(Unit)
     }
 }

@@ -1,5 +1,6 @@
 package hr.algebra.mobileapp.service.review
 
+import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.models.Review
 
 /**
@@ -9,28 +10,32 @@ import hr.algebra.mobileapp.models.Review
  *  - [ReviewServiceApi]        — live BrewMap REST API  (requires auth token)
  *  - [ReviewServiceHardCode]   — in-memory stub, no network
  *  - [ReviewServicePersistent] — API-backed with on-device cache
+ *
+ * Every method returns [ServiceResult]<T>. On success [ServiceResult.data] holds the result;
+ * on failure [ServiceResult.errors] contains one or more human-readable messages.
  */
 interface IReviewService {
 
     // ── Read ──────────────────────────────────────────────────────────────────
 
-    suspend fun getById(id: String): Review?
-    suspend fun getByLocationId(locationId: String): List<Review>
-    suspend fun getByDrinkId(drinkId: String): List<Review>
-    suspend fun getMyReviews(): List<Review>
-    suspend fun getByUserId(userId: String): List<Review>
+    /** data=null when no review exists with this id (not an error). */
+    suspend fun getById(id: String): ServiceResult<Review?>
+    suspend fun getByLocationId(locationId: String): ServiceResult<List<Review>>
+    suspend fun getByDrinkId(drinkId: String): ServiceResult<List<Review>>
+    suspend fun getMyReviews(): ServiceResult<List<Review>>
+    suspend fun getByUserId(userId: String): ServiceResult<List<Review>>
 
     // ── Write ─────────────────────────────────────────────────────────────────
 
     /** `POST api/Review/location/{locationId}` — rating must be 1–5. */
-    suspend fun createForLocation(locationId: String, rating: Int, comment: String?): Review
+    suspend fun createForLocation(locationId: String, rating: Int, comment: String?): ServiceResult<Review>
 
     /** `POST api/Review/drink/{drinkId}` — rating must be 1–5. */
-    suspend fun createForDrink(drinkId: String, rating: Int, comment: String?): Review
+    suspend fun createForDrink(drinkId: String, rating: Int, comment: String?): ServiceResult<Review>
 
     /** `PUT api/Review/{id}` — pass null for fields that should not change. */
-    suspend fun update(reviewId: String, rating: Int?, comment: String?): Review
+    suspend fun update(reviewId: String, rating: Int?, comment: String?): ServiceResult<Review>
 
     /** `DELETE api/Review/{id}`. */
-    suspend fun delete(reviewId: String)
+    suspend fun delete(reviewId: String): ServiceResult<Unit>
 }

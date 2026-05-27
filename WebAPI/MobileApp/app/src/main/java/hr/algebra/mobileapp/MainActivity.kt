@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.appbar.MaterialToolbar
 import hr.algebra.mobileapp.auth.TokenManager
@@ -14,6 +15,7 @@ import hr.algebra.mobileapp.fragments.auth.LoginActivity
 import hr.algebra.mobileapp.fragments.main.LocationDetailFragment
 import hr.algebra.mobileapp.fragments.main.LocationMapFragment
 import hr.algebra.mobileapp.fragments.main.LocationSearchFragment
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,6 +35,15 @@ class MainActivity : AppCompatActivity() {
 
         toolbar = findViewById(R.id.main_toolbar)
         bottomNav = findViewById(R.id.main_bottom_nav)
+
+        // Session expiry: any service call that receives HTTP 401 emits here.
+        // Redirect to login and clear the entire back-stack so the user cannot
+        // navigate back to a protected screen without re-authenticating.
+        lifecycleScope.launch {
+            TokenManager.sessionExpiredEvent.collect {
+                logout()
+            }
+        }
 
         toolbar.setOnMenuItemClickListener {
             when (it.itemId) {

@@ -1,5 +1,6 @@
 package hr.algebra.mobileapp.service.paymentoption
 
+import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.models.PaymentOption
 import hr.algebra.mobileapp.service.HardCodeData
 
@@ -12,8 +13,9 @@ import hr.algebra.mobileapp.service.HardCodeData
  */
 class PaymentOptionServiceHardCode(private val data: HardCodeData) : IPaymentOptionService {
 
-    override suspend fun getAll(): List<PaymentOption> = data.paymentOptions
+    override suspend fun getAll(): ServiceResult<List<PaymentOption>> =
+        ServiceResult.success(data.paymentOptions)
 
-    override suspend fun getByTag(tag: String): PaymentOption? =
-        data.paymentOptions.find { it.tag.equals(tag, ignoreCase = true) }
+    override suspend fun getByTag(tag: String): ServiceResult<PaymentOption?> =
+        ServiceResult.success(data.paymentOptions.find { it.tag.equals(tag, ignoreCase = true) })
 }

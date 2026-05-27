@@ -4,6 +4,8 @@ import android.util.Log
 import com.google.gson.reflect.TypeToken
 import hr.algebra.mobileapp.api.API
 import hr.algebra.mobileapp.api.HttpMethod
+import hr.algebra.mobileapp.api.ServiceResult
+import hr.algebra.mobileapp.api.toServiceResult
 import hr.algebra.mobileapp.models.CreateLocationRequest
 import hr.algebra.mobileapp.models.Location
 import hr.algebra.mobileapp.models.Pin
@@ -17,15 +19,15 @@ class LocationServiceApi : ILocationService {
 
     // ── GET api/Locations/{id} ────────────────────────────────────────────────
 
-    override suspend fun getById(id: String): Location {
+    override suspend fun getById(id: String): ServiceResult<Location> {
         val client = API.createClient()
-        val res = client.request(
+        val result = client.request(
             endpoint     = "Locations/$id",
             method       = HttpMethod.GET,
             responseType = object : TypeToken<Location>() {}
-        ).getOrThrow()
-        Log.d("LocationServiceApi", "getById($id) → $res")
-        return res
+        ).toServiceResult("Could not load location.")
+        Log.d("LocationServiceApi", "getById($id) → success=${result.isSuccess}")
+        return result
     }
 
     // ── GET api/Locations/search ──────────────────────────────────────────────
@@ -39,7 +41,7 @@ class LocationServiceApi : ILocationService {
         categoryTags: List<String>?,
         paymentOptionTags: List<String>?,
         radiusMeters: Double
-    ): List<Location> {
+    ): ServiceResult<List<Location>> {
         val params = buildList {
             add("longitude=$longitude")
             add("latitude=$latitude")
@@ -52,13 +54,13 @@ class LocationServiceApi : ILocationService {
         }
         val endpoint = "Locations/search?" + params.joinToString("&")
         val client = API.createClient()
-        val res = client.request(
+        val result = client.request(
             endpoint     = endpoint,
             method       = HttpMethod.GET,
             responseType = object : TypeToken<List<Location>>() {}
-        ).getOrThrow()
-        Log.d("LocationServiceApi", "search → ${res.size} results")
-        return res
+        ).toServiceResult("Search failed.")
+        Log.d("LocationServiceApi", "search → success=${result.isSuccess}")
+        return result
     }
 
     // ── GET api/Locations/pins ────────────────────────────────────────────────
@@ -66,44 +68,44 @@ class LocationServiceApi : ILocationService {
     override suspend fun getPins(
         minLon: Double, maxLon: Double,
         minLat: Double, maxLat: Double
-    ): List<Pin> {
+    ): ServiceResult<List<Pin>> {
         val endpoint = "Locations/pins?minLon=$minLon&maxLon=$maxLon&minLat=$minLat&maxLat=$maxLat"
         val client = API.createClient()
-        val res = client.request(
+        val result = client.request(
             endpoint     = endpoint,
             method       = HttpMethod.GET,
             responseType = object : TypeToken<List<Pin>>() {}
-        ).getOrThrow()
-        Log.d("LocationServiceApi", "getPins → ${res.size} pins")
-        return res
+        ).toServiceResult("Could not load map pins.")
+        Log.d("LocationServiceApi", "getPins → success=${result.isSuccess}")
+        return result
     }
 
     // ── POST api/Locations ────────────────────────────────────────────────────
 
-    override suspend fun create(request: CreateLocationRequest): Location {
+    override suspend fun create(request: CreateLocationRequest): ServiceResult<Location> {
         val client = API.createClient()
-        val res = client.request(
+        val result = client.request(
             endpoint     = "Locations",
             method       = HttpMethod.POST,
             body         = request,
             responseType = object : TypeToken<Location>() {}
-        ).getOrThrow()
-        Log.d("LocationServiceApi", "create → ${res.id}")
-        return res
+        ).toServiceResult("Could not create location.")
+        Log.d("LocationServiceApi", "create → success=${result.isSuccess}")
+        return result
     }
 
     // ── PUT api/Locations/{id} ────────────────────────────────────────────────
 
-    override suspend fun update(id: String, request: UpdateLocationRequest): Location {
+    override suspend fun update(id: String, request: UpdateLocationRequest): ServiceResult<Location> {
         val client = API.createClient()
-        val res = client.request(
+        val result = client.request(
             endpoint     = "Locations/$id",
             method       = HttpMethod.PUT,
             body         = request,
             responseType = object : TypeToken<Location>() {}
-        ).getOrThrow()
-        Log.d("LocationServiceApi", "update($id) → done")
-        return res
+        ).toServiceResult("Could not update location.")
+        Log.d("LocationServiceApi", "update($id) → success=${result.isSuccess}")
+        return result
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

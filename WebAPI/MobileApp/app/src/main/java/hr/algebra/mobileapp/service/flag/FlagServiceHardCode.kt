@@ -1,5 +1,6 @@
 package hr.algebra.mobileapp.service.flag
 
+import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.auth.TokenManager
 import hr.algebra.mobileapp.models.Flag
 import hr.algebra.mobileapp.models.ReportTarget
@@ -17,8 +18,9 @@ class FlagServiceHardCode : IFlagService {
         targetId: String,
         reason: String,
         description: String?
-    ): Flag {
-        val userId = TokenManager.getUserId() ?: throw IllegalStateException("Not authenticated")
+    ): ServiceResult<Flag> {
+        val userId = TokenManager.getUserId()
+            ?: return ServiceResult.failure("Not authenticated")
         val now = Instant.now().toString()
         val flag = Flag(
             id               = "hc-flag-${System.currentTimeMillis()}",
@@ -34,6 +36,6 @@ class FlagServiceHardCode : IFlagService {
             updatedAt         = now
         )
         flags.add(flag)
-        return flag
+        return ServiceResult.success(flag)
     }
 }

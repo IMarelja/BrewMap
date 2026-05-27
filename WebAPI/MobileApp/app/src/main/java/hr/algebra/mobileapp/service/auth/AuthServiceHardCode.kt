@@ -2,7 +2,7 @@ package hr.algebra.mobileapp.service.auth
 
 import android.util.Base64
 import android.util.Log
-import hr.algebra.mobileapp.auth.TokenManager
+import android.util.Patterns
 import hr.algebra.mobileapp.models.AuthResponse
 import hr.algebra.mobileapp.service.HardCodeData
 
@@ -27,6 +27,15 @@ class AuthServiceHardCode(private val data: HardCodeData) : IAuthService {
         password: String,
         rememberMe: Boolean
     ): AuthResponse {
+        if (user.contains("@") && !isValidEmail(user)) {
+            return AuthResponse(
+                success = false,
+                token = null,
+                message = "Please enter a valid email address.",
+                statusCode = 400
+            )
+        }
+
         val match = data.users.find { it.username == user || it.email == user }
 
         if (match == null || match.password != password) {
@@ -34,7 +43,7 @@ class AuthServiceHardCode(private val data: HardCodeData) : IAuthService {
             return AuthResponse(
                 success    = false,
                 token      = null,
-                message    = "Invalid username / e-mail or password.",
+                message    = "Username/email or password are incorrect.",
                 statusCode = 401
             )
         }
@@ -54,6 +63,15 @@ class AuthServiceHardCode(private val data: HardCodeData) : IAuthService {
         username: String,
         password: String
     ): AuthResponse {
+        if (!isValidEmail(email)) {
+            return AuthResponse(
+                success = false,
+                token = null,
+                message = "Please enter a valid email address.",
+                statusCode = 400
+            )
+        }
+
         val conflict = data.users.find { it.username == username || it.email == email }
         if (conflict != null) {
             val field = if (conflict.email == email) "e-mail" else "username"
@@ -114,4 +132,7 @@ class AuthServiceHardCode(private val data: HardCodeData) : IAuthService {
             value.toByteArray(Charsets.UTF_8),
             Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING
         )
+
+    private fun isValidEmail(value: String): Boolean =
+        Patterns.EMAIL_ADDRESS.matcher(value).matches()
 }

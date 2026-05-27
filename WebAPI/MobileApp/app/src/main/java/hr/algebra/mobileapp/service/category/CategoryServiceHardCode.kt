@@ -1,5 +1,6 @@
 package hr.algebra.mobileapp.service.category
 
+import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.models.Category
 import hr.algebra.mobileapp.service.HardCodeData
 
@@ -12,10 +13,9 @@ import hr.algebra.mobileapp.service.HardCodeData
  */
 class CategoryServiceHardCode(private val data: HardCodeData) : ICategoryService {
 
-    // ── ICategoryService ──────────────────────────────────────────────────────
+    override suspend fun getAll(): ServiceResult<List<Category>> =
+        ServiceResult.success(data.categories)
 
-    override suspend fun getAll(): List<Category> = data.categories
-
-    override suspend fun getByTag(tag: String): Category? =
-        data.categories.find { it.tag.equals(tag, ignoreCase = true) }
+    override suspend fun getByTag(tag: String): ServiceResult<Category?> =
+        ServiceResult.success(data.categories.find { it.tag.equals(tag, ignoreCase = true) })
 }

@@ -121,22 +121,24 @@ class LocationDetailFragment : Fragment() {
         progressDetail.visibility = View.VISIBLE
 
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val location = ServiceProvider.location.getById(locationId)
-                val metaText = async { buildMetaText(location) }.await()
-                bindLocation(location, metaText)
-            } catch (_: Exception) {
-                Toast.makeText(requireContext(), "Failed to load location details", Toast.LENGTH_SHORT).show()
-            } finally {
-                progressDetail.visibility = View.GONE
+            val result = ServiceProvider.location.getById(locationId)
+            when {
+                result.isUnauthorized  -> { /* MainActivity already navigating to login */ }
+                result.isNetworkError  -> Toast.makeText(requireContext(), "No connection. Please check your internet.", Toast.LENGTH_SHORT).show()
+                result.errors.isNotEmpty() -> Toast.makeText(requireContext(), result.errorMessage(), Toast.LENGTH_SHORT).show()
+                else -> {
+                    val location = result.data!!
+                    val metaText = async { buildMetaText(location) }.await()
+                    bindLocation(location, metaText)
+                }
             }
+            progressDetail.visibility = View.GONE
         }
     }
 
     private suspend fun buildMetaText(location: Location): String = coroutineScope {
-        val categoryName = runCatching {
-            ServiceProvider.category.getByTag(location.categoryTag)?.name
-        }.getOrNull() ?: location.categoryTag
+        val categoryName = ServiceProvider.category.getByTag(location.categoryTag).data?.name
+            ?: location.categoryTag
 
         val paymentNames = if (location.paymentOptionTags.isEmpty()) {
             "-"
@@ -144,9 +146,7 @@ class LocationDetailFragment : Fragment() {
             location.paymentOptionTags
                 .map { tag ->
                     async {
-                        runCatching { ServiceProvider.paymentOption.getByTag(tag)?.name }
-                            .getOrNull()
-                            ?: tag
+                        ServiceProvider.paymentOption.getByTag(tag).data?.name ?: tag
                     }
                 }
                 .awaitAll()

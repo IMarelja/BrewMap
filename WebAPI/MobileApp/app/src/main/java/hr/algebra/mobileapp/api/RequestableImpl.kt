@@ -20,7 +20,8 @@ class RequestableImpl(
         method: HttpMethod,
         body: Any?,
         headers: Map<String, String>,
-        responseType: TypeToken<T>
+        responseType: TypeToken<T>,
+        allowUnauthorizedBody: Boolean
     ): ApiResult<T> {
         // Build the full URL explicitly so Ktor never mangles the path.
         // e.g. "http://host/api/" + "Auth/login" → "http://host/api/Auth/login"
@@ -58,8 +59,19 @@ class RequestableImpl(
 
             Log.d("RequestableImpl", "${method.name} $url → HTTP ${response.status.value}")
 
-            // 401: clear the stored token and signal Unauthorized immediately.
             if (response.status == HttpStatusCode.Unauthorized) {
+                if (allowUnauthorizedBody) {
+                    // Auth endpoints (login / register): 401 = "bad credentials".
+                    // Deserialize the body into T so the caller gets the API's error
+                    // message. Token is NOT cleared.
+                    val rawBody = response.bodyAsText()
+                    return try {
+                        ApiResult.UnauthorizedSpecial(gson.fromJson(rawBody, responseType.type))
+                    } catch (_: Exception) {
+                        ApiResult.Unauthorized
+                    }
+                }
+                // All other endpoints: 401 = "session expired".
                 return ApiResult.Unauthorized
             }
 

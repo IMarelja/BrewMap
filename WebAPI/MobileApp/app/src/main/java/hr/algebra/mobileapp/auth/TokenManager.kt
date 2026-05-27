@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.util.Base64
 import android.util.Log
 import hr.algebra.mobileapp.BrewMapApp
+import kotlinx.coroutines.flow.MutableSharedFlow
 import org.json.JSONObject
 
 /**
@@ -31,6 +32,15 @@ object TokenManager {
     private const val TAG        = "TokenManager"
     private const val PREFS_NAME = "brewmap_secure_prefs"
     private const val KEY_JWT    = "jwt_token"
+
+    /**
+     * Emitted by [hr.algebra.mobileapp.api.ApiResultExtensions.toServiceResult] whenever
+     * a non-auth endpoint returns HTTP 401 (session expired).
+     *
+     * Collect this in [hr.algebra.mobileapp.MainActivity] to navigate to the login
+     * screen and clear the back-stack, regardless of which fragment triggered the call.
+     */
+    val sessionExpiredEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
 
     /** In-memory cache — also used as the sole store when rememberMe = false. */
     private var memoryToken: String? = null

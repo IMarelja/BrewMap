@@ -184,21 +184,23 @@ class LocationMapFragment : Fragment() {
         progressPins.visibility = View.VISIBLE
 
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val pins = ServiceProvider.location.getPins(
-                    minLon = bounds.lonWest,
-                    maxLon = bounds.lonEast,
-                    minLat = bounds.latSouth,
-                    maxLat = bounds.latNorth
-                )
-                renderPins(pins)
-            } catch (e: Exception) {
-                if (context != null) {
-                    Toast.makeText(requireContext(), "Failed to load map pins", Toast.LENGTH_SHORT).show()
+            val result = ServiceProvider.location.getPins(
+                minLon = bounds.lonWest,
+                maxLon = bounds.lonEast,
+                minLat = bounds.latSouth,
+                maxLat = bounds.latNorth
+            )
+            when {
+                result.isUnauthorized      -> { /* MainActivity navigating to login */ }
+                result.isNetworkError      -> { /* silent — map still shows cached tiles */ }
+                result.errors.isNotEmpty() -> {
+                    if (context != null) {
+                        Toast.makeText(requireContext(), result.errorMessage(), Toast.LENGTH_SHORT).show()
+                    }
                 }
-            } finally {
-                progressPins.visibility = View.GONE
+                else -> renderPins(result.data!!)
             }
+            progressPins.visibility = View.GONE
         }
     }
 
@@ -325,19 +327,21 @@ class LocationMapFragment : Fragment() {
         marker.showInfoWindow()
 
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val location = ServiceProvider.location.getById(locationId)
-                markerLocationCache[locationId] = location
-                marker.title = location.name
-                marker.snippet = buildShortDescription(location)
-                marker.showInfoWindow()
-            } catch (_: Exception) {
-                marker.title = "Unavailable"
-                marker.snippet = "Could not load description"
-                marker.showInfoWindow()
-            } finally {
-                loadingLocationIds -= locationId
+            val result = ServiceProvider.location.getById(locationId)
+            when {
+                result.isSuccess && result.data != null -> {
+                    val location = result.data
+                    markerLocationCache[locationId] = location
+                    marker.title = location.name
+                    marker.snippet = buildShortDescription(location)
+                }
+                else -> {
+                    marker.title = "Unavailable"
+                    marker.snippet = "Could not load description"
+                }
             }
+            marker.showInfoWindow()
+            loadingLocationIds -= locationId
         }
     }
 

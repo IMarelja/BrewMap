@@ -60,34 +60,42 @@ class LocationDrinksListFragment : Fragment() {
         tvBestDrink.visibility = View.GONE
 
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val drinksDeferred = async { ServiceProvider.drink.getByLocationId(locationId) }
-                val bestDrinkDeferred = async { ServiceProvider.drink.getBestDrinkByLocationId(locationId) }
+            val drinksDeferred    = async { ServiceProvider.drink.getByLocationId(locationId) }
+            val bestDrinkDeferred = async { ServiceProvider.drink.getBestDrinkByLocationId(locationId) }
 
-                val drinks = drinksDeferred.await()
-                val bestDrink = bestDrinkDeferred.await()
+            val drinksResult    = drinksDeferred.await()
+            val bestDrinkResult = bestDrinkDeferred.await()
 
-                drinkAdapter.submitData(drinks)
-                rvDrinks.post { rvDrinks.requestLayout() }
-
-                tvBestDrink.visibility = View.VISIBLE
-                tvBestDrink.text = if (bestDrink == null) {
-                    "Best drink: no ratings yet"
-                } else {
-                    "Best drink: ${bestDrink.name} (${"%.1f".format(bestDrink.rating)})"
+            when {
+                drinksResult.isUnauthorized  -> { /* MainActivity navigating to login */ }
+                drinksResult.isNetworkError  -> tvDrinkState.text = "No connection. Please check your internet."
+                drinksResult.errors.isNotEmpty() -> {
+                    drinkAdapter.submitData(emptyList())
+                    tvDrinkState.text = drinksResult.errorMessage()
                 }
+                else -> {
+                    val drinks    = drinksResult.data!!
+                    val bestDrink = bestDrinkResult.data   // null = no ratings or error — both treated as "none"
 
-                tvDrinkState.text = if (drinks.isEmpty()) {
-                    "No drinks for this location"
-                } else {
-                    "${drinks.size} drinks loaded"
+                    drinkAdapter.submitData(drinks)
+                    rvDrinks.post { rvDrinks.requestLayout() }
+
+                    tvBestDrink.visibility = View.VISIBLE
+                    tvBestDrink.text = if (bestDrink == null) {
+                        "Best drink: no ratings yet"
+                    } else {
+                        "Best drink: ${bestDrink.name} (${"%.1f".format(bestDrink.rating)})"
+                    }
+
+                    tvDrinkState.text = if (drinks.isEmpty()) {
+                        "No drinks for this location"
+                    } else {
+                        "${drinks.size} drinks loaded"
+                    }
                 }
-            } catch (_: Exception) {
-                drinkAdapter.submitData(emptyList())
-                tvDrinkState.text = "Failed to load drinks"
-            } finally {
-                progressDrinks.visibility = View.GONE
             }
+
+            progressDrinks.visibility = View.GONE
         }
     }
 

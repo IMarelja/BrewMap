@@ -116,20 +116,24 @@ class LocationSearchFragment : Fragment() {
 
     private fun loadAdvancedFilterOptions() {
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val categoriesDeferred = async { ServiceProvider.category.getAll() }
-                val paymentOptionsDeferred = async { ServiceProvider.paymentOption.getAll() }
-                val categories = categoriesDeferred.await()
-                val paymentOptions = paymentOptionsDeferred.await()
+            val categoriesDeferred      = async { ServiceProvider.category.getAll() }
+            val paymentOptionsDeferred  = async { ServiceProvider.paymentOption.getAll() }
+            val categoriesResult        = categoriesDeferred.await()
+            val paymentOptionsResult    = paymentOptionsDeferred.await()
+
+            if (categoriesResult.isSuccess && categoriesResult.data != null) {
                 populateFilterChips(
                     chipGroup = chipGroupCategories,
-                    values = categories.associate { it.tag to it.name }
+                    values = categoriesResult.data.associate { it.tag to it.name }
                 )
+            }
+            if (paymentOptionsResult.isSuccess && paymentOptionsResult.data != null) {
                 populateFilterChips(
                     chipGroup = chipGroupPaymentOptions,
-                    values = paymentOptions.associate { it.tag to it.name }
+                    values = paymentOptionsResult.data.associate { it.tag to it.name }
                 )
-            } catch (_: Exception) {
+            }
+            if (categoriesResult.errors.isNotEmpty() || paymentOptionsResult.errors.isNotEmpty()) {
                 tvSearchState.visibility = View.VISIBLE
                 tvSearchState.text = "Failed to load advanced filter options."
             }
@@ -227,30 +231,35 @@ class LocationSearchFragment : Fragment() {
         tvSearchState.text = "Searching..."
 
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val results = ServiceProvider.location.search(
-                    longitude = lon,
-                    latitude = lat,
-                    query = query.ifBlank { null },
-                    minRating = minRating,
-                    drinkQuery = drinkKeyword.ifBlank { null },
-                    categoryTags = categoryTags,
-                    paymentOptionTags = paymentOptionTags,
-                    radiusMeters = selectedRadius.meters
-                )
-                adapter.submitData(results)
-                rvSearchResults.post { rvSearchResults.requestLayout() }
-                tvSearchState.text = if (results.isEmpty()) {
-                    "No locations found"
-                } else {
-                    "${results.size} locations found"
+            val result = ServiceProvider.location.search(
+                longitude = lon,
+                latitude = lat,
+                query = query.ifBlank { null },
+                minRating = minRating,
+                drinkQuery = drinkKeyword.ifBlank { null },
+                categoryTags = categoryTags,
+                paymentOptionTags = paymentOptionTags,
+                radiusMeters = selectedRadius.meters
+            )
+            when {
+                result.isUnauthorized      -> { /* MainActivity navigating to login */ }
+                result.isNetworkError      -> tvSearchState.text = "No connection. Please check your internet."
+                result.errors.isNotEmpty() -> {
+                    adapter.submitData(emptyList())
+                    tvSearchState.text = result.errorMessage()
                 }
-            } catch (e: Exception) {
-                adapter.submitData(emptyList())
-                tvSearchState.text = "Search failed. Try again."
-            } finally {
-                btnSearch.isEnabled = true
+                else -> {
+                    val results = result.data!!
+                    adapter.submitData(results)
+                    rvSearchResults.post { rvSearchResults.requestLayout() }
+                    tvSearchState.text = if (results.isEmpty()) {
+                        "No locations found"
+                    } else {
+                        "${results.size} locations found"
+                    }
+                }
             }
+            btnSearch.isEnabled = true
         }
     }
 

@@ -1,5 +1,6 @@
 package hr.algebra.mobileapp.service.location
 
+import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.models.*
 import hr.algebra.mobileapp.service.HardCodeData
 import java.time.Instant
@@ -14,34 +15,42 @@ class LocationServiceHardCode(private val data: HardCodeData) : ILocationService
 
     // ── Read ──────────────────────────────────────────────────────────────────
 
-    override suspend fun getById(id: String): Location =
-        data.locations.find { it.id == id }
-            ?: throw NoSuchElementException("Location not found: $id")
+    override suspend fun getById(id: String): ServiceResult<Location> {
+        val location = data.locations.find { it.id == id }
+            ?: return ServiceResult.failure("Location not found: $id")
+        return ServiceResult.success(location)
+    }
 
     override suspend fun search(
         longitude: Double, latitude: Double,
         query: String?, minRating: Double?, drinkQuery: String?,
         categoryTags: List<String>?, paymentOptionTags: List<String>?,
         radiusMeters: Double
-    ): List<Location> = data.locations.filter { loc ->
-        haversineMeters(latitude, longitude, loc.latitude, loc.longitude) <= radiusMeters
-        && (query == null || loc.name.contains(query, ignoreCase = true)
-                          || loc.description?.contains(query, ignoreCase = true) == true)
-        && (minRating == null || loc.averageRating >= minRating)
-        && (categoryTags.isNullOrEmpty() || loc.categoryTag in categoryTags)
-        && (paymentOptionTags.isNullOrEmpty() || loc.paymentOptionTags.containsAll(paymentOptionTags))
+    ): ServiceResult<List<Location>> {
+        val results = data.locations.filter { loc ->
+            haversineMeters(latitude, longitude, loc.latitude, loc.longitude) <= radiusMeters
+            && (query == null || loc.name.contains(query, ignoreCase = true)
+                              || loc.description?.contains(query, ignoreCase = true) == true)
+            && (minRating == null || loc.averageRating >= minRating)
+            && (categoryTags.isNullOrEmpty() || loc.categoryTag in categoryTags)
+            && (paymentOptionTags.isNullOrEmpty() || loc.paymentOptionTags.containsAll(paymentOptionTags))
+        }
+        return ServiceResult.success(results)
     }
 
     override suspend fun getPins(
         minLon: Double, maxLon: Double,
         minLat: Double, maxLat: Double
-    ): List<Pin> = data.locations
-        .filter { it.longitude in minLon..maxLon && it.latitude in minLat..maxLat }
-        .map    { Pin(id = it.id, longitude = it.longitude, latitude = it.latitude) }
+    ): ServiceResult<List<Pin>> {
+        val pins = data.locations
+            .filter { it.longitude in minLon..maxLon && it.latitude in minLat..maxLat }
+            .map    { Pin(id = it.id, longitude = it.longitude, latitude = it.latitude) }
+        return ServiceResult.success(pins)
+    }
 
     // ── Write ─────────────────────────────────────────────────────────────────
 
-    override suspend fun create(request: CreateLocationRequest): Location {
+    override suspend fun create(request: CreateLocationRequest): ServiceResult<Location> {
         val now = Instant.now().toString()
         val location = Location(
             id                = "hc-loc-${System.currentTimeMillis()}",
@@ -60,12 +69,12 @@ class LocationServiceHardCode(private val data: HardCodeData) : ILocationService
             createdAt         = now
         )
         data.locations.add(location)
-        return location
+        return ServiceResult.success(location)
     }
 
-    override suspend fun update(id: String, request: UpdateLocationRequest): Location {
+    override suspend fun update(id: String, request: UpdateLocationRequest): ServiceResult<Location> {
         val index = data.locations.indexOfFirst { it.id == id }
-        if (index == -1) throw NoSuchElementException("Location not found: $id")
+        if (index == -1) return ServiceResult.failure("Location not found: $id")
         val updated = data.locations[index].copy(
             name              = request.name,
             description       = request.description,
@@ -76,7 +85,7 @@ class LocationServiceHardCode(private val data: HardCodeData) : ILocationService
             contact           = request.contact
         )
         data.locations[index] = updated
-        return updated
+        return ServiceResult.success(updated)
     }
 
     // ── Haversine ─────────────────────────────────────────────────────────────
