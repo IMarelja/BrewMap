@@ -79,7 +79,7 @@ class LocationDetailFragment : Fragment() {
 
         locationId = requireArguments().getString(ARG_LOCATION_ID).orEmpty()
         if (locationId.isBlank()) {
-            Toast.makeText(requireContext(), "Missing location id", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Missing locationService id", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -121,7 +121,7 @@ class LocationDetailFragment : Fragment() {
         progressDetail.visibility = View.VISIBLE
 
         viewLifecycleOwner.lifecycleScope.launch {
-            val result = ServiceProvider.location.getById(locationId)
+            val result = ServiceProvider.locationService.getById(locationId)
             when {
                 result.isUnauthorized  -> { /* MainActivity already navigating to login */ }
                 result.isNetworkError  -> Toast.makeText(requireContext(), "No connection. Please check your internet.", Toast.LENGTH_SHORT).show()
@@ -137,7 +137,7 @@ class LocationDetailFragment : Fragment() {
     }
 
     private suspend fun buildMetaText(location: Location): String = coroutineScope {
-        val categoryName = ServiceProvider.category.getByTag(location.categoryTag).data?.name
+        val categoryName = ServiceProvider.categoryService.getByTag(location.categoryTag).data?.name
             ?: location.categoryTag
 
         val paymentNames = if (location.paymentOptionTags.isEmpty()) {
@@ -146,7 +146,7 @@ class LocationDetailFragment : Fragment() {
             location.paymentOptionTags
                 .map { tag ->
                     async {
-                        ServiceProvider.paymentOption.getByTag(tag).data?.name ?: tag
+                        ServiceProvider.paymentOptionService.getByTag(tag).data?.name ?: tag
                     }
                 }
                 .awaitAll()

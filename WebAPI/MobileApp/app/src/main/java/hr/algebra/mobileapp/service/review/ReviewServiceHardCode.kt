@@ -8,10 +8,10 @@ import hr.algebra.mobileapp.service.HardCodeData
 import java.time.Instant
 
 /**
- * **Test / offline** review service — no network required.
+ * **Test / offline** reviewService service — no network required.
  *
  * Write operations mutate [HardCodeData.reviews] in memory.
- * [getMyReviews] and write operations decode the logged-in user's ID via
+ * [getMyReviews] and write operations decode the logged-in userService's ID via
  * [TokenManager.getUserId].
  */
 class ReviewServiceHardCode(private val data: HardCodeData) : IReviewService {
@@ -23,7 +23,7 @@ class ReviewServiceHardCode(private val data: HardCodeData) : IReviewService {
 
     override suspend fun getByLocationId(locationId: String): ServiceResult<List<Review>> =
         ServiceResult.success(
-            data.reviews.filter { it.targetType == "location" && it.targetId == locationId && it.isVisible }
+            data.reviews.filter { it.targetType == "locationService" && it.targetId == locationId && it.isVisible }
         )
 
     override suspend fun getByDrinkId(drinkId: String): ServiceResult<List<Review>> =
@@ -52,7 +52,7 @@ class ReviewServiceHardCode(private val data: HardCodeData) : IReviewService {
         val review = Review(
             id          = "hc-rev-${System.currentTimeMillis()}",
             userId      = userId,
-            targetType  = "location",
+            targetType  = "locationService",
             targetId    = locationId,
             rating      = rating,
             comment     = comment,

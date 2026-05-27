@@ -14,7 +14,7 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Fast-path: if the user already has a valid (non-expired) JWT on
+        // Fast-path: if the userService already has a valid (non-expired) JWT on
         // device, skip the login screen entirely and go straight to the app.
         if (TokenManager.isLoggedIn()) {
             startActivity(Intent(this, MainActivity::class.java))

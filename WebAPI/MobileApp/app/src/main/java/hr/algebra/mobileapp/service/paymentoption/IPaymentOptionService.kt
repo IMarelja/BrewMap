@@ -7,7 +7,7 @@ import hr.algebra.mobileapp.models.paymentoption.PaymentOption
  * Contract for payment option read operations.
  *
  * Three implementations are available:
- *  - [PaymentOptionServiceApi]        — real HTTP calls to `api/PaymentOption` (requires auth token)
+ *  - [PaymentOptionServiceApi]        — real HTTP calls to `api/PaymentOption` (requires authService token)
  *  - [PaymentOptionServiceHardCode]   — in-memory stub, no network needed
  *  - [PaymentOptionServicePersistent] — API-backed with on-device cache ([hr.algebra.mobileapp.cache.PersistentCache])
  *

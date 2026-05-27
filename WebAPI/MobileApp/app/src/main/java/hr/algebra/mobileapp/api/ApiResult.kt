@@ -39,7 +39,7 @@ sealed class ApiResult<out T> {
         is Success             -> data
         is HttpError           -> throw Exception("HTTP $code: $body")
         is Unauthorized        -> throw Exception("Session expired — please log in again")
-        is UnauthorizedSpecial -> data   // body is typed; caller checks success flag
+        is UnauthorizedSpecial -> data   // body is typed; caller checks success flagService
         is NetworkError        -> throw cause
     }
 }

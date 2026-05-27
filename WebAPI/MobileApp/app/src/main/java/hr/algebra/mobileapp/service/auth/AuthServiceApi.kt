@@ -11,7 +11,7 @@ import hr.algebra.mobileapp.auth.TokenManager
 import hr.algebra.mobileapp.models.auth.AuthResponse
 
 /**
- * **Production** auth service — delegates every call to the BrewMap REST API.
+ * **Production** authService service — delegates every call to the BrewMap REST API.
  *
  * Base URL is read from `result/values/strings.xml` → `api_base_url`
  * (see [hr.algebra.mobileapp.api.API.Companion.createClient]).
@@ -20,7 +20,7 @@ import hr.algebra.mobileapp.models.auth.AuthResponse
  * On a successful response the JWT is handed to [TokenManager]:
  * - login  + rememberMe=true  → 30-day token persisted to EncryptedSharedPreferences
  * - login  + rememberMe=false → 60-min  token kept in memory only
- * - register                  → 60-min  token persisted (user just created an account)
+ * - register                  → 60-min  token persisted (userService just created an account)
  */
 class AuthServiceApi : IAuthService {
     private val gson = Gson()
@@ -40,7 +40,7 @@ class AuthServiceApi : IAuthService {
         }
 
         val body = mapOf(
-            "user"       to user,
+            "userService"       to user,
             "password"   to password,
             "rememberMe" to rememberMe
         )
@@ -93,7 +93,7 @@ class AuthServiceApi : IAuthService {
         val result = mapAuthResult(resultRequest, "Registration failed. Please try again.")
         Log.d("AuthServiceApi", "register response: $result")
 
-        // Register always returns a 60-min token; persist it so the user
+        // Register always returns a 60-min token; persist it so the userService
         // doesn't have to log in again immediately after signing up.
         if (result.success && result.token != null) {
             TokenManager.saveToken(result.token, rememberMe = true)
@@ -108,7 +108,7 @@ class AuthServiceApi : IAuthService {
             is ApiResult.Success             -> result.data
             is ApiResult.HttpError           -> parseHttpError(result.code, result.body, fallbackMessage)
             is ApiResult.UnauthorizedSpecial -> result.data   // API returned a typed 401 body
-            is ApiResult.Unauthorized        -> AuthResponse( // fallback — should not happen for auth calls
+            is ApiResult.Unauthorized        -> AuthResponse( // fallback — should not happen for authService calls
                 success    = false,
                 token      = null,
                 message    = "Authentication failed.",

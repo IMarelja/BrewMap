@@ -1,7 +1,7 @@
 package hr.algebra.mobileapp.api
 
 /**
- * A single error message to surface to the user.
+ * A single error message to surface to the userService.
  *
  * Constructed by [toServiceResult] from raw HTTP responses:
  * - Plain JSON string body   → one ResultError with that string
@@ -12,7 +12,7 @@ package hr.algebra.mobileapp.api
 data class ResultError(val message: String)
 
 /**
- * The unified return type for every non-auth service interface method.
+ * The unified return type for every non-authService service interface method.
  *
  * On success [data] is non-null (or null for "not found" on nullable methods) and [errors] is empty.
  * On failure [data] is null and [errors] contains one or more human-readable messages.
@@ -34,7 +34,7 @@ data class ResultError(val message: String)
  *
  * ## Fragment usage pattern
  * ```kotlin
- * val result = ServiceProvider.drink.getByLocationId(id)
+ * val result = ServiceProvider.drinkService.getByLocationId(id)
  * when {
  *     result.isUnauthorized          -> { /* MainActivity already navigating to login */ }
  *     result.isNetworkError          -> showOfflineState()
@@ -51,7 +51,7 @@ data class ServiceResult<T>(
     /** Device could not reach the server. */
     val isNetworkError: Boolean = false
 ) {
-    /** True when there are no errors and neither cross-cutting flag is set. */
+    /** True when there are no errors and neither cross-cutting flagService is set. */
     val isSuccess: Boolean get() = errors.isEmpty() && !isUnauthorized && !isNetworkError
 
     /**
@@ -62,7 +62,7 @@ data class ServiceResult<T>(
         errors.takeIf { it.isNotEmpty() }?.joinToString("\n") { it.message }
 
     /**
-     * Converts this result to [ServiceResult]<[Unit]>, preserving all error/flag state.
+     * Converts this result to [ServiceResult]<[Unit]>, preserving all error/flagService state.
      * Use for void-return API methods where the underlying request typed a Map or Any.
      */
     fun mapToUnit(): ServiceResult<Unit> =

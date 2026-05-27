@@ -7,7 +7,7 @@ import hr.algebra.mobileapp.models.location.Pin
 import hr.algebra.mobileapp.models.location.UpdateLocationRequest
 
 /**
- * Contract for location read **and write** operations.
+ * Contract for locationService read **and write** operations.
  *
  * Three implementations:
  *  - [LocationServiceApi]        — live BrewMap REST API
@@ -44,9 +44,9 @@ interface ILocationService {
 
     // ── Write ─────────────────────────────────────────────────────────────────
 
-    /** `POST api/Locations` — creates a new location. Returns the created resource. */
+    /** `POST api/Locations` — creates a new locationService. Returns the created resource. */
     suspend fun create(request: CreateLocationRequest): ServiceResult<Location>
 
-    /** `PUT api/Locations/{id}` — updates an existing location. Returns the updated resource. */
+    /** `PUT api/Locations/{id}` — updates an existing locationService. Returns the updated resource. */
     suspend fun update(id: String, request: UpdateLocationRequest): ServiceResult<Location>
 }

@@ -47,14 +47,14 @@ import hr.algebra.mobileapp.service.user.UserServiceHardCode
  *
  * ## Usage
  * ```kotlin
- * ServiceProvider.auth.login(user, password, rememberMe)
- * ServiceProvider.location.search(lon, lat, query = "coffee")
- * ServiceProvider.location.create(request)
- * ServiceProvider.drink.getByLocationId(locationId)
- * ServiceProvider.drink.create(request)
- * ServiceProvider.review.createForLocation(locationId, rating = 5, comment = "Great!")
- * ServiceProvider.user.getMyProfile()
- * ServiceProvider.flag.create("location", locationId, reason = "Spam", description = null)
+ * ServiceProvider.authService.login(userService, password, rememberMe)
+ * ServiceProvider.locationService.search(lon, lat, query = "coffee")
+ * ServiceProvider.locationService.create(request)
+ * ServiceProvider.drinkService.getByLocationId(locationId)
+ * ServiceProvider.drinkService.create(request)
+ * ServiceProvider.reviewService.createForLocation(locationId, rating = 5, comment = "Great!")
+ * ServiceProvider.userService.getMyProfile()
+ * ServiceProvider.flagService.create("locationService", locationId, reason = "Spam", description = null)
  * ```
  */
 object ServiceProvider {
@@ -87,7 +87,7 @@ object ServiceProvider {
 
     // ── Auth ──────────────────────────────────────────────────────────────────
 
-    val auth: IAuthService = when (MODE) {
+    val authService: IAuthService = when (MODE) {
         Mode.HARD_CODE  -> AuthServiceHardCode(hardCodeData!!)
         Mode.API -> AuthServiceApi()
         Mode.PERSISTENT -> AuthServiceApi()
@@ -95,7 +95,7 @@ object ServiceProvider {
 
     // ── Location ──────────────────────────────────────────────────────────────
 
-    val location: ILocationService = when (MODE) {
+    val locationService: ILocationService = when (MODE) {
         Mode.HARD_CODE  -> LocationServiceHardCode(hardCodeData!!)
         Mode.API        -> LocationServiceApi()
         Mode.PERSISTENT -> LocationServicePersistent()
@@ -103,7 +103,7 @@ object ServiceProvider {
 
     // ── Drink ─────────────────────────────────────────────────────────────────
 
-    val drink: IDrinkService = when (MODE) {
+    val drinkService: IDrinkService = when (MODE) {
         Mode.HARD_CODE  -> DrinkServiceHardCode(hardCodeData!!)
         Mode.API        -> DrinkServiceApi()
         Mode.PERSISTENT -> DrinkServicePersistent()
@@ -111,7 +111,7 @@ object ServiceProvider {
 
     // ── Category ─────────────────────────────────────────────────────────────
 
-    val category: ICategoryService = when (MODE) {
+    val categoryService: ICategoryService = when (MODE) {
         Mode.HARD_CODE  -> CategoryServiceHardCode(hardCodeData!!)
         Mode.API        -> CategoryServiceApi()
         Mode.PERSISTENT -> CategoryServicePersistent()
@@ -119,7 +119,7 @@ object ServiceProvider {
 
     // ── Payment option ────────────────────────────────────────────────────────
 
-    val paymentOption: IPaymentOptionService = when (MODE) {
+    val paymentOptionService: IPaymentOptionService = when (MODE) {
         Mode.HARD_CODE  -> PaymentOptionServiceHardCode(hardCodeData!!)
         Mode.API        -> PaymentOptionServiceApi()
         Mode.PERSISTENT -> PaymentOptionServicePersistent()
@@ -127,7 +127,7 @@ object ServiceProvider {
 
     // ── Review ────────────────────────────────────────────────────────────────
 
-    val review: IReviewService = when (MODE) {
+    val reviewService: IReviewService = when (MODE) {
         Mode.HARD_CODE  -> ReviewServiceHardCode(hardCodeData!!)
         Mode.API        -> ReviewServiceApi()
         Mode.PERSISTENT -> ReviewServicePersistent()
@@ -136,16 +136,16 @@ object ServiceProvider {
     // ── User ──────────────────────────────────────────────────────────────────
 
     /** User profile — getMyProfile, getUserById, updateEmail, updatePassword. */
-    val user: IUserService = when (MODE) {
+    val userService: IUserService = when (MODE) {
         Mode.HARD_CODE  -> UserServiceHardCode(hardCodeData!!)
         Mode.API,
-        Mode.PERSISTENT -> UserServiceApi()   // user data is personal — no caching
+        Mode.PERSISTENT -> UserServiceApi()   // userService data is personal — no caching
     }
 
     // ── Flag ──────────────────────────────────────────────────────────────────
 
-    /** Content reporting — create a flag against a location, drink, review, or user. */
-    val flag: IFlagService = when (MODE) {
+    /** Content reporting — create a flagService against a locationService, drinkService, reviewService, or userService. */
+    val flagService: IFlagService = when (MODE) {
         Mode.HARD_CODE  -> FlagServiceHardCode()
         Mode.API,
         Mode.PERSISTENT -> FlagServiceApi()

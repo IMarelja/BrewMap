@@ -24,9 +24,9 @@ interface IAuthService {
     /**
      * Create a new account.
      *
-     * @param email    new user's e-mail
+     * @param email    new userService's e-mail
      * @param username desired display name
-     * @param password plain-text password chosen by the user
+     * @param password plain-text password chosen by the userService
      */
     suspend fun register(email: String, username: String, password: String): AuthResponse
 }

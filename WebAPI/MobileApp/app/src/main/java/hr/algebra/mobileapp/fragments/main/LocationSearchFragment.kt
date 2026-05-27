@@ -116,8 +116,8 @@ class LocationSearchFragment : Fragment() {
 
     private fun loadAdvancedFilterOptions() {
         viewLifecycleOwner.lifecycleScope.launch {
-            val categoriesDeferred      = async { ServiceProvider.category.getAll() }
-            val paymentOptionsDeferred  = async { ServiceProvider.paymentOption.getAll() }
+            val categoriesDeferred      = async { ServiceProvider.categoryService.getAll() }
+            val paymentOptionsDeferred  = async { ServiceProvider.paymentOptionService.getAll() }
             val categoriesResult        = categoriesDeferred.await()
             val paymentOptionsResult    = paymentOptionsDeferred.await()
 
@@ -231,7 +231,7 @@ class LocationSearchFragment : Fragment() {
         tvSearchState.text = "Searching..."
 
         viewLifecycleOwner.lifecycleScope.launch {
-            val result = ServiceProvider.location.search(
+            val result = ServiceProvider.locationService.search(
                 longitude = lon,
                 latitude = lat,
                 query = query.ifBlank { null },

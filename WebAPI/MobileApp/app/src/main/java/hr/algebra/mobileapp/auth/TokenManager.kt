@@ -13,10 +13,10 @@ import org.json.JSONObject
  *
  * ## Storage strategy
  * - `rememberMe = true`  → token written to [SharedPreferences]. Survives app
- *   restarts and lives until the JWT's own `exp` claim is reached or the user
+ *   restarts and lives until the JWT's own `exp` claim is reached or the userService
  *   explicitly logs out.
  * - `rememberMe = false` → token kept only in process memory; cleared when
- *   the app is killed or the user logs out.
+ *   the app is killed or the userService logs out.
  *
  * ## Expiry
  * The server issues:
@@ -35,7 +35,7 @@ object TokenManager {
 
     /**
      * Emitted by [hr.algebra.mobileapp.api.ApiResultExtensions.toServiceResult] whenever
-     * a non-auth endpoint returns HTTP 401 (session expired).
+     * a non-authService endpoint returns HTTP 401 (session expired).
      *
      * Collect this in [hr.algebra.mobileapp.MainActivity] to navigate to the login
      * screen and clear the back-stack, regardless of which fragment triggered the call.
@@ -111,7 +111,7 @@ object TokenManager {
      * Decodes the `id` claim from the stored JWT without verifying the signature.
      *
      * Used by hard-code service stubs that need to associate in-memory write
-     * operations (create review, update profile, …) with the currently logged-in user.
+     * operations (create reviewService, update profile, …) with the currently logged-in userService.
      *
      * Returns `null` when there is no token or the token cannot be parsed.
      */
@@ -128,14 +128,14 @@ object TokenManager {
                 .optString("id")
                 .takeIf { it.isNotEmpty() }
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to decode user ID from JWT", e)
+            Log.e(TAG, "Failed to decode userService ID from JWT", e)
             null
         }
     }
 
     /**
      * Remove the token from memory **and** encrypted storage.
-     * Call this on user-initiated logout or when the server rejects the token.
+     * Call this on userService-initiated logout or when the server rejects the token.
      */
     fun clearToken() {
         memoryToken = null

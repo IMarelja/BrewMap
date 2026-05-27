@@ -4,10 +4,10 @@ import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.models.category.Category
 
 /**
- * Contract for category read operations.
+ * Contract for categoryService read operations.
  *
  * Three implementations are available:
- *  - [CategoryServiceApi]        — real HTTP calls to `api/Category`  (requires auth token)
+ *  - [CategoryServiceApi]        — real HTTP calls to `api/Category`  (requires authService token)
  *  - [CategoryServiceHardCode]   — in-memory stub, no network needed
  *  - [CategoryServicePersistent] — API-backed with on-device cache ([hr.algebra.mobileapp.cache.PersistentCache])
  *
@@ -19,15 +19,15 @@ import hr.algebra.mobileapp.models.category.Category
 interface ICategoryService {
 
     /**
-     * Fetch every active category.
+     * Fetch every active categoryService.
      * Maps to `GET api/Category`.
      */
     suspend fun getAll(): ServiceResult<List<Category>>
 
     /**
-     * Fetch one category by its unique tag string (e.g. "cafe", "bar").
+     * Fetch one categoryService by its unique tag string (e.g. "cafe", "bar").
      * Maps to `GET api/Category/{tag}`.
-     * Returns [ServiceResult] with data=null when no category matches [tag] (not an error).
+     * Returns [ServiceResult] with data=null when no categoryService matches [tag] (not an error).
      */
     suspend fun getByTag(tag: String): ServiceResult<Category?>
 }

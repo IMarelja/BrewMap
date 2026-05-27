@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
         bottomNav = findViewById(R.id.main_bottom_nav)
 
         // Session expiry: any service call that receives HTTP 401 emits here.
-        // Redirect to login and clear the entire back-stack so the user cannot
+        // Redirect to login and clear the entire back-stack so the userService cannot
         // navigate back to a protected screen without re-authenticating.
         lifecycleScope.launch {
             TokenManager.sessionExpiredEvent.collect {
@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Clear the stored JWT and send the user back to the login screen.
+     * Clear the stored JWT and send the userService back to the login screen.
      *
      * Call this from any fragment or menu action that implements "Log out".
      */

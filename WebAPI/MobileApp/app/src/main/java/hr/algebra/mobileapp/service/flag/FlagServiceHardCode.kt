@@ -7,7 +7,7 @@ import hr.algebra.mobileapp.models.flag.ReportTarget
 import java.time.Instant
 
 /**
- * **Test / offline** flag service — stores reports in a session-scoped in-memory list.
+ * **Test / offline** flagService service — stores reports in a session-scoped in-memory list.
  */
 class FlagServiceHardCode : IFlagService {
 
@@ -23,7 +23,7 @@ class FlagServiceHardCode : IFlagService {
             ?: return ServiceResult.failure("Not authenticated")
         val now = Instant.now().toString()
         val flag = Flag(
-            id               = "hc-flag-${System.currentTimeMillis()}",
+            id               = "hc-flagService-${System.currentTimeMillis()}",
             reportedByUserId = userId,
             target           = ReportTarget(type = targetType, id = targetId),
             reason           = reason,

@@ -13,7 +13,7 @@ import hr.algebra.mobileapp.models.location.UpdateLocationRequest
 import java.net.URLEncoder
 
 /**
- * **Production** location service — delegates every call to the BrewMap REST API.
+ * **Production** locationService service — delegates every call to the BrewMap REST API.
  */
 class LocationServiceApi : ILocationService {
 
@@ -25,7 +25,7 @@ class LocationServiceApi : ILocationService {
             endpoint     = "Locations/$id",
             method       = HttpMethod.GET,
             responseType = object : TypeToken<Location>() {}
-        ).toServiceResult("Could not load location.")
+        ).toServiceResult("Could not load locationService.")
         Log.d("LocationServiceApi", "getById($id) → success=${result.isSuccess}")
         return result
     }
@@ -89,7 +89,7 @@ class LocationServiceApi : ILocationService {
             method       = HttpMethod.POST,
             body         = request,
             responseType = object : TypeToken<Location>() {}
-        ).toServiceResult("Could not create location.")
+        ).toServiceResult("Could not create locationService.")
         Log.d("LocationServiceApi", "create → success=${result.isSuccess}")
         return result
     }
@@ -103,7 +103,7 @@ class LocationServiceApi : ILocationService {
             method       = HttpMethod.PUT,
             body         = request,
             responseType = object : TypeToken<Location>() {}
-        ).toServiceResult("Could not update location.")
+        ).toServiceResult("Could not update locationService.")
         Log.d("LocationServiceApi", "update($id) → success=${result.isSuccess}")
         return result
     }

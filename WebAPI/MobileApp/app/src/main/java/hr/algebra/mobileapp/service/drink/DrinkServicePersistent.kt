@@ -9,7 +9,7 @@ import hr.algebra.mobileapp.models.drink.CreateDrinkRequest
 import hr.algebra.mobileapp.models.drink.Drink
 
 /**
- * **Cache-aside** drink service.
+ * **Cache-aside** drinkService service.
  *
  * Reads served from [PersistentCache] with a 15-minute TTL.
  * Write operations bypass the cache and invalidate related entries on success.

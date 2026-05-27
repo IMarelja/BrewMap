@@ -21,7 +21,7 @@ data class CreateLocationRequest(
 /**
  * Request body for `PUT api/Locations/{id}`.
  *
- * Latitude / longitude are intentionally excluded — a location cannot be
+ * Latitude / longitude are intentionally excluded — a locationService cannot be
  * moved after creation (backend does not accept them in the update DTO).
  */
 data class UpdateLocationRequest(

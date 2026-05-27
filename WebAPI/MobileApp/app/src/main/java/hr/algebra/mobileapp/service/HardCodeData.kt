@@ -48,20 +48,20 @@ class HardCodeData {
             username = "john_doe",
             email    = "john@brewmap.dev",
             password = "Password1!",
-            role     = "user"
+            role     = "userService"
         ),
         MockUser(
             id       = "hc-003",
             username = "zuzu",
             email    = "zuzu@brewmap.dev",
             password = "Password1!",
-            role     = "user"
+            role     = "userService"
         )
     )
 
     // ── Categories ────────────────────────────────────────────────────────────
 
-    /** Matches the category tags used in [locations]. */
+    /** Matches the categoryService tags used in [locations]. */
     val categories: List<Category> = listOf(
         Category(tag = "cafe",        name = "Cafe"),
         Category(tag = "bar",         name = "Bar"),
@@ -172,7 +172,7 @@ class HardCodeData {
 
     /**
      * Seed drinks spread across several seeded locations.
-     * Each drink maps to one [Location] via [Drink.availableAtLocationId].
+     * Each drinkService maps to one [Location] via [Drink.availableAtLocationId].
      */
     /** Mutable so [hr.algebra.mobileapp.service.drink.DrinkServiceHardCode] can create/update drinks. */
     val drinks: MutableList<Drink> = mutableListOf(
@@ -204,7 +204,7 @@ class HardCodeData {
 
         // Cafe Vanilla (hc-loc-009) — 2 drinks
         drink("hc-drk-014", "Vanilla Latte",       "Espresso with vanilla-infused milk.", "hc-loc-009", 4.6, 2),
-        drink("hc-drk-015", "Hot Chocolate",       "Thick Belgian chocolate drink.",    "hc-loc-009", 4.4, 1),
+        drink("hc-drk-015", "Hot Chocolate",       "Thick Belgian chocolate drinkService.",    "hc-loc-009", 4.4, 1),
 
         // Koncept Mlinček (hc-loc-010) — 2 drinks
         drink("hc-drk-016", "Specialty Filter",   "Single-origin pour-over coffee.",  "hc-loc-010", 4.7, 2),
@@ -218,8 +218,8 @@ class HardCodeData {
      * Ratings match the [averageRating] / [AggregatedRating.average] values
      * already set on those objects.
      *
-     * targetType = "location" for location reviews,
-     * targetType = "product"  for drink reviews  (mirrors the backend).
+     * targetType = "locationService" for locationService reviews,
+     * targetType = "product"  for drinkService reviews  (mirrors the backend).
      */
     /** Mutable so [hr.algebra.mobileapp.service.review.ReviewServiceHardCode] can create/update/delete reviews. */
     val reviews: MutableList<Review> = mutableListOf(
@@ -227,37 +227,37 @@ class HardCodeData {
         // ── Location reviews ──────────────────────────────────────────────────
 
         // Pivana (hc-loc-001) — 3 reviews → avg 4.67
-        rev("hc-rev-001", "hc-001", "location", "hc-loc-001", 5, "Best craft beer in town!"),
-        rev("hc-rev-002", "hc-002", "location", "hc-loc-001", 5, "Great vibe and cold beer."),
-        rev("hc-rev-003", "hc-003", "location", "hc-loc-001", 4, "Solid place, a bit loud."),
+        rev("hc-rev-001", "hc-001", "locationService", "hc-loc-001", 5, "Best craft beer in town!"),
+        rev("hc-rev-002", "hc-002", "locationService", "hc-loc-001", 5, "Great vibe and cold beer."),
+        rev("hc-rev-003", "hc-003", "locationService", "hc-loc-001", 4, "Solid place, a bit loud."),
 
         // Vinkl (hc-loc-002) — 2 reviews → avg 4.0
-        rev("hc-rev-004", "hc-002", "location", "hc-loc-002", 4, "Quick coffee, friendly staff."),
-        rev("hc-rev-005", "hc-003", "location", "hc-loc-002", 4, "Nice after-work spot."),
+        rev("hc-rev-004", "hc-002", "locationService", "hc-loc-002", 4, "Quick coffee, friendly staff."),
+        rev("hc-rev-005", "hc-003", "locationService", "hc-loc-002", 4, "Nice after-work spot."),
 
         // Botaničar (hc-loc-003) — 2 reviews → avg 4.0
-        rev("hc-rev-006", "hc-001", "location", "hc-loc-003", 4, "Lovely garden terrace."),
-        rev("hc-rev-007", "hc-002", "location", "hc-loc-003", 4, "Great specialty coffee."),
+        rev("hc-rev-006", "hc-001", "locationService", "hc-loc-003", 4, "Lovely garden terrace."),
+        rev("hc-rev-007", "hc-002", "locationService", "hc-loc-003", 4, "Great specialty coffee."),
 
         // Caffe Bar SKA (hc-loc-004) — 2 reviews → avg 4.5
-        rev("hc-rev-008", "hc-002", "location", "hc-loc-004", 4, "Dependable espresso."),
-        rev("hc-rev-009", "hc-003", "location", "hc-loc-004", 5, "Love the terrace scene."),
+        rev("hc-rev-008", "hc-002", "locationService", "hc-loc-004", 4, "Dependable espresso."),
+        rev("hc-rev-009", "hc-003", "locationService", "hc-loc-004", 5, "Love the terrace scene."),
 
         // Leggiero Malešnica (hc-loc-007) — 2 reviews → avg 3.5
-        rev("hc-rev-010", "hc-002", "location", "hc-loc-007", 3, "Decent coffee, nothing special."),
-        rev("hc-rev-011", "hc-003", "location", "hc-loc-007", 4, "Comfortable seating."),
+        rev("hc-rev-010", "hc-002", "locationService", "hc-loc-007", 3, "Decent coffee, nothing special."),
+        rev("hc-rev-011", "hc-003", "locationService", "hc-loc-007", 4, "Comfortable seating."),
 
         // Mr. Jack Bar (hc-loc-008) — 2 reviews → avg 4.0
-        rev("hc-rev-012", "hc-001", "location", "hc-loc-008", 4, "Classic bourbon cocktails."),
-        rev("hc-rev-013", "hc-002", "location", "hc-loc-008", 4, "Good atmosphere."),
+        rev("hc-rev-012", "hc-001", "locationService", "hc-loc-008", 4, "Classic bourbon cocktails."),
+        rev("hc-rev-013", "hc-002", "locationService", "hc-loc-008", 4, "Good atmosphere."),
 
         // Cafe Vanilla (hc-loc-009) — 2 reviews → avg 4.5
-        rev("hc-rev-014", "hc-001", "location", "hc-loc-009", 4, "Fresh pastries every morning."),
-        rev("hc-rev-015", "hc-003", "location", "hc-loc-009", 5, "Best vanilla latte in Zagreb!"),
+        rev("hc-rev-014", "hc-001", "locationService", "hc-loc-009", 4, "Fresh pastries every morning."),
+        rev("hc-rev-015", "hc-003", "locationService", "hc-loc-009", 5, "Best vanilla latte in Zagreb!"),
 
         // Koncept Mlinček (hc-loc-010) — 2 reviews → avg 4.5
-        rev("hc-rev-016", "hc-002", "location", "hc-loc-010", 4, "Elegant interior, great coffee."),
-        rev("hc-rev-017", "hc-003", "location", "hc-loc-010", 5, "Wonderful specialty filter."),
+        rev("hc-rev-016", "hc-002", "locationService", "hc-loc-010", 4, "Elegant interior, great coffee."),
+        rev("hc-rev-017", "hc-003", "locationService", "hc-loc-010", 5, "Wonderful specialty filter."),
 
         // ── Drink reviews ─────────────────────────────────────────────────────
 

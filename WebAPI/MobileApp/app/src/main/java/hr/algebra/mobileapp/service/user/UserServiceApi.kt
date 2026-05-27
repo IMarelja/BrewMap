@@ -10,7 +10,7 @@ import hr.algebra.mobileapp.models.user.StrangerProfile
 import hr.algebra.mobileapp.models.user.UserProfile
 
 /**
- * **Production** user service — delegates every call to the BrewMap REST API.
+ * **Production** userService service — delegates every call to the BrewMap REST API.
  */
 class UserServiceApi : IUserService {
 
@@ -35,7 +35,7 @@ class UserServiceApi : IUserService {
             endpoint     = "User/$id",
             method       = HttpMethod.GET,
             responseType = object : TypeToken<StrangerProfile>() {}
-        ).toServiceResult("Could not load user profile.")
+        ).toServiceResult("Could not load userService profile.")
         Log.d("UserServiceApi", "getUserById($id) → success=${result.isSuccess}")
         return result
     }

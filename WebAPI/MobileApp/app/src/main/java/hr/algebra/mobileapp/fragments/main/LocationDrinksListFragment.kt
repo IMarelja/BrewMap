@@ -46,7 +46,7 @@ class LocationDrinksListFragment : Fragment() {
         val locationId = requireArguments().getString(ARG_LOCATION_ID).orEmpty()
         if (locationId.isBlank()) {
             tvDrinkState.visibility = View.VISIBLE
-            tvDrinkState.text = "Missing location id"
+            tvDrinkState.text = "Missing locationService id"
             return
         }
 
@@ -60,8 +60,8 @@ class LocationDrinksListFragment : Fragment() {
         tvBestDrink.visibility = View.GONE
 
         viewLifecycleOwner.lifecycleScope.launch {
-            val drinksDeferred    = async { ServiceProvider.drink.getByLocationId(locationId) }
-            val bestDrinkDeferred = async { ServiceProvider.drink.getBestDrinkByLocationId(locationId) }
+            val drinksDeferred    = async { ServiceProvider.drinkService.getByLocationId(locationId) }
+            val bestDrinkDeferred = async { ServiceProvider.drinkService.getBestDrinkByLocationId(locationId) }
 
             val drinksResult    = drinksDeferred.await()
             val bestDrinkResult = bestDrinkDeferred.await()
@@ -82,13 +82,13 @@ class LocationDrinksListFragment : Fragment() {
 
                     tvBestDrink.visibility = View.VISIBLE
                     tvBestDrink.text = if (bestDrink == null) {
-                        "Best drink: no ratings yet"
+                        "Best drinkService: no ratings yet"
                     } else {
-                        "Best drink: ${bestDrink.name} (${"%.1f".format(bestDrink.rating)})"
+                        "Best drinkService: ${bestDrink.name} (${"%.1f".format(bestDrink.rating)})"
                     }
 
                     tvDrinkState.text = if (drinks.isEmpty()) {
-                        "No drinks for this location"
+                        "No drinks for this locationService"
                     } else {
                         "${drinks.size} drinks loaded"
                     }

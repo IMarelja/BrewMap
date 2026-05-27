@@ -9,7 +9,7 @@ import hr.algebra.mobileapp.api.toServiceResult
 import hr.algebra.mobileapp.models.category.Category
 
 /**
- * **Production** category service — delegates every call to the BrewMap REST API.
+ * **Production** categoryService service — delegates every call to the BrewMap REST API.
  *
  * All endpoints require a valid JWT; the token is injected automatically by
  * [hr.algebra.mobileapp.api.API.createClient] via [hr.algebra.mobileapp.auth.TokenManager].

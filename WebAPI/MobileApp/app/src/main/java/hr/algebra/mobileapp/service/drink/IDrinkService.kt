@@ -6,10 +6,10 @@ import hr.algebra.mobileapp.models.drink.CreateDrinkRequest
 import hr.algebra.mobileapp.models.drink.Drink
 
 /**
- * Contract for drink read **and write** operations.
+ * Contract for drinkService read **and write** operations.
  *
  * Three implementations:
- *  - [DrinkServiceApi]        — live BrewMap REST API  (requires auth token)
+ *  - [DrinkServiceApi]        — live BrewMap REST API  (requires authService token)
  *  - [DrinkServiceHardCode]   — in-memory stub, no network
  *  - [DrinkServicePersistent] — API-backed with on-device cache
  *
@@ -23,15 +23,15 @@ interface IDrinkService {
     /** `GET api/Drink/{id}` */
     suspend fun getById(id: String): ServiceResult<Drink>
 
-    /** `GET api/Drink/location/{locationId}` */
+    /** `GET api/Drink/locationService/{locationId}` */
     suspend fun getByLocationId(locationId: String): ServiceResult<List<Drink>>
 
-    /** `GET api/Drink/location/{locationId}/best-drink` — data=null when no rated drinks exist. */
+    /** `GET api/Drink/locationService/{locationId}/best-drinkService` — data=null when no rated drinks exist. */
     suspend fun getBestDrinkByLocationId(locationId: String): ServiceResult<BestDrink?>
 
     // ── Write ─────────────────────────────────────────────────────────────────
 
-    /** `POST api/Drink` — creates a new drink for a location. Returns the created resource. */
+    /** `POST api/Drink` — creates a new drinkService for a locationService. Returns the created resource. */
     suspend fun create(request: CreateDrinkRequest): ServiceResult<Drink>
 
     /**

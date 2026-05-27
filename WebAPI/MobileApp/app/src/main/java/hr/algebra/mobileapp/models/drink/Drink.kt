@@ -4,7 +4,7 @@ package hr.algebra.mobileapp.models.drink
  * Mirrors `ReadDrink` DTO from the BrewMap API.
  *
  * `aggregatedRating` is kept as a nested object to match the JSON shape
- * returned by `GET api/Drink/{id}` and `GET api/Drink/location/{locationId}`.
+ * returned by `GET api/Drink/{id}` and `GET api/Drink/locationService/{locationId}`.
  */
 data class Drink(
     val id: String,
@@ -27,7 +27,7 @@ data class AggregatedRating(
 
 /**
  * Mirrors `ReadBestDrink` DTO — returned by
- * `GET api/Drink/location/{locationId}/best-drink`.
+ * `GET api/Drink/locationService/{locationId}/best-drinkService`.
  */
 data class BestDrink(
     val id: String,

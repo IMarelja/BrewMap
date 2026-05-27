@@ -5,7 +5,7 @@ import hr.algebra.mobileapp.models.category.Category
 import hr.algebra.mobileapp.service.HardCodeData
 
 /**
- * **Test / offline** category service — no network required.
+ * **Test / offline** categoryService service — no network required.
  *
  * All seed data lives in [HardCodeData], which is created once by
  * [hr.algebra.mobileapp.service.ServiceProvider] and shared across every

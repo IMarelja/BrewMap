@@ -11,7 +11,7 @@ import java.time.Instant
 import kotlin.math.*
 
 /**
- * **Test / offline** location service — no network required.
+ * **Test / offline** locationService service — no network required.
  *
  * Write operations mutate [HardCodeData.locations] in memory.
  */

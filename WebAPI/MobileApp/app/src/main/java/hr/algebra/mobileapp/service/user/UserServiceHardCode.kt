@@ -7,10 +7,10 @@ import hr.algebra.mobileapp.models.user.UserProfile
 import hr.algebra.mobileapp.service.HardCodeData
 
 /**
- * **Test / offline** user service — no network required.
+ * **Test / offline** userService service — no network required.
  *
  * Reads and writes the in-memory [HardCodeData.users] list.
- * The currently authenticated user is identified via [TokenManager.getUserId].
+ * The currently authenticated userService is identified via [TokenManager.getUserId].
  */
 class UserServiceHardCode(private val data: HardCodeData) : IUserService {
 

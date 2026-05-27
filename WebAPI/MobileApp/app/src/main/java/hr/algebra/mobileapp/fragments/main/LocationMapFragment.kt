@@ -184,7 +184,7 @@ class LocationMapFragment : Fragment() {
         progressPins.visibility = View.VISIBLE
 
         viewLifecycleOwner.lifecycleScope.launch {
-            val result = ServiceProvider.location.getPins(
+            val result = ServiceProvider.locationService.getPins(
                 minLon = bounds.lonWest,
                 maxLon = bounds.lonEast,
                 minLat = bounds.latSouth,
@@ -323,11 +323,11 @@ class LocationMapFragment : Fragment() {
 
         loadingLocationIds += locationId
         marker.title = "Loading..."
-        marker.snippet = "Fetching location details"
+        marker.snippet = "Fetching locationService details"
         marker.showInfoWindow()
 
         viewLifecycleOwner.lifecycleScope.launch {
-            val result = ServiceProvider.location.getById(locationId)
+            val result = ServiceProvider.locationService.getById(locationId)
             when {
                 result.isSuccess && result.data != null -> {
                     val location = result.data

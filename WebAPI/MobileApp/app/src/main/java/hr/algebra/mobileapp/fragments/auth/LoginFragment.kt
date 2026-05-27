@@ -80,7 +80,7 @@ class LoginFragment : Fragment() {
         // which TokenManager will persist to EncryptedSharedPreferences.
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val response = ServiceProvider.auth.login(
+                val response = ServiceProvider.authService.login(
                     user       = email,
                     password   = password,
                     rememberMe = true

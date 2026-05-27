@@ -3,7 +3,7 @@
     Supports both http:// and https:// URLs set in local.properties.
 
     cleartextTrafficPermitted="true"  → allows http:// URLs
-    <certificates src="user" />       → allows https:// with self-signed /
+    <certificates src="userService" />       → allows https:// with self-signed /
                                         developer-installed certificates
     <certificates src="system" />     → allows https:// with CA-signed certificates
 -->

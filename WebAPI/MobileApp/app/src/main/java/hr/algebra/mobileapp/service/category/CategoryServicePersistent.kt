@@ -7,7 +7,7 @@ import hr.algebra.mobileapp.cache.PersistentCache
 import hr.algebra.mobileapp.models.category.Category
 
 /**
- * **Cache-aside** category service — serves data from [PersistentCache] when
+ * **Cache-aside** categoryService service — serves data from [PersistentCache] when
  * available and fresh, falling back to [CategoryServiceApi] on a cache miss.
  *
  * Categories rarely change so they are cached for 24 hours.

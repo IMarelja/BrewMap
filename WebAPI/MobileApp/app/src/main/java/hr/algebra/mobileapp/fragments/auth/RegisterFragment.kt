@@ -92,10 +92,10 @@ class RegisterFragment : Fragment() {
         btnSubmit.isEnabled = false
 
         // Registration always returns a 60-min JWT; TokenManager persists it
-        // so the user lands in MainActivity without a second login step.
+        // so the userService lands in MainActivity without a second login step.
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val response = ServiceProvider.auth.register(
+                val response = ServiceProvider.authService.register(
                     email    = email,
                     username = username,
                     password = password

@@ -10,7 +10,7 @@ import hr.algebra.mobileapp.service.HardCodeData
 import java.time.Instant
 
 /**
- * **Test / offline** drink service — no network required.
+ * **Test / offline** drinkService service — no network required.
  *
  * Write operations mutate [HardCodeData.drinks] in memory.
  */

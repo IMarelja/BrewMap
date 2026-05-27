@@ -4,10 +4,10 @@ import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.models.review.Review
 
 /**
- * Contract for review read **and write** operations.
+ * Contract for reviewService read **and write** operations.
  *
  * Three implementations:
- *  - [ReviewServiceApi]        — live BrewMap REST API  (requires auth token)
+ *  - [ReviewServiceApi]        — live BrewMap REST API  (requires authService token)
  *  - [ReviewServiceHardCode]   — in-memory stub, no network
  *  - [ReviewServicePersistent] — API-backed with on-device cache
  *
@@ -18,7 +18,7 @@ interface IReviewService {
 
     // ── Read ──────────────────────────────────────────────────────────────────
 
-    /** data=null when no review exists with this id (not an error). */
+    /** data=null when no reviewService exists with this id (not an error). */
     suspend fun getById(id: String): ServiceResult<Review?>
     suspend fun getByLocationId(locationId: String): ServiceResult<List<Review>>
     suspend fun getByDrinkId(drinkId: String): ServiceResult<List<Review>>
@@ -27,10 +27,10 @@ interface IReviewService {
 
     // ── Write ─────────────────────────────────────────────────────────────────
 
-    /** `POST api/Review/location/{locationId}` — rating must be 1–5. */
+    /** `POST api/Review/locationService/{locationId}` — rating must be 1–5. */
     suspend fun createForLocation(locationId: String, rating: Int, comment: String?): ServiceResult<Review>
 
-    /** `POST api/Review/drink/{drinkId}` — rating must be 1–5. */
+    /** `POST api/Review/drinkService/{drinkId}` — rating must be 1–5. */
     suspend fun createForDrink(drinkId: String, rating: Int, comment: String?): ServiceResult<Review>
 
     /** `PUT api/Review/{id}` — pass null for fields that should not change. */

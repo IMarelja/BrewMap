@@ -10,7 +10,7 @@ import hr.algebra.mobileapp.models.location.Pin
 import hr.algebra.mobileapp.models.location.UpdateLocationRequest
 
 /**
- * **Cache-aside** location service.
+ * **Cache-aside** locationService service.
  *
  * Reads are served from [PersistentCache] with a 5-minute TTL.
  * Write operations bypass the cache and invalidate related entries on success
@@ -85,7 +85,7 @@ class LocationServicePersistent : ILocationService {
     override suspend fun create(request: CreateLocationRequest): ServiceResult<Location> {
         val result = api.create(request)
         if (result.isSuccess) {
-            // Invalidate pin/search caches — new location should appear on next fetch
+            // Invalidate pin/search caches — new locationService should appear on next fetch
             PersistentCache.clear()
         }
         return result
@@ -95,7 +95,7 @@ class LocationServicePersistent : ILocationService {
         val result = api.update(id, request)
         if (result.isSuccess) {
             PersistentCache.remove("loc_id_$id")
-            // Searches may have cached this location's old data
+            // Searches may have cached this locationService's old data
             PersistentCache.clear()
         }
         return result

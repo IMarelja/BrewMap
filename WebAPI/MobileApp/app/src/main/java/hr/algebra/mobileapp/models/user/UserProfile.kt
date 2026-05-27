@@ -7,7 +7,7 @@ data class UserProfile(
     val email: String
 )
 
-/** Public profile of another user — mirrors `StrangerUserProfileRead`. */
+/** Public profile of another userService — mirrors `StrangerUserProfileRead`. */
 data class StrangerProfile(
     val id: String,
     val username: String

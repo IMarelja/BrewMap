@@ -11,7 +11,7 @@ import hr.algebra.mobileapp.models.drink.CreateDrinkRequest
 import hr.algebra.mobileapp.models.drink.Drink
 
 /**
- * **Production** drink service — delegates every call to the BrewMap REST API.
+ * **Production** drinkService service — delegates every call to the BrewMap REST API.
  */
 class DrinkServiceApi : IDrinkService {
 
@@ -23,17 +23,17 @@ class DrinkServiceApi : IDrinkService {
             endpoint     = "Drink/$id",
             method       = HttpMethod.GET,
             responseType = object : TypeToken<Drink>() {}
-        ).toServiceResult("Could not load drink.")
+        ).toServiceResult("Could not load drinkService.")
         Log.d("DrinkServiceApi", "getById($id) → success=${result.isSuccess}")
         return result
     }
 
-    // ── GET api/Drink/location/{locationId} ───────────────────────────────────
+    // ── GET api/Drink/locationService/{locationId} ───────────────────────────────────
 
     override suspend fun getByLocationId(locationId: String): ServiceResult<List<Drink>> {
         val client = API.createClient()
         val result = client.request(
-            endpoint     = "Drink/location/$locationId",
+            endpoint     = "Drink/locationService/$locationId",
             method       = HttpMethod.GET,
             responseType = object : TypeToken<List<Drink>>() {}
         ).toServiceResult("Could not load drinks.")
@@ -41,12 +41,12 @@ class DrinkServiceApi : IDrinkService {
         return result
     }
 
-    // ── GET api/Drink/location/{locationId}/best-drink ────────────────────────
+    // ── GET api/Drink/locationService/{locationId}/best-drinkService ────────────────────────
 
     override suspend fun getBestDrinkByLocationId(locationId: String): ServiceResult<BestDrink?> {
         val client = API.createClient()
         val result = client.request(
-            endpoint     = "Drink/location/$locationId/best-drink",
+            endpoint     = "Drink/locationService/$locationId/best-drinkService",
             method       = HttpMethod.GET,
             responseType = object : TypeToken<BestDrink?>() {}
         ).toServiceResult(treatNotFoundAsEmpty = true)
@@ -63,7 +63,7 @@ class DrinkServiceApi : IDrinkService {
             method       = HttpMethod.POST,
             body         = request,
             responseType = object : TypeToken<Drink>() {}
-        ).toServiceResult("Could not create drink.")
+        ).toServiceResult("Could not create drinkService.")
         Log.d("DrinkServiceApi", "create → success=${result.isSuccess}")
         return result
     }
@@ -78,7 +78,7 @@ class DrinkServiceApi : IDrinkService {
             method       = HttpMethod.PUT,
             body         = body,
             responseType = object : TypeToken<Drink>() {}
-        ).toServiceResult("Could not update drink.")
+        ).toServiceResult("Could not update drinkService.")
         Log.d("DrinkServiceApi", "update($id) → success=${result.isSuccess}")
         return result
     }

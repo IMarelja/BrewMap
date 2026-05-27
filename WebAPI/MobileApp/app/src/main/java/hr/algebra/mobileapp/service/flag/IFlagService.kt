@@ -4,10 +4,10 @@ import hr.algebra.mobileapp.api.ServiceResult
 import hr.algebra.mobileapp.models.flag.Flag
 
 /**
- * Contract for the user-facing flag (report) operation.
+ * Contract for the userService-facing flagService (report) operation.
  *
  * Two implementations:
- *  - [FlagServiceApi]      — live BrewMap REST API (requires auth token)
+ *  - [FlagServiceApi]      — live BrewMap REST API (requires authService token)
  *  - [FlagServiceHardCode] — in-memory stub, no network
  *
  * Every method returns [ServiceResult]<T>. On success [ServiceResult.data] holds the result;
@@ -18,7 +18,7 @@ interface IFlagService {
     /**
      * `POST api/Flag` — reports a piece of content.
      *
-     * @param targetType one of: `"location"`, `"product"`, `"review"`, `"user"`
+     * @param targetType one of: `"locationService"`, `"product"`, `"reviewService"`, `"userService"`
      * @param targetId   MongoDB ObjectId of the entity being reported
      * @param reason     short description (≥ 3 chars, required by the backend)
      * @param description optional longer explanation

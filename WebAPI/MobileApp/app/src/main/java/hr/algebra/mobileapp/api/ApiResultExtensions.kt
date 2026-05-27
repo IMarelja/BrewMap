@@ -41,7 +41,7 @@ fun <T> ApiResult<T>.toServiceResult(
  *
  * | Shape | Example | Result |
  * |---|---|---|
- * | Plain JSON string | `"A drink with that name already exists"` | One `ResultError` with that string |
+ * | Plain JSON string | `"A drinkService with that name already exists"` | One `ResultError` with that string |
  * | `{ "message": "…" }` | NotFound with body | One `ResultError` with the message |
  * | ASP.NET ValidationProblemDetails | `{ "errors": { "Field": ["msg1"] } }` | One `ResultError` **per (field × message)** formatted as `"Field: msg1"` |
  *

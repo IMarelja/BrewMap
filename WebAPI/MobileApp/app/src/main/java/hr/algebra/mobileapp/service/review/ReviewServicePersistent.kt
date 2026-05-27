@@ -7,10 +7,10 @@ import hr.algebra.mobileapp.cache.PersistentCache
 import hr.algebra.mobileapp.models.review.Review
 
 /**
- * **Cache-aside** review service.
+ * **Cache-aside** reviewService service.
  *
  * Reads are served from [PersistentCache] with a 2-minute TTL.
- * [getMyReviews] is **not** cached — the user must always see their own latest.
+ * [getMyReviews] is **not** cached — the userService must always see their own latest.
  * Write operations bypass the cache and also invalidate related cache entries
  * so the next read reflects the change.
  */
@@ -32,7 +32,7 @@ class ReviewServicePersistent : IReviewService {
             return ServiceResult.success(it)
         }
         val result = api.getById(id)
-        // data == null means "review not found" — valid, do not cache null
+        // data == null means "reviewService not found" — valid, do not cache null
         if (result.isSuccess && result.data != null) {
             PersistentCache.put(key, result.data, TTL_REVIEWS)
         }

@@ -9,7 +9,7 @@ import hr.algebra.mobileapp.api.toServiceResult
 import hr.algebra.mobileapp.models.review.Review
 
 /**
- * **Production** review service — delegates every call to the BrewMap REST API.
+ * **Production** reviewService service — delegates every call to the BrewMap REST API.
  */
 class ReviewServiceApi : IReviewService {
 
@@ -26,12 +26,12 @@ class ReviewServiceApi : IReviewService {
         return result
     }
 
-    // ── GET api/Review/location/{locationId} ──────────────────────────────────
+    // ── GET api/Review/locationService/{locationId} ──────────────────────────────────
 
     override suspend fun getByLocationId(locationId: String): ServiceResult<List<Review>> {
         val client = API.createClient()
         val result = client.request(
-            endpoint     = "Review/location/$locationId",
+            endpoint     = "Review/locationService/$locationId",
             method       = HttpMethod.GET,
             responseType = object : TypeToken<List<Review>>() {}
         ).toServiceResult("Could not load reviews.")
@@ -39,12 +39,12 @@ class ReviewServiceApi : IReviewService {
         return result
     }
 
-    // ── GET api/Review/drink/{drinkId} ────────────────────────────────────────
+    // ── GET api/Review/drinkService/{drinkId} ────────────────────────────────────────
 
     override suspend fun getByDrinkId(drinkId: String): ServiceResult<List<Review>> {
         val client = API.createClient()
         val result = client.request(
-            endpoint     = "Review/drink/$drinkId",
+            endpoint     = "Review/drinkService/$drinkId",
             method       = HttpMethod.GET,
             responseType = object : TypeToken<List<Review>>() {}
         ).toServiceResult("Could not load reviews.")
@@ -78,30 +78,30 @@ class ReviewServiceApi : IReviewService {
         return result
     }
 
-    // ── POST api/Review/location/{locationId} ─────────────────────────────────
+    // ── POST api/Review/locationService/{locationId} ─────────────────────────────────
 
     override suspend fun createForLocation(locationId: String, rating: Int, comment: String?): ServiceResult<Review> {
         val client = API.createClient()
         val result = client.request(
-            endpoint     = "Review/location/$locationId",
+            endpoint     = "Review/locationService/$locationId",
             method       = HttpMethod.POST,
             body         = mapOf("rating" to rating, "comment" to comment),
             responseType = object : TypeToken<Review>() {}
-        ).toServiceResult("Could not submit review.")
+        ).toServiceResult("Could not submit reviewService.")
         Log.d("ReviewServiceApi", "createForLocation($locationId) → success=${result.isSuccess}")
         return result
     }
 
-    // ── POST api/Review/drink/{drinkId} ──────────────────────────────────────
+    // ── POST api/Review/drinkService/{drinkId} ──────────────────────────────────────
 
     override suspend fun createForDrink(drinkId: String, rating: Int, comment: String?): ServiceResult<Review> {
         val client = API.createClient()
         val result = client.request(
-            endpoint     = "Review/drink/$drinkId",
+            endpoint     = "Review/drinkService/$drinkId",
             method       = HttpMethod.POST,
             body         = mapOf("rating" to rating, "comment" to comment),
             responseType = object : TypeToken<Review>() {}
-        ).toServiceResult("Could not submit review.")
+        ).toServiceResult("Could not submit reviewService.")
         Log.d("ReviewServiceApi", "createForDrink($drinkId) → success=${result.isSuccess}")
         return result
     }
@@ -115,7 +115,7 @@ class ReviewServiceApi : IReviewService {
             method       = HttpMethod.PUT,
             body         = mapOf("rating" to rating, "comment" to comment),
             responseType = object : TypeToken<Review>() {}
-        ).toServiceResult("Could not update review.")
+        ).toServiceResult("Could not update reviewService.")
         Log.d("ReviewServiceApi", "update($reviewId) → success=${result.isSuccess}")
         return result
     }
@@ -128,7 +128,7 @@ class ReviewServiceApi : IReviewService {
             endpoint     = "Review/$reviewId",
             method       = HttpMethod.DELETE,
             responseType = object : TypeToken<Map<String, Any>>() {}
-        ).toServiceResult("Could not delete review.").mapToUnit()
+        ).toServiceResult("Could not delete reviewService.").mapToUnit()
         Log.d("ReviewServiceApi", "delete($reviewId) → success=${result.isSuccess}")
         return result
     }

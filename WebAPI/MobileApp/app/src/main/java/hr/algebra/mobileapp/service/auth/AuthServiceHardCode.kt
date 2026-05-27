@@ -7,13 +7,13 @@ import hr.algebra.mobileapp.models.auth.AuthResponse
 import hr.algebra.mobileapp.service.HardCodeData
 
 /**
- * **Test / offline** auth service — no network required.
+ * **Test / offline** authService service — no network required.
  *
  * All seed data lives in [HardCodeData], which is created once by
  * [hr.algebra.mobileapp.service.ServiceProvider] and shared across every
- * hard-code stub.  This class only contains auth logic.
+ * hard-code stub.  This class only contains authService logic.
  *
- * Login accepts username **or** e-mail.  Register appends the new user to
+ * Login accepts username **or** e-mail.  Register appends the new userService to
  * [HardCodeData.users] so it survives for the duration of the session.
  *
  * Tokens are unsigned mock JWTs containing `id`, `role`, and `exp`.
@@ -49,7 +49,7 @@ class AuthServiceHardCode(private val data: HardCodeData) : IAuthService {
         }
 
         val token = buildMockJwt(match.id, match.role, rememberMe)
-        Log.d("AuthServiceHardCode", "login OK  user=${match.username}  role=${match.role}")
+        Log.d("AuthServiceHardCode", "login OK  userService=${match.username}  role=${match.role}")
         return AuthResponse(
             success    = true,
             token      = token,
@@ -91,11 +91,11 @@ class AuthServiceHardCode(private val data: HardCodeData) : IAuthService {
                 username = username,
                 email    = email,
                 password = password,
-                role     = "user"
+                role     = "userService"
             )
         )
 
-        val token = buildMockJwt(newId, "user", rememberMe = false)
+        val token = buildMockJwt(newId, "userService", rememberMe = false)
         Log.d("AuthServiceHardCode", "register OK  username=$username")
         return AuthResponse(
             success    = true,
@@ -113,8 +113,8 @@ class AuthServiceHardCode(private val data: HardCodeData) : IAuthService {
      *
      * | field | type   | value                            |
      * |-------|--------|----------------------------------|
-     * | id    | String | mock user ID                     |
-     * | role  | String | "admin" or "user"                |
+     * | id    | String | mock userService ID                     |
+     * | role  | String | "admin" or "userService"                |
      * | exp   | Long   | Unix epoch seconds (1 h or 7 d) |
      */
     private fun buildMockJwt(userId: String, role: String, rememberMe: Boolean): String {
