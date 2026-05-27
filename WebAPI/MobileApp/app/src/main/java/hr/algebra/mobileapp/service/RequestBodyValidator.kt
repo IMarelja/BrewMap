@@ -2,6 +2,7 @@ package hr.algebra.mobileapp.service
 
 import android.util.Patterns
 import hr.algebra.mobileapp.api.ResultError
+import hr.algebra.mobileapp.models.flag.CreateFlagRequest
 import hr.algebra.mobileapp.models.location.CreateLocationRequest
 import hr.algebra.mobileapp.models.location.DayOpeningHours
 import hr.algebra.mobileapp.models.location.UpdateLocationRequest
@@ -64,11 +65,13 @@ object RequestBodyValidator {
         }
 
     fun validateCreateFlag(
-        targetType: String,
-        targetId: String,
-        reason: String
+        request: CreateFlagRequest
     ): List<ResultError> =
         buildList {
+            val targetType = request.target.type
+            val targetId = request.target.id
+            val reason = request.reason
+
             requireNotBlank("Target.Type", targetType)
             if (targetType.isNotBlank() && targetType !in allowedFlagTargetTypes) {
                 add(ResultError("Target.Type must be one of: location, product, review, user."))
