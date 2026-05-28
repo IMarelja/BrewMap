@@ -1,9 +1,9 @@
 package hr.algebra.mobileapp.fragments.main
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import hr.algebra.mobileapp.R
+import hr.algebra.mobileapp.cache.PersistentCache
 import hr.algebra.mobileapp.models.location.Location
 import hr.algebra.mobileapp.service.ServiceProvider
 import kotlinx.coroutines.async
@@ -28,6 +29,8 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import kotlin.math.roundToInt
+import androidx.core.graphics.scale
+import androidx.core.graphics.drawable.toDrawable
 
 class LocationDetailFragment : Fragment() {
 
@@ -111,6 +114,12 @@ class LocationDetailFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        if (ServiceProvider.isPersistent && locationId.isNotBlank()) {
+            PersistentCache.remove("loc_id_$locationId")
+            PersistentCache.remove("review_loc_$locationId")
+            PersistentCache.remove("drink_loc_$locationId")
+            PersistentCache.remove("drink_best_$locationId")
+        }
         detailMarker = null
         scaledPinIconCache.clear()
         mapView.onDetach()
@@ -123,7 +132,7 @@ class LocationDetailFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             val result = ServiceProvider.locationService.getById(locationId)
             when {
-                result.isUnauthorized  -> { /* MainActivity already navigating to login */ }
+                result.isUnauthorized  -> { /* MainActivity already navigating to log in */ }
                 result.isNetworkError  -> Toast.makeText(requireContext(), getString(R.string.error_no_connection), Toast.LENGTH_SHORT).show()
                 result.errors.isNotEmpty() -> Toast.makeText(requireContext(), result.errorMessage(), Toast.LENGTH_SHORT).show()
                 else -> {
@@ -156,6 +165,7 @@ class LocationDetailFragment : Fragment() {
         getString(R.string.detail_category_payment_format, categoryName, paymentNames)
     }
 
+    @SuppressLint("SetTextI18n")
     private fun bindLocation(location: Location, metaText: String) {
         tvName.text = location.name
         tvRating.text = "${"%.1f".format(location.averageRating)} ★ (${location.totalReviews} reviews)"
@@ -197,6 +207,7 @@ class LocationDetailFragment : Fragment() {
         mapView.invalidate()
     }
 
+    @SuppressLint("UseKtx")
     private fun createScaledPinDrawable(targetHeightPx: Int) =
         scaledPinIconCache.getOrPut(targetHeightPx.coerceAtLeast(1)) {
             val source = pinBitmap ?: return@getOrPut null
@@ -206,8 +217,8 @@ class LocationDetailFragment : Fragment() {
             val targetWidthPx = (safeHeightPx.toFloat() * source.width / source.height)
                 .roundToInt()
                 .coerceAtLeast(1)
-            val scaledBitmap = Bitmap.createScaledBitmap(source, targetWidthPx, safeHeightPx, true)
-            BitmapDrawable(resources, scaledBitmap)
+            val scaledBitmap = source.scale(targetWidthPx, safeHeightPx)
+            scaledBitmap.toDrawable(resources)
         }
 
     private fun zoomToPinSizeDp(zoomLevel: Double): Float {

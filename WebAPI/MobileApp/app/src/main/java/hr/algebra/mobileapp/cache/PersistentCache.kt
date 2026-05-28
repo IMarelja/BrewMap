@@ -77,14 +77,14 @@ object PersistentCache {
         val entry = try {
             gson.fromJson(raw, CacheEntry::class.java)
         } catch (e: Exception) {
-            Log.w(TAG, "corrupt cache entry '$key', evicting")
-            prefs.edit().remove(key).apply()
+            Log.w(TAG, "corrupt cache entry '$key', evicting $e")
+            prefs.edit { remove(key) }
             return null
         }
 
         if (System.currentTimeMillis() > entry.expiresAt) {
             Log.d(TAG, "stale cache entry '$key', evicting")
-            prefs.edit().remove(key).apply()
+            prefs.edit { remove(key) }
             return null
         }
 
@@ -107,6 +107,14 @@ object PersistentCache {
     fun clear() {
         prefs.edit { clear() }
         Log.d(TAG, "cache cleared")
+    }
+
+    /** Remove all entries whose key starts with [prefix] (e.g. "loc_search_"). */
+    fun clearByPrefix(prefix: String) {
+        val toRemove = prefs.all.keys.filter { it.startsWith(prefix) }
+        if (toRemove.isEmpty()) return
+        prefs.edit { toRemove.forEach { remove(it) } }
+        Log.d(TAG, "evicted ${toRemove.size} entries with prefix '$prefix'")
     }
 
     // ── Internal ──────────────────────────────────────────────────────────────

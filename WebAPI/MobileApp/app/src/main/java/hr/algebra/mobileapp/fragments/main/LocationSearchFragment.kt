@@ -25,6 +25,7 @@ import com.google.android.material.textfield.TextInputEditText
 import hr.algebra.mobileapp.MainActivity
 import hr.algebra.mobileapp.R
 import hr.algebra.mobileapp.adapters.LocationSearchAdapter
+import hr.algebra.mobileapp.cache.PersistentCache
 import hr.algebra.mobileapp.service.ServiceProvider
 import hr.algebra.mobileapp.state.MapViewportStore
 import kotlinx.coroutines.async
@@ -208,7 +209,7 @@ class LocationSearchFragment : Fragment() {
         tvMinRatingValue.text = if (value <= 0f) {
             getString(R.string.minimum_rating_any)
         } else {
-            getString(R.string.min_rating_format, value)
+            getString(R.string.min_rating_format)
         }
     }
 
@@ -219,6 +220,7 @@ class LocationSearchFragment : Fragment() {
             }
 
     private fun runSearch() {
+        if (ServiceProvider.isPersistent) PersistentCache.clearByPrefix("loc_search_")
         val query = etSearchQuery.text?.toString()?.trim().orEmpty()
         val drinkKeyword = etDrinkKeyword.text?.toString()?.trim().orEmpty()
         val minRating = sliderMinRating.value.takeIf { it > 0f }?.toDouble()

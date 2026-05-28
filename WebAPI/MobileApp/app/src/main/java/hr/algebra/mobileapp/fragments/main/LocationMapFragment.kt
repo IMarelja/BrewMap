@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import hr.algebra.mobileapp.MainActivity
 import hr.algebra.mobileapp.R
+import hr.algebra.mobileapp.cache.PersistentCache
 import hr.algebra.mobileapp.models.location.Location
 import hr.algebra.mobileapp.models.location.Pin
 import hr.algebra.mobileapp.service.ServiceProvider
@@ -178,6 +179,7 @@ class LocationMapFragment : Fragment() {
 
     private fun loadPinsForCurrentBounds() {
         val bounds = mapView.boundingBox ?: return
+        if (ServiceProvider.isPersistent) PersistentCache.clearByPrefix("loc_pins_")
 
         progressPins.visibility = View.VISIBLE
 

@@ -69,6 +69,9 @@ object ServiceProvider {
     // from BuildConfig and must be ready before any lazy initializer runs.
     // ─────────────────────────────────────────────────────────────────────────
     private val MODE: Mode = Mode.fromKey(BuildConfig.APP_MODE)
+
+    /** True when running in PERSISTENT mode — fragments use this to gate cache-clearing logic. */
+    val isPersistent: Boolean get() = MODE == Mode.PERSISTENT
     // ─────────────────────────────────────────────────────────────────────────
 
     enum class Mode(val key: String) {
