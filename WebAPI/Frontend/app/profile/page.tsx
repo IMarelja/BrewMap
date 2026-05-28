@@ -1,9 +1,10 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ProtectedRoute from '@/components/auth/protected-route'
 import Navbar from '@/components/ui/navbar'
 import api from '@/lib/api'
 import { getUser } from '@/lib/auth'
+import { Review } from '@/lib/types'
 
 // Simple SVG Eye Icon 
 const EyeIcon = ({ visible }: { visible: boolean }) => (
@@ -35,6 +36,49 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+
+  const [reviews, setReviews] = useState<Review[]>([])
+  const [loadingReviews, setLoadingReviews] = useState(true)
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const res = await api.get('/api/Review/mine')
+        setReviews(res.data)
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoadingReviews(false)
+      }
+    }
+
+    fetchReviews()
+  }, [])
+
+  const deleteReview = async (reviewId: string) => {
+  const confirmed = window.confirm(
+    'Delete this review?'
+  )
+
+  if (!confirmed) return
+
+  try {
+    await api.delete(`/api/Review/${reviewId}`)
+
+    setReviews(prev =>
+      prev.filter(r => r.id !== reviewId)
+    )
+
+    setMessage('Review deleted successfully.')
+  } catch (err: any) {
+    console.error(err)
+
+    setError(
+      err.response?.data?.message ||
+        'Failed to delete review.'
+    )
+  }
+}
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -140,6 +184,115 @@ export default function ProfilePage() {
                 {saving ? 'Saving...' : 'Change Password'}
               </button>
             </form>
+          </div>
+
+          {/* Delete reviews Section */}
+          <div
+            style={{
+              background: '#fff',
+              border: '1px solid #E8D5B7',
+              borderRadius: '16px',
+              padding: '2rem',
+              marginTop: '1.5rem'
+            }}
+          >
+            <h2
+              style={{
+                fontSize: '16px',
+                fontWeight: 600,
+                color: '#2C1A0E',
+                marginBottom: '1.5rem'
+              }}
+            >
+              My Reviews
+            </h2>
+
+            {loadingReviews ? (
+              <p style={{ color: '#6B3F1F' }}>
+                Loading reviews...
+              </p>
+            ) : reviews.length === 0 ? (
+              <p style={{ color: '#6B3F1F' }}>
+                You haven't written any reviews yet.
+              </p>
+            ) : (
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1rem'
+                }}
+              >
+                {reviews.map(review => (
+                  <div
+                    key={review.id}
+                    style={{
+                      border: '1px solid #E8D5B7',
+                      borderRadius: '12px',
+                      padding: '1rem',
+                      background: '#FDFAF7'
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '10px'
+                      }}
+                    >
+                      <span
+                        style={{
+                          color: '#2C1A0E',
+                          fontWeight: 600
+                        }}
+                      >
+                        {'★'.repeat(review.rating)}
+                      </span>
+
+                      <button
+                        onClick={() =>
+                          deleteReview(review.id)
+                        }
+                        style={{
+                          background: '#991B1B',
+                          color: '#fff',
+                          border: 'none',
+                          padding: '6px 12px',
+                          borderRadius: '8px',
+                          fontSize: '12px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+
+                    <p
+                      style={{
+                        margin: 0,
+                        color: '#2C1A0E',
+                        lineHeight: 1.6
+                      }}
+                    >
+                      {review.comment}
+                    </p>
+
+                    <p
+                      style={{
+                        marginTop: '10px',
+                        fontSize: '12px',
+                        color: '#6B3F1F'
+                      }}
+                    >
+                      {new Date(
+                        review.createdAt
+                      ).toLocaleDateString()}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
