@@ -41,6 +41,7 @@ class LocationDetailFragment : Fragment() {
     private lateinit var tvDescription: TextView
     private lateinit var tvMeta: TextView
     private lateinit var mapView: MapView
+    private lateinit var btnOpeningHours: MaterialButton
     private lateinit var btnReviews: MaterialButton
     private lateinit var btnDrinks: MaterialButton
     private var detailMarker: Marker? = null
@@ -51,6 +52,7 @@ class LocationDetailFragment : Fragment() {
 
     private var locationId: String = ""
     private var activeSection: Section = Section.NONE
+    private var isOpeningHoursVisible = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -68,6 +70,7 @@ class LocationDetailFragment : Fragment() {
         tvDescription = view.findViewById(R.id.tv_detail_description)
         tvMeta = view.findViewById(R.id.tv_detail_meta)
         mapView = view.findViewById(R.id.detail_map_view)
+        btnOpeningHours = view.findViewById(R.id.btn_opening_hours)
         btnReviews = view.findViewById(R.id.btn_reviews)
         btnDrinks = view.findViewById(R.id.btn_drinks)
 
@@ -84,6 +87,14 @@ class LocationDetailFragment : Fragment() {
         if (locationId.isBlank()) {
             Toast.makeText(requireContext(), getString(R.string.error_missing_location_id), Toast.LENGTH_SHORT).show()
             return
+        }
+
+        btnOpeningHours.setOnClickListener {
+            if (isOpeningHoursVisible) {
+                hideOpeningHours()
+            } else {
+                showOpeningHours()
+            }
         }
 
         btnReviews.setOnClickListener {
@@ -249,6 +260,26 @@ class LocationDetailFragment : Fragment() {
         return start + (end - start) * t.coerceIn(0f, 1f)
     }
 
+    private fun showOpeningHours() {
+        childFragmentManager.beginTransaction()
+            .replace(
+                R.id.opening_hours_content_container,
+                LocationOpeningHoursListFragment.newInstance(locationId)
+            )
+            .commit()
+
+        isOpeningHoursVisible = true
+        updateOpeningHoursButtonState()
+    }
+
+    private fun hideOpeningHours() {
+        childFragmentManager.findFragmentById(R.id.opening_hours_content_container)?.let { fragment ->
+            childFragmentManager.beginTransaction().remove(fragment).commit()
+        }
+        isOpeningHoursVisible = false
+        updateOpeningHoursButtonState()
+    }
+
     private fun showSection(section: Section) {
         val fragment = when (section) {
             Section.REVIEWS -> LocationReviewsListFragment.newInstance(locationId)
@@ -278,8 +309,18 @@ class LocationDetailFragment : Fragment() {
     }
 
     private fun updateSectionButtonState(section: Section) {
+        updateOpeningHoursButtonState()
         btnReviews.alpha = if (section == Section.REVIEWS) 1.0f else 0.7f
         btnDrinks.alpha = if (section == Section.DRINKS) 1.0f else 0.7f
+    }
+
+    private fun updateOpeningHoursButtonState() {
+        btnOpeningHours.alpha = if (isOpeningHoursVisible) 1.0f else 0.7f
+        btnOpeningHours.text = if (isOpeningHoursVisible) {
+            getString(R.string.hide_opening_hours)
+        } else {
+            getString(R.string.opening_hours)
+        }
     }
 
     private enum class Section {

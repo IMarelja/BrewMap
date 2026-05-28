@@ -48,6 +48,8 @@
     <string name="tap_a_pin_to_see_a_short_location_description">Tap a pin to see a short location description</string>
     <string name="drinks">Drinks</string>
     <string name="reviews">Reviews</string>
+    <string name="opening_hours">Show opening hours</string>
+    <string name="hide_opening_hours">Hide opening hours</string>
     <string name="map">Map</string>
     <string name="log_out">Log out</string>
 
@@ -69,6 +71,7 @@
     <!-- State messages -->
     <string name="state_loading_reviews">Loading reviews…</string>
     <string name="state_loading_drinks">Loading drinks…</string>
+    <string name="state_loading_opening_hours">Loading opening hours…</string>
     <string name="state_searching">Searching…</string>
     <string name="state_no_reviews">No reviews for this location</string>
     <string name="state_no_drinks">No drinks for this location</string>
@@ -82,6 +85,17 @@
     <!-- Detail screen -->
     <string name="detail_no_description">No description</string>
     <string name="detail_category_payment_format">Category: %1$s\nPayment: %2$s</string>
+    <string name="opening_hours_day_format">%1$s: %2$s</string>
+    <string name="opening_hours_time_range_format">%1$s - %2$s</string>
+    <string name="opening_hours_closed">(Closed)</string>
+    <string name="opening_hours_unavailable">Unavailable</string>
+    <string name="day_monday">Monday</string>
+    <string name="day_tuesday">Tuesday</string>
+    <string name="day_wednesday">Wednesday</string>
+    <string name="day_thursday">Thursday</string>
+    <string name="day_friday">Friday</string>
+    <string name="day_saturday">Saturday</string>
+    <string name="day_sunday">Sunday</string>
 
     <!-- Map marker states -->
     <string name="marker_default_title">Location</string>
