@@ -7,6 +7,7 @@ import ProtectedRoute from '@/components/auth/protected-route'
 import Navbar from '@/components/ui/navbar'
 import api from '@/lib/api'
 import { isAdmin } from '@/lib/auth'
+import ReportButton from '@/components/ui/report-button'
 
 export default function DrinkDetailPage() {
   const { id } = useParams()
@@ -25,6 +26,7 @@ const [submitting, setSubmitting] = useState(false)
 
 const [error, setError] = useState('')
 const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+
 
   useEffect(() => {
   if (!id) return
@@ -111,7 +113,7 @@ const deleteDrink = async () => {
     <ProtectedRoute>
       <div style={{ minHeight: '100vh', background: '#F5EFE6' }}>
         <Navbar />
-        
+
             {toast && (
             <div
                 style={{
@@ -254,6 +256,12 @@ const deleteDrink = async () => {
                     Delete Drink
                 </button>
                     )}
+
+                    
+            <ReportButton
+                targetType="review"
+                targetId={drink.id}
+                />
                 </div>
             </div>
 
@@ -490,6 +498,12 @@ const deleteDrink = async () => {
                 Delete
             </button>
                     )}
+
+
+            <ReportButton
+                targetType="review"
+                targetId={r.id}
+                />
           </div>
         ))
       )}

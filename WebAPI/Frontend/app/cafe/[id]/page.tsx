@@ -7,6 +7,7 @@ import Navbar from '@/components/ui/navbar'
 import api from '@/lib/api'
 import { Cafe, Drink, Review } from '@/lib/types'
 import { isAdmin } from '@/lib/auth'
+import ReportButton from '@/components/ui/report-button'
 
 export default function CafeDetailPage() {
   const { id } = useParams()
@@ -228,6 +229,11 @@ const deleteCafe = async () => {
                 Delete Cafe
               </button>
             )}
+
+            <ReportButton
+                targetType="location"
+                targetId={cafe.id}
+              />
             </div>
           </div>
 
@@ -336,6 +342,11 @@ const deleteCafe = async () => {
             >
               ☕ Drink
             </span>
+
+            <ReportButton
+                targetType="product"
+                targetId={drink.id}
+              />
           </div>
         </div>
       ))}
@@ -494,6 +505,12 @@ const deleteCafe = async () => {
                         Delete
                       </button>
                     )}
+
+
+                    <ReportButton
+                        targetType="review"
+                        targetId={r.id}
+                      />
                   </div>
                   
                 ))

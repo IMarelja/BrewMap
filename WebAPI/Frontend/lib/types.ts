@@ -89,3 +89,26 @@ export interface Flag {
   targetType: string
   targetId: string
 }
+
+
+export interface CreateFlagRequest {
+  target: {
+    type: 'location' | 'product' | 'review' | 'user'
+    id: string
+  }
+  reason: string
+  description?: string
+}
+
+export interface Flag {
+  id: string
+  reportedByUserId: string
+  target: {
+    type: string
+    id: string
+  }
+  reason: string
+  description?: string
+  status: string
+  createdAt: string
+}
