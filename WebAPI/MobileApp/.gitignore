@@ -17,18 +17,14 @@ local.properties
 
 # ── Android Studio / IntelliJ IDEA ───────────────────────────────────────────
 *.iml
-.idea/workspace.xml
-.idea/navEditor.xml
-.idea/assetWizardSettings.xml
-.idea/caches/
-.idea/libraries/
-.idea/modules.xml
-.idea/deploymentTargetSelector.xml
-.idea/deviceManager.xml
-.idea/migrations.xml
+.idea/
+!.idea/codeStyles/
+!.idea/inspectionProfiles/
+!.idea/dictionaries/
 
 # Nested .idea/ inside app/ — leftover from when app/ was a standalone project
 app/.idea/
+app/.idea/*
 
 # Duplicate Gradle wrapper + version catalog inside app/ (root-level copies are canonical)
 app/gradlew

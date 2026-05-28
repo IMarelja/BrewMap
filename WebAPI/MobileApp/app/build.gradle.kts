@@ -7,7 +7,7 @@ plugins {
 
 // Read BIND_API_URL from the repository root .env (../../.env from this module).
 // Build fails fast if the file or key is missing, so incorrect environments never compile.
-val envFile = rootProject.file("../../../.env")
+val envFile = rootProject.file("../../.env")
 if (!envFile.exists()) {
     error(".env file not found at ${envFile.absolutePath}. Create it and set BIND_API_URL.")
 }
