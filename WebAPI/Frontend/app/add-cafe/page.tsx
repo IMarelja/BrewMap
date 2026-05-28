@@ -8,7 +8,6 @@ import { useEffect } from 'react'
 import ProtectedRoute from '@/components/auth/protected-route'
 import { Category, PaymentOption } from '@/lib/types'
 
-// We'll build this component next - it needs to handle the click-to-pin logic
 const PinMap = dynamic(() => import('../../components/ui/PinMap'), { ssr: false })
 
 const days = [
@@ -31,16 +30,10 @@ export default function AddCafePage() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    // address: {
-    //   street: '',
-    //   city: 'Zagreb',
-    //   country: 'Croatia',
-    //   postalCode: ''
-    // },
-      street: '',
-      city: '',
-      country: '',
-      postalCode: '',
+    street: '',
+    city: '',
+    country: '',
+    postalCode: '',
     latitude: 45.815,
     longitude: 15.9819,
     categoryTag: '',

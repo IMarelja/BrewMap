@@ -39,6 +39,7 @@ export default function ProfilePage() {
 
   const [reviews, setReviews] = useState<Review[]>([])
   const [loadingReviews, setLoadingReviews] = useState(true)
+  const [deletingAccount, setDeletingAccount] = useState(false)
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -54,6 +55,36 @@ export default function ProfilePage() {
 
     fetchReviews()
   }, [])
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      'Are you sure you want to permanently delete your account? This action cannot be undone.'
+    )
+
+    if (!confirmed) return
+
+    try {
+      setDeletingAccount(true)
+      setMessage('')
+      setError('')
+
+      await api.delete('/api/User/me')
+
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+
+      window.location.href = '/login'
+    } catch (err: any) {
+      console.error(err)
+
+      setError(
+        err.response?.data?.message ||
+        'Failed to delete account.'
+      )
+    } finally {
+      setDeletingAccount(false)
+    }
+  }
 
   const deleteReview = async (reviewId: string) => {
   const confirmed = window.confirm(
@@ -293,6 +324,58 @@ export default function ProfilePage() {
                 ))}
               </div>
             )}
+          </div>
+          <div
+            style={{
+              background: '#fff',
+              border: '1px solid #FECACA',
+              borderRadius: '16px',
+              padding: '2rem',
+              marginTop: '1.5rem'
+            }}
+          >
+            <h2
+              style={{
+                fontSize: '16px',
+                fontWeight: 600,
+                color: '#991B1B',
+                marginBottom: '1rem'
+              }}
+            >
+              Danger Zone
+            </h2>
+
+            <p
+              style={{
+                color: '#7F1D1D',
+                fontSize: '14px',
+                lineHeight: 1.6,
+                marginBottom: '1.5rem'
+              }}
+            >
+              Permanently delete your BrewMap account and all associated data.
+              This action cannot be undone.
+            </p>
+
+            <button
+              onClick={handleDeleteAccount}
+              disabled={deletingAccount}
+              style={{
+                background: '#991B1B',
+                color: '#fff',
+                border: 'none',
+                padding: '10px 24px',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: 500,
+                cursor: deletingAccount ? 'not-allowed' : 'pointer',
+                opacity: deletingAccount ? 0.7 : 1
+              }}
+            >
+              {deletingAccount
+                ? 'Deleting Account...'
+                : 'Delete My Account'}
+            </button>
           </div>
         </div>
       </div>

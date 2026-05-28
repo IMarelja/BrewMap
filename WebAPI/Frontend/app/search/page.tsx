@@ -11,13 +11,14 @@ export default function SearchPage() {
   const [query, setQuery] = useState('')
   const [drinkQuery, setDrinkQuery] = useState('')
   const [rating, setRating] = useState('')
-  const [distance, setDistance] = useState('5000')
+  const [distance, setDistance] = useState('20000')
   const [categories, setCategories] = useState<Category[]>([])
   const [paymentOptions, setPaymentOptions] = useState<PaymentOption[]>([])
   const [selectedCategory, setSelectedCategory] = useState('')
   const [selectedPayments, setSelectedPayments] = useState<string[]>([])
   const [results, setResults] = useState<Cafe[]>([])
   const [loading, setLoading] = useState(false)
+  const [isPaymentsOpen, setIsPaymentsOpen] = useState(false)
 
   const recentSearches = ['espresso', 'outdoor seating', 'cozy cafe', 'cold brew']
 
@@ -33,21 +34,54 @@ export default function SearchPage() {
   }, [])
 
   // MAIN SEARCH FUNCTION (fixed)
+  // const fetchSearch = () => {
+  //   setLoading(true)
+
+  //   api.get('/api/Locations/search', {
+  //     params: {
+  //       query: query || '',
+  //       drinkQuery: drinkQuery || undefined,
+  //       minRating: rating ? Number(rating) : undefined,
+  //       categoryTags: selectedCategory ? [selectedCategory] : undefined,
+  //       paymentOptionTags: selectedPayments.length > 0 ? selectedPayments : undefined,
+  //       longitude: 15.8457503,
+  //       latitude: 45.7976803,
+  //       radiusMeters: Number(distance)
+  //     }
+  //   })
+  //     .then(res => {
+  //       const data = Array.isArray(res.data)
+  //         ? res.data
+  //         : res.data.locations || []
+
+  //       setResults(data)
+  //     })
+  //     .catch(() => setResults([]))
+  //     .finally(() => setLoading(false))
+  // }
+
   const fetchSearch = () => {
     setLoading(true)
 
-    api.get('/api/Locations/search', {
-      params: {
-        query: query || '',
-        drinkQuery: drinkQuery || undefined,
-        minRating: rating ? Number(rating) : undefined,
-        categoryTags: selectedCategory ? [selectedCategory] : undefined,
-        paymentOptionTags: selectedPayments.length > 0 ? selectedPayments : undefined,
-        longitude: 15.8457503,
-        latitude: 45.7976803,
-        radiusMeters: Number(distance)
-      }
+    const params = new URLSearchParams()
+
+    if (query) params.append('query', query)
+    if (drinkQuery) params.append('drinkQuery', drinkQuery)
+    if (rating) params.append('minRating', rating)
+
+    if (selectedCategory) {
+      params.append('categoryTags', selectedCategory)
+    }
+
+    selectedPayments.forEach(payment => {
+      params.append('paymentOptionTags', payment)
     })
+
+    params.append('longitude', '15.8457503')
+    params.append('latitude', '45.7976803')
+    params.append('radiusMeters', distance)
+
+    api.get(`/api/Locations/search?${params.toString()}`)
       .then(res => {
         const data = Array.isArray(res.data)
           ? res.data
@@ -87,7 +121,7 @@ export default function SearchPage() {
 
           {/* Search Bar Section */}
           <div style={{ position: 'relative', marginBottom: '2rem' }}>
-            <span style={{ position: 'absolute', left: '15px', top: '18%', transform: 'translateY(-50%)', fontSize: '20px', color: '#888' }}>🔍</span>
+            <span style={{ position: 'absolute', left: '15px', top: '12%', transform: 'translateY(-50%)', fontSize: '20px', color: '#888' }}>🔍</span>
 
             <input
               type="text"
@@ -126,16 +160,17 @@ export default function SearchPage() {
               <option value="5">5 stars</option>
             </select>
 
-            <select
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <input
+              type="number"
+              min="1"
               value={distance}
               onChange={e => setDistance(e.target.value)}
-              className="border border-[#E8D5B7] rounded-xl px-4 py-3"
-            >
-              <option value="1000">1 km</option>
-              <option value="5000">5 km</option>
-              <option value="10000">10 km</option>
-              <option value="20000">20 km</option>
-            </select>
+              placeholder="Distance"
+              className="border border-[#E8D5B7] rounded-xl px-4 py-3 outline-none"
+              style={{ width: '140px' }}
+            />
+          </div>
 
             <select
               value={selectedCategory}
@@ -150,55 +185,84 @@ export default function SearchPage() {
               ))}
             </select>
 
-            {/* <select
-              value={selectedPayments}
-              onChange={e => setSelectedPayments(e.target.value)}
-              className="border border-[#E8D5B7] rounded-xl px-4 py-3"
-            >
-              <option value="">All payment methods</option>
-              {paymentOptions.map(p => (
-                <option key={p.id} value={p.tag}>
-                  {p.name}
-                </option>
-              ))}
-            </select> */}
+            <div style={{ position: 'relative', width: '260px' }}>
+              <button
+                type="button"
+                onClick={() => setIsPaymentsOpen(prev => !prev)}
+                className="border border-[#E8D5B7] rounded-xl px-4 py-3 bg-white w-full text-left"
+                style={{
+                  cursor: 'pointer',
+                  color: '#2C1A0E'
+                }}
+              >
+                {selectedPayments.length > 0
+                  ? `${selectedPayments.length} payment option${selectedPayments.length > 1 ? 's' : ''} selected`
+                  : 'Select payment methods'}
+              </button>
+
+              {isPaymentsOpen && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '110%',
+                    left: 0,
+                    width: '100%',
+                    background: '#fff',
+                    border: '1px solid #E8D5B7',
+                    borderRadius: '12px',
+                    padding: '12px',
+                    zIndex: 1000,
+                    boxShadow: '0 8px 20px rgba(0,0,0,0.08)',
+                    maxHeight: '220px',
+                    overflowY: 'auto'
+                  }}
+                >
+                  {paymentOptions.map(option => (
+                    <label
+                      key={option.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        padding: '8px 4px',
+                        cursor: 'pointer',
+                        color: '#2C1A0E'
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedPayments.includes(option.tag)}
+                        onChange={() => togglePayment(option.tag)}
+                      />
+
+                      {option.name}
+                    </label>
+                  ))}
+
+                  {selectedPayments.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPayments([])}
+                      style={{
+                        marginTop: '10px',
+                        width: '100%',
+                        border: 'none',
+                        background: '#F5EFE6',
+                        padding: '8px',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        color: '#6B3F1F',
+                        fontWeight: 600
+                      }}
+                    >
+                      Clear selection
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Payment chips (unchanged UI, just functional) */}
-          {paymentOptions.length > 0 && !query && (
-            <div style={{ marginBottom: '3rem' }}>
-              <h3 style={{
-                fontSize: '0.9rem',
-                color: '#8C7861',
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                marginBottom: '1rem'
-              }}>
-                Payment Options
-              </h3>
-
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                {paymentOptions.map(option => (
-                  <span
-                    key={option.id}
-                    onClick={() => togglePayment(option.tag)}
-                    style={{
-                      padding: '6px 12px',
-                      background: selectedPayments.includes(option.tag) ? '#6B3F1F' : '#EADBC8',
-                      color: selectedPayments.includes(option.tag) ? '#fff' : '#5C4033',
-                      borderRadius: '6px',
-                      fontSize: '0.85rem',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    {option.name}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Results */}
           <h2 style={{ fontSize: '1.25rem', color: '#2C1A0E', marginBottom: '1.5rem' }}>
             {query ? `Results for "${query}"` : 'Featured Cafes'}
           </h2>
