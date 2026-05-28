@@ -44,9 +44,9 @@ interface ILocationService {
 
     // ── Write ─────────────────────────────────────────────────────────────────
 
-    /** `POST api/Locations` — creates a new locationService. Returns the created resource. */
+    /** `POST api/Locations` — creates a new location. Returns the created resource. */
     suspend fun create(request: CreateLocationRequest): ServiceResult<Location>
 
-    /** `PUT api/Locations/{id}` — updates an existing locationService. Returns the updated resource. */
+    /** `PUT api/Locations/{id}` — updates an existing location. Returns the updated resource. */
     suspend fun update(id: String, request: UpdateLocationRequest): ServiceResult<Location>
 }

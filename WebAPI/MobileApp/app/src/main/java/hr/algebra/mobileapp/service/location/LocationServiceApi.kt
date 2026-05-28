@@ -14,7 +14,7 @@ import hr.algebra.mobileapp.service.RequestBodyValidator
 import java.net.URLEncoder
 
 /**
- * **Production** locationService service — delegates every call to the BrewMap REST API.
+ * **Production** location service — delegates every call to the BrewMap REST API.
  */
 class LocationServiceApi : ILocationService {
 
@@ -95,7 +95,7 @@ class LocationServiceApi : ILocationService {
             method       = HttpMethod.POST,
             body         = request,
             responseType = object : TypeToken<Location>() {}
-        ).toServiceResult("Could not create locationService.")
+        ).toServiceResult("Could not create location.")
         Log.d("LocationServiceApi", "create → success=${result.isSuccess}")
         return result
     }
@@ -114,7 +114,7 @@ class LocationServiceApi : ILocationService {
             method       = HttpMethod.PUT,
             body         = request,
             responseType = object : TypeToken<Location>() {}
-        ).toServiceResult("Could not update locationService.")
+        ).toServiceResult("Could not update location.")
         Log.d("LocationServiceApi", "update($id) → success=${result.isSuccess}")
         return result
     }

@@ -18,7 +18,7 @@ import androidx.core.content.edit
  * | Constant            | Value | Suitable for              |
  * |---------------------|-------|---------------------------|
  * | [TTL_CATEGORIES]    | 24 h  | Category list (rarely changes) |
- * | [TTL_DRINKS]        | 15 min| Drinks per locationService        |
+ * | [TTL_DRINKS]        | 15 min| Drinks per location        |
  * | [TTL_LOCATIONS]     |  5 min| Location detail / search   |
  *
  * ## Usage
@@ -38,10 +38,10 @@ object PersistentCache {
     /** 24-hour TTL — suitable for categories (rarely change). */
     const val TTL_CATEGORIES: Long = 24 * 60 * 60 * 1_000L
 
-    /** 15-minute TTL — suitable for drinks per locationService. */
+    /** 15-minute TTL — suitable for drinks per location. */
     const val TTL_DRINKS: Long = 15 * 60 * 1_000L
 
-    /** 5-minute TTL — suitable for locationService detail / search results. */
+    /** 5-minute TTL — suitable for location detail / search results. */
     const val TTL_LOCATIONS: Long = 5 * 60 * 1_000L
 
     private val gson: Gson = Gson()
