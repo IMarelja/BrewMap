@@ -27,19 +27,21 @@ namespace BrewMapAPI.Service.Review
         public async Task<ReadReview?> GetById(string id)
         {
             var review = await _repo.GetById(id);
-            return review == null ? null : ToReadModel(review);
+            return review == null ? null : await ToReadModel(review);
         }
 
         public async Task<List<ReadReview>> GetByTarget(string targetType, string targetId)
         {
             var reviews = await _repo.GetByTarget(targetType, targetId);
-            return reviews.Select(ToReadModel).ToList();
+            var readModels = await Task.WhenAll(reviews.Select(ToReadModel));
+            return readModels.ToList();
         }
 
         public async Task<List<ReadReview>> GetByUserId(string userId)
         {
             var reviews = await _repo.GetByUserId(userId);
-            return reviews.Select(ToReadModel).ToList();
+            var readModels = await Task.WhenAll(reviews.Select(ToReadModel));
+            return readModels.ToList();
         }
 
         public async Task<ReadReview> CreateLocationReview(string locationId, CreateReviewBody dto, string userId)
@@ -57,7 +59,7 @@ namespace BrewMapAPI.Service.Review
             };
             await _repo.Create(review);
             await RefreshLocationRating(locationId);
-            return ToReadModel(review);
+            return await ToReadModel(review);
         }
 
         public async Task<ReadReview> CreateDrinkReview(string drinkId, CreateReviewBody dto, string userId)
@@ -75,7 +77,7 @@ namespace BrewMapAPI.Service.Review
             };
             await _repo.Create(review);
             await RefreshDrinkRating(drinkId);
-            return ToReadModel(review);
+            return await ToReadModel(review);
         }
 
         public async Task<ReadReview?> UpdateReview(string Id, UpdateReview dto, string userId)
@@ -91,7 +93,7 @@ namespace BrewMapAPI.Service.Review
             review.UpdatedAt = DateTime.UtcNow;
             await _repo.Update(review);
             await RefreshTargetRating(review.Target.Type, review.Target.TargetId);
-            return ToReadModel(review);
+            return await ToReadModel(review);
         }
 
         public async Task<bool> DeleteReview(string id, string userId)
@@ -140,12 +142,15 @@ namespace BrewMapAPI.Service.Review
             await _drinkRepo.UpdateAggregatedRating(drinkId, average, count);
         }
 
-        private ReadReview ToReadModel(Models.Review review)
+        private async Task<ReadReview> ToReadModel(Models.Review review)
         {
+            var user = await _userRepo.GetUserById(review.UserId);
+
             return new ReadReview
             {
                 Id = review.Id,
                 UserId = review.UserId,
+                Username = user?.Username,
                 TargetType = review.Target.Type,
                 TargetId = review.Target.TargetId,
                 Rating = review.Rating,
