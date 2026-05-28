@@ -38,16 +38,17 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
         private val tvDate: TextView = itemView.findViewById(R.id.tv_review_date)
 
         fun bind(review: Review) {
+            val ctx = itemView.context
             val displayName = review.username?.takeIf { it.isNotBlank() }
-            tvUsername.text = displayName ?: "crossed out"
+            tvUsername.text = displayName ?: ctx.getString(R.string.review_deleted_user)
             tvUsername.paintFlags = if (displayName == null) {
                 tvUsername.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
             } else {
                 tvUsername.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
             }
-            tvRating.text = "Rating: ${review.rating} / 5"
-            tvComment.text = review.comment?.takeIf { it.isNotBlank() } ?: "No comment"
-            tvDate.text = "Created: ${review.createdAt.take(10)}"
+            tvRating.text = ctx.getString(R.string.review_rating_format, review.rating)
+            tvComment.text = review.comment?.takeIf { it.isNotBlank() } ?: ctx.getString(R.string.review_no_comment)
+            tvDate.text = ctx.getString(R.string.review_created_format, review.createdAt.take(10))
         }
     }
 }

@@ -43,8 +43,9 @@ class LocationSearchAdapter(
         private val tvDescription: TextView = itemView.findViewById(R.id.tv_result_description)
 
         fun bind(location: Location) {
+            val ctx = itemView.context
             tvName.text = location.name
-            tvRating.text = "Rating ${"%.1f".format(location.averageRating)} (${location.totalReviews} reviews)"
+            tvRating.text = ctx.getString(R.string.location_rating_format, location.averageRating, location.totalReviews)
             tvAddress.text = "${location.address.street}, ${location.address.city}"
             tvDescription.text = location.description?.take(120).orEmpty()
 

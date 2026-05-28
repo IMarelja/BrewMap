@@ -59,12 +59,12 @@ class MainActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.nav_map -> {
                     showRootFragment(LocationMapFragment(), TAG_MAP)
-                    toolbar.title = "Map"
+                    toolbar.title = getString(R.string.map)
                     true
                 }
                 R.id.nav_search -> {
                     showRootFragment(LocationSearchFragment(), TAG_SEARCH)
-                    toolbar.title = "Search"
+                    toolbar.title = getString(R.string.search)
                     true
                 }
                 else -> false
@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
             )
             .addToBackStack(TAG_DETAIL)
             .commit()
-        toolbar.title = "Location"
+        toolbar.title = getString(R.string.title_location)
     }
 
     /**
@@ -116,12 +116,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateToolbarTitleFromState() {
         toolbar.title = if (supportFragmentManager.backStackEntryCount > 0) {
-            "Location"
+            getString(R.string.title_location)
         } else {
             when (bottomNav.selectedItemId) {
-                R.id.nav_map -> "Map"
-                R.id.nav_search -> "Search"
-                else -> "BrewMap"
+                R.id.nav_map -> getString(R.string.map)
+                R.id.nav_search -> getString(R.string.search)
+                else -> getString(R.string.app_display_name)
             }
         }
     }

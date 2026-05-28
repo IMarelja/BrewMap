@@ -224,8 +224,8 @@ class LocationMapFragment : Fragment() {
                 icon = createScaledPinDrawable(pinHeightPx)
                 setVisible(pinsVisible)
                 setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                title = "Location"
-                snippet = "Tap pin again in a moment"
+                title = this@LocationMapFragment.getString(R.string.marker_default_title)
+                snippet = this@LocationMapFragment.getString(R.string.marker_default_snippet)
                 relatedObject = pin.id
                 setOnMarkerClickListener { clickedMarker, _ ->
                     onPinClicked(clickedMarker, pin.id)
@@ -320,8 +320,8 @@ class LocationMapFragment : Fragment() {
         }
 
         loadingLocationIds += locationId
-        marker.title = "Loading..."
-        marker.snippet = "Fetching locationService details"
+        marker.title = getString(R.string.marker_loading_title)
+        marker.snippet = getString(R.string.marker_loading_snippet)
         marker.showInfoWindow()
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -334,8 +334,8 @@ class LocationMapFragment : Fragment() {
                     marker.snippet = buildShortDescription(location)
                 }
                 else -> {
-                    marker.title = "Unavailable"
-                    marker.snippet = "Could not load description"
+                    marker.title = getString(R.string.marker_unavailable_title)
+                    marker.snippet = getString(R.string.marker_unavailable_snippet)
                 }
             }
             marker.showInfoWindow()

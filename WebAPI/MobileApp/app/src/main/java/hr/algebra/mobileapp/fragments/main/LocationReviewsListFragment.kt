@@ -43,7 +43,7 @@ class LocationReviewsListFragment : Fragment() {
         val locationId = requireArguments().getString(ARG_LOCATION_ID).orEmpty()
         if (locationId.isBlank()) {
             tvReviewState.visibility = View.VISIBLE
-            tvReviewState.text = "Missing locationService id"
+            tvReviewState.text = getString(R.string.error_missing_location_id)
             return
         }
 
@@ -53,13 +53,13 @@ class LocationReviewsListFragment : Fragment() {
     private fun loadReviews(locationId: String) {
         progressReviews.visibility = View.VISIBLE
         tvReviewState.visibility = View.VISIBLE
-        tvReviewState.text = "Loading reviews..."
+        tvReviewState.text = getString(R.string.state_loading_reviews)
 
         viewLifecycleOwner.lifecycleScope.launch {
             val result = ServiceProvider.reviewService.getByLocationId(locationId)
             when {
                 result.isUnauthorized      -> { /* MainActivity navigating to login */ }
-                result.isNetworkError      -> tvReviewState.text = "No connection. Please check your internet."
+                result.isNetworkError      -> tvReviewState.text = getString(R.string.error_no_connection)
                 result.errors.isNotEmpty() -> {
                     reviewAdapter.submitData(emptyList())
                     tvReviewState.text = result.errorMessage()
@@ -69,9 +69,9 @@ class LocationReviewsListFragment : Fragment() {
                     reviewAdapter.submitData(reviews)
                     rvReviews.post { rvReviews.requestLayout() }
                     tvReviewState.text = if (reviews.isEmpty()) {
-                        "No reviews for this locationService"
+                        getString(R.string.state_no_reviews)
                     } else {
-                        "${reviews.size} reviews loaded"
+                        getString(R.string.state_reviews_loaded, reviews.size)
                     }
                 }
             }

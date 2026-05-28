@@ -37,7 +37,7 @@ class DrinkAdapter : RecyclerView.Adapter<DrinkAdapter.DrinkViewHolder>() {
 
         fun bind(drink: Drink) {
             tvName.text = drink.name
-            tvRating.text = "Score ${"%.1f".format(drink.aggregatedRating.average)} (${drink.aggregatedRating.count} ratings)"
+            tvRating.text = itemView.context.getString(R.string.drink_score_format, drink.aggregatedRating.average, drink.aggregatedRating.count)
             tvDescription.text = drink.description ?: ""
         }
     }

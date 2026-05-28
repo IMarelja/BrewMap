@@ -135,7 +135,7 @@ class LocationSearchFragment : Fragment() {
             }
             if (categoriesResult.errors.isNotEmpty() || paymentOptionsResult.errors.isNotEmpty()) {
                 tvSearchState.visibility = View.VISIBLE
-                tvSearchState.text = "Failed to load advanced filter options."
+                tvSearchState.text = getString(R.string.error_load_filter_options)
             }
         }
     }
@@ -181,7 +181,7 @@ class LocationSearchFragment : Fragment() {
     }
 
     private fun expandAdvancedSearch() {
-        btnToggleAdvancedSearch.text = "Hide advnaced search"
+        btnToggleAdvancedSearch.text = getString(R.string.btn_hide_advanced_search)
         layoutAdvancedSearch.visibility = View.VISIBLE
         layoutAdvancedSearch.animate().cancel()
         layoutAdvancedSearch.alpha = 0f
@@ -194,7 +194,7 @@ class LocationSearchFragment : Fragment() {
     }
 
     private fun collapseAdvancedSearch() {
-        btnToggleAdvancedSearch.text = "Advnaced search"
+        btnToggleAdvancedSearch.text = getString(R.string.advanced_search)
         layoutAdvancedSearch.animate().cancel()
         layoutAdvancedSearch.animate()
             .alpha(0f)
@@ -206,9 +206,9 @@ class LocationSearchFragment : Fragment() {
 
     private fun updateMinRatingLabel(value: Float) {
         tvMinRatingValue.text = if (value <= 0f) {
-            "Minimum rating: Any"
+            getString(R.string.minimum_rating_any)
         } else {
-            "Minimum rating: $value+"
+            getString(R.string.min_rating_format, value)
         }
     }
 
@@ -228,7 +228,7 @@ class LocationSearchFragment : Fragment() {
 
         btnSearch.isEnabled = false
         tvSearchState.visibility = View.VISIBLE
-        tvSearchState.text = "Searching..."
+        tvSearchState.text = getString(R.string.state_searching)
 
         viewLifecycleOwner.lifecycleScope.launch {
             val result = ServiceProvider.locationService.search(
@@ -243,7 +243,7 @@ class LocationSearchFragment : Fragment() {
             )
             when {
                 result.isUnauthorized      -> { /* MainActivity navigating to login */ }
-                result.isNetworkError      -> tvSearchState.text = "No connection. Please check your internet."
+                result.isNetworkError      -> tvSearchState.text = getString(R.string.error_no_connection)
                 result.errors.isNotEmpty() -> {
                     adapter.submitData(emptyList())
                     tvSearchState.text = result.errorMessage()
@@ -253,9 +253,9 @@ class LocationSearchFragment : Fragment() {
                     adapter.submitData(results)
                     rvSearchResults.post { rvSearchResults.requestLayout() }
                     tvSearchState.text = if (results.isEmpty()) {
-                        "No locations found"
+                        getString(R.string.state_no_locations)
                     } else {
-                        "${results.size} locations found"
+                        getString(R.string.state_locations_found, results.size)
                     }
                 }
             }

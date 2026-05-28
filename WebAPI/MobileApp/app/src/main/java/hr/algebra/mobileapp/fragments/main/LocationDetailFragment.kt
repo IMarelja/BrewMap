@@ -79,7 +79,7 @@ class LocationDetailFragment : Fragment() {
 
         locationId = requireArguments().getString(ARG_LOCATION_ID).orEmpty()
         if (locationId.isBlank()) {
-            Toast.makeText(requireContext(), "Missing locationService id", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.error_missing_location_id), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -124,7 +124,7 @@ class LocationDetailFragment : Fragment() {
             val result = ServiceProvider.locationService.getById(locationId)
             when {
                 result.isUnauthorized  -> { /* MainActivity already navigating to login */ }
-                result.isNetworkError  -> Toast.makeText(requireContext(), "No connection. Please check your internet.", Toast.LENGTH_SHORT).show()
+                result.isNetworkError  -> Toast.makeText(requireContext(), getString(R.string.error_no_connection), Toast.LENGTH_SHORT).show()
                 result.errors.isNotEmpty() -> Toast.makeText(requireContext(), result.errorMessage(), Toast.LENGTH_SHORT).show()
                 else -> {
                     val location = result.data!!
@@ -153,14 +153,14 @@ class LocationDetailFragment : Fragment() {
                 .joinToString(", ")
         }
 
-        "Category: $categoryName\nPayment: $paymentNames"
+        getString(R.string.detail_category_payment_format, categoryName, paymentNames)
     }
 
     private fun bindLocation(location: Location, metaText: String) {
         tvName.text = location.name
         tvRating.text = "${"%.1f".format(location.averageRating)} ★ (${location.totalReviews} reviews)"
         tvAddress.text = "${location.address.street}, ${location.address.city}, ${location.address.country}"
-        tvDescription.text = location.description ?: "No description"
+        tvDescription.text = location.description ?: getString(R.string.detail_no_description)
         tvMeta.text = metaText
 
         val point = GeoPoint(location.latitude, location.longitude)

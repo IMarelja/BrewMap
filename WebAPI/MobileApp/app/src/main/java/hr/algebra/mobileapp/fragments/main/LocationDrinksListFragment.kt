@@ -46,7 +46,7 @@ class LocationDrinksListFragment : Fragment() {
         val locationId = requireArguments().getString(ARG_LOCATION_ID).orEmpty()
         if (locationId.isBlank()) {
             tvDrinkState.visibility = View.VISIBLE
-            tvDrinkState.text = "Missing locationService id"
+            tvDrinkState.text = getString(R.string.error_missing_location_id)
             return
         }
 
@@ -56,7 +56,7 @@ class LocationDrinksListFragment : Fragment() {
     private fun loadDrinks(locationId: String) {
         progressDrinks.visibility = View.VISIBLE
         tvDrinkState.visibility = View.VISIBLE
-        tvDrinkState.text = "Loading drinks..."
+        tvDrinkState.text = getString(R.string.state_loading_drinks)
         tvBestDrink.visibility = View.GONE
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -68,7 +68,7 @@ class LocationDrinksListFragment : Fragment() {
 
             when {
                 drinksResult.isUnauthorized  -> { /* MainActivity navigating to login */ }
-                drinksResult.isNetworkError  -> tvDrinkState.text = "No connection. Please check your internet."
+                drinksResult.isNetworkError  -> tvDrinkState.text = getString(R.string.error_no_connection)
                 drinksResult.errors.isNotEmpty() -> {
                     drinkAdapter.submitData(emptyList())
                     tvDrinkState.text = drinksResult.errorMessage()
@@ -82,15 +82,15 @@ class LocationDrinksListFragment : Fragment() {
 
                     tvBestDrink.visibility = View.VISIBLE
                     tvBestDrink.text = if (bestDrink == null) {
-                        "Best drinkService: no ratings yet"
+                        getString(R.string.state_best_drink_none)
                     } else {
-                        "Best drinkService: ${bestDrink.name} (${"%.1f".format(bestDrink.rating)})"
+                        getString(R.string.state_best_drink_format, bestDrink.name, bestDrink.rating)
                     }
 
                     tvDrinkState.text = if (drinks.isEmpty()) {
-                        "No drinks for this locationService"
+                        getString(R.string.state_no_drinks)
                     } else {
-                        "${drinks.size} drinks loaded"
+                        getString(R.string.state_drinks_loaded, drinks.size)
                     }
                 }
             }
