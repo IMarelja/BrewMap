@@ -52,7 +52,8 @@ class ReviewServiceHardCode(private val data: HardCodeData) : IReviewService {
         val review = Review(
             id          = "hc-rev-${System.currentTimeMillis()}",
             userId      = userId,
-            targetType  = "locationService",
+            username    = data.users.find { it.id == userId }?.username,
+            targetType  = "location",
             targetId    = locationId,
             rating      = rating,
             comment     = comment,
@@ -72,6 +73,7 @@ class ReviewServiceHardCode(private val data: HardCodeData) : IReviewService {
         val review = Review(
             id          = "hc-rev-${System.currentTimeMillis()}",
             userId      = userId,
+            username    = data.users.find { it.id == userId }?.username,
             targetType  = "product",
             targetId    = drinkId,
             rating      = rating,

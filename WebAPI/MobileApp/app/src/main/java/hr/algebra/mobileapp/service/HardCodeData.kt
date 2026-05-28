@@ -295,6 +295,7 @@ class HardCodeData {
     ) = Review(
         id          = id,
         userId      = userId,
+        username    = users.find { it.id == userId }?.username,
         targetType  = targetType,
         targetId    = targetId,
         rating      = rating,

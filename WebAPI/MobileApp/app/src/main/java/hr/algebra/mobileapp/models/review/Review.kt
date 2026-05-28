@@ -10,6 +10,7 @@ package hr.algebra.mobileapp.models.review
 data class Review(
     val id: String,
     val userId: String,
+    val username: String?,
     val targetType: String,
     val targetId: String,
     val rating: Int,

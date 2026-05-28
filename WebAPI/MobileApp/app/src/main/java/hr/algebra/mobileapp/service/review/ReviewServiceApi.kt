@@ -83,11 +83,11 @@ class ReviewServiceApi : IReviewService {
     override suspend fun createForLocation(locationId: String, rating: Int, comment: String?): ServiceResult<Review> {
         val client = API.createClient()
         val result = client.request(
-            endpoint     = "Review/locationService/$locationId",
+            endpoint     = "Review/location/$locationId",
             method       = HttpMethod.POST,
             body         = mapOf("rating" to rating, "comment" to comment),
             responseType = object : TypeToken<Review>() {}
-        ).toServiceResult("Could not submit reviewService.")
+        ).toServiceResult("Could not submit review.")
         Log.d("ReviewServiceApi", "createForLocation($locationId) → success=${result.isSuccess}")
         return result
     }
@@ -97,11 +97,11 @@ class ReviewServiceApi : IReviewService {
     override suspend fun createForDrink(drinkId: String, rating: Int, comment: String?): ServiceResult<Review> {
         val client = API.createClient()
         val result = client.request(
-            endpoint     = "Review/drinkService/$drinkId",
+            endpoint     = "Review/drink/$drinkId",
             method       = HttpMethod.POST,
             body         = mapOf("rating" to rating, "comment" to comment),
             responseType = object : TypeToken<Review>() {}
-        ).toServiceResult("Could not submit reviewService.")
+        ).toServiceResult("Could not submit review.")
         Log.d("ReviewServiceApi", "createForDrink($drinkId) → success=${result.isSuccess}")
         return result
     }
@@ -128,7 +128,7 @@ class ReviewServiceApi : IReviewService {
             endpoint     = "Review/$reviewId",
             method       = HttpMethod.DELETE,
             responseType = object : TypeToken<Map<String, Any>>() {}
-        ).toServiceResult("Could not delete reviewService.").mapToUnit()
+        ).toServiceResult("Could not delete review.").mapToUnit()
         Log.d("ReviewServiceApi", "delete($reviewId) → success=${result.isSuccess}")
         return result
     }

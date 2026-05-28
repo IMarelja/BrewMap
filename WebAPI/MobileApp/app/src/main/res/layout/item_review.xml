@@ -17,12 +17,20 @@
         android:padding="12dp">
 
         <TextView
-            android:id="@+id/tv_review_rating"
+            android:id="@+id/tv_review_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/brew_dark"
             android:textSize="15sp"
             android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_review_rating"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/brew_dark"
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/tv_review_comment"
