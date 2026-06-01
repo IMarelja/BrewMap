@@ -4,6 +4,7 @@
     {
         public string Id { get; set; } = string.Empty;
         public string UserId { get; set; } = string.Empty;
+        public string? Username { get; set; }
         public string TargetType { get; set; } = string.Empty; // "location" or "product"
         public string TargetId { get; set; } = string.Empty;   // ID of the cafe or beverage
         public int Rating { get; set; }

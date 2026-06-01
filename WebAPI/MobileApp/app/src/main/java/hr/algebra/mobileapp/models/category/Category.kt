@@ -1,0 +1,12 @@
+package hr.algebra.mobileapp.models.category
+
+/**
+ * Mirrors `ReadCategory` DTO from the BrewMap API.
+ *
+ * Returned by `GET api/Category` (list) and `GET api/Category/{tag}` (single).
+ * The [tag] field is the primary key used in locationService's `categoryTag` field.
+ */
+data class Category(
+    val tag: String,
+    val name: String
+)

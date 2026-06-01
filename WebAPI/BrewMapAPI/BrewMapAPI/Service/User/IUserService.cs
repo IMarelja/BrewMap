@@ -9,5 +9,6 @@ namespace BrewMapAPI.Service.User
         Task<UserResponce> UpdateEmail(string userId, UpdateEmail dto);
         Task<UserResponce> UpdatePassword(string userId, UpdatePassword dto);
         Task<UserResponce> DeleteMyAccount(string userId);
+        Task<UserDataExport?> ExportMyData(string userId);
     }
 }

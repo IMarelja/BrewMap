@@ -1,5 +1,6 @@
 using BrewMapAPI.DTO.User;
 using BrewMapAPI.Repository.Auth;
+using BrewMapAPI.Repository.Reviews;
 using BrewMapAPI.Repository.Users;
 using BrewMapAPI.Security;
 
@@ -9,11 +10,13 @@ namespace BrewMapAPI.Service.User
     {
         private readonly IUserRepo _userRepo;
         private readonly IAuthRepo _authRepo;
+        private readonly IReviewRepo _reviewRepo;
 
-        public UserService(IUserRepo userRepo, IAuthRepo authRepo)
+        public UserService(IUserRepo userRepo, IAuthRepo authRepo, IReviewRepo reviewRepo)
         {
             _userRepo = userRepo;
             _authRepo = authRepo;
+            _reviewRepo = reviewRepo;
         }
 
         public async Task<MyUserProfileRead?> GetMyProfile(string userId)
@@ -87,6 +90,34 @@ namespace BrewMapAPI.Service.User
 
             await _userRepo.DeleteUser(userId);
             return new UserResponce { StatusCode = 200, Success = true, Message = "Account deleted." };
+        }
+
+        public async Task<UserDataExport?> ExportMyData(string userId)
+        {
+            var user = await _userRepo.GetUserById(userId);
+            if (user == null) return null;
+
+            var reviews = await _reviewRepo.GetByUserId(userId);
+
+            return new UserDataExport
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                Role = user.Role,
+                CreatedAt = user.CreatedAt,
+                LastLoginAt = user.LastLoginAt,
+                Reviews = reviews.Select(r => new ExportedReview
+                {
+                    Id = r.Id,
+                    TargetType = r.Target.Type,
+                    TargetId = r.Target.TargetId,
+                    Rating = r.Rating,
+                    Comment = r.Comment,
+                    CreatedAt = r.CreatedAt,
+                    UpdatedAt = r.UpdatedAt
+                }).ToList()
+            };
         }
     }
 }
