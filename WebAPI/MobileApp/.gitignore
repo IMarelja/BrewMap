@@ -1,0 +1,45 @@
+# ── Build output ─────────────────────────────────────────────────────────────
+/build
+**/build/
+/captures
+.externalNativeBuild
+.cxx
+
+# ── Gradle ────────────────────────────────────────────────────────────────────
+.gradle
+gradle-app.setting
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+# ── Local configuration (never commit) ───────────────────────────────────────
+local.properties
+**/local.properties
+
+# ── Android Studio / IntelliJ IDEA ───────────────────────────────────────────
+*.iml
+.idea/
+!.idea/codeStyles/
+!.idea/inspectionProfiles/
+!.idea/dictionaries/
+
+# Nested .idea/ inside app/ — leftover from when app/ was a standalone project
+app/.idea/
+app/.idea/*
+
+# Duplicate Gradle wrapper + version catalog inside app/ (root-level copies are canonical)
+app/gradlew
+app/gradlew.bat
+app/settings.gradle.kts
+app/gradle/wrapper/
+app/gradle/libs.versions.toml
+
+# Kotlin compiler session files
+.kotlin/
+**/.kotlin/
+
+# ── OS noise ─────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Misc ─────────────────────────────────────────────────────────────────────
+textures

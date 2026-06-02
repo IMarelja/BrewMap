@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<network-security-config>
+<!--
+    Supports both http:// and https:// URLs set in local.properties.
+
+    cleartextTrafficPermitted="true"  → allows http:// URLs
+    <certificates src="userService" />       → allows https:// with self-signed /
+                                        developer-installed certificates
+    <certificates src="system" />     → allows https:// with CA-signed certificates
+-->
+<network-security-config xmlns:tools="http://schemas.android.com/tools">
     <base-config cleartextTrafficPermitted="true">
         <trust-anchors>
             <certificates src="system" />
+            <certificates src="user"
+                tools:ignore="AcceptsUserCertificates" />
         </trust-anchors>
     </base-config>
 </network-security-config>

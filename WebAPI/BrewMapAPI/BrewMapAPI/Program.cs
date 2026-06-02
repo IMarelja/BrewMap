@@ -1,4 +1,5 @@
 using System.Text;
+using System.Net;
 using BrewMapAPI.Data;
 using BrewMapAPI.Email;
 using BrewMapAPI.Models;
@@ -25,8 +26,56 @@ using BrewMapAPI.Service.User;
 using BrewMapAPI.Repository.Users;
 using BrewMapAPI.Service.Category;
 using BrewMapAPI.Service.PaymentOption;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var projectRootPath = Path.GetFullPath(
+    Path.Combine(builder.Environment.ContentRootPath, "..", "..", ".."));
+var envPath = Path.Combine(projectRootPath, ".env");
+if (File.Exists(envPath))
+{
+    Env.Load(envPath);
+}
+
+var bindIp = GetRequiredEnvironmentVariable("BIND_IP");
+var httpPort = GetRequiredPort("HTTP_PORT");
+var httpsPort = GetRequiredPort("HTTPS_PORT");
+
+if (!IPAddress.TryParse(bindIp, out _))
+{
+    throw new InvalidOperationException(
+        "Environment variable 'BIND_IP' is required and must be a valid IP address.");
+}
+
+builder.WebHost.UseUrls(
+    $"http://{bindIp}:{httpPort}",
+    $"https://{bindIp}:{httpsPort}");
+
+static string GetRequiredEnvironmentVariable(string name)
+{
+    var value = Environment.GetEnvironmentVariable(name);
+    if (string.IsNullOrWhiteSpace(value))
+    {
+        throw new InvalidOperationException(
+            $"Environment variable '{name}' is required but was not provided.");
+    }
+
+    return value;
+}
+
+static int GetRequiredPort(string name)
+{
+    var rawValue = GetRequiredEnvironmentVariable(name);
+
+    if (!int.TryParse(rawValue, out var port) || port is < 1 or > 65535)
+    {
+        throw new InvalidOperationException(
+            $"Environment variable '{name}' must be an integer between 1 and 65535.");
+    }
+
+    return port;
+}
 
 // Configure strong-typed settings for MongoDB
 builder.Services.Configure<DatabaseSettings>(
