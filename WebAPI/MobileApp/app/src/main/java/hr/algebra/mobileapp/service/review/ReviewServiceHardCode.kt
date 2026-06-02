@@ -53,7 +53,7 @@ class ReviewServiceHardCode(private val data: HardCodeData) : IReviewService {
             id          = "hc-rev-${System.currentTimeMillis()}",
             userId      = userId,
             username    = data.users.find { it.id == userId }?.username,
-            targetType  = "location",
+            targetType  = "locationService",
             targetId    = locationId,
             rating      = rating,
             comment     = comment,

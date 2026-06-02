@@ -13,6 +13,8 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
 
     private val items = mutableListOf<Review>()
 
+    private var onItemLongClickListener: ((Review) -> Unit)? = null
+
     fun submitData(reviews: List<Review>) {
         items.clear()
         items.addAll(reviews)
@@ -22,7 +24,18 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReviewViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_review, parent, false)
-        return ReviewViewHolder(view)
+
+        val viewHolder = ReviewViewHolder(view)
+
+        view.setOnLongClickListener { v ->
+            val position = viewHolder.adapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                onItemLongClickListener?.invoke(items[position])
+            }
+            true
+        }
+
+        return viewHolder
     }
 
     override fun onBindViewHolder(holder: ReviewViewHolder, position: Int) {
@@ -50,5 +63,9 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
             tvComment.text = review.comment?.takeIf { it.isNotBlank() } ?: ctx.getString(R.string.review_no_comment)
             tvDate.text = ctx.getString(R.string.review_created_format, review.createdAt.take(10))
         }
+    }
+
+    fun setOnItemLongClickListener(listener: (Review) -> Unit) {
+        this.onItemLongClickListener = listener
     }
 }
