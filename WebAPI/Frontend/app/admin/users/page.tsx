@@ -4,6 +4,7 @@ import { useState } from 'react'
 import ProtectedRoute from '@/components/auth/protected-route'
 import Navbar from '@/components/ui/navbar'
 import api from '@/lib/api'
+import AdminRoute from '@/components/auth/admin-route'
 
 interface ModeratedUser {
   id: string
@@ -112,6 +113,7 @@ export default function AdminUsersPage() {
   }
 
   return (
+      <AdminRoute>
     <ProtectedRoute>
       <div
         style={{
@@ -342,5 +344,6 @@ export default function AdminUsersPage() {
         </div>
       </div>
     </ProtectedRoute>
+    </AdminRoute>
   )
 }

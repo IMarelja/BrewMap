@@ -41,6 +41,10 @@ export default function ProfilePage() {
   const [loadingReviews, setLoadingReviews] = useState(true)
   const [deletingAccount, setDeletingAccount] = useState(false)
 
+
+  const [exporting, setExporting] = useState(false)
+
+
   useEffect(() => {
     const fetchReviews = async () => {
       try {
@@ -55,6 +59,48 @@ export default function ProfilePage() {
 
     fetchReviews()
   }, [])
+
+const handleExportData = async () => {
+  try {
+    setExporting(true)
+    setMessage('')
+    setError('')
+
+    const res = await api.get('/api/User/me/export')
+
+    const csvContent =
+      typeof res.data === 'string'
+        ? res.data
+        : JSON.stringify(res.data, null, 2)
+
+    const blob = new Blob([csvContent], {
+      type: 'text/csv;charset=utf-8;'
+    })
+
+    const url = window.URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'brewmap-user-data.csv'
+
+    document.body.appendChild(link)
+    link.click()
+
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+
+    setMessage('Data exported successfully.')
+  } catch (err: any) {
+    console.error(err)
+
+    setError(
+      err.response?.data?.message ||
+      'Failed to export data.'
+    )
+  } finally {
+    setExporting(false)
+  }
+}
 
   const handleDeleteAccount = async () => {
     const confirmed = window.confirm(
@@ -325,6 +371,55 @@ export default function ProfilePage() {
               </div>
             )}
           </div>
+
+      <div
+        style={{
+          background: '#fff',
+          border: '1px solid #E8D5B7',
+          borderRadius: '16px',
+          padding: '2rem',
+          marginTop: '1.5rem'
+        }}
+      >
+        <h2
+          style={{
+            fontSize: '16px',
+            fontWeight: 600,
+            color: '#2C1A0E',
+            marginBottom: '1rem'
+          }}
+        >
+          Data Export
+        </h2>
+
+        <p
+          style={{
+            color: '#6B3F1F',
+            fontSize: '14px',
+            marginBottom: '1rem'
+          }}
+        >
+          Download a copy of all data associated with your account.
+        </p>
+
+        <button
+          onClick={handleExportData}
+          disabled={exporting}
+          style={{
+            background: '#2C1A0E',
+            color: '#fff',
+            border: 'none',
+            padding: '10px 24px',
+            borderRadius: '8px',
+            cursor: exporting ? 'not-allowed' : 'pointer'
+          }}
+        >
+          {exporting
+            ? 'Preparing Export...'
+            : 'Download My Data'}
+        </button>
+      </div>
+
           <div
             style={{
               background: '#fff',
