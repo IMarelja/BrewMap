@@ -20,8 +20,6 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false)
   const [isPaymentsOpen, setIsPaymentsOpen] = useState(false)
 
-  const recentSearches = ['espresso', 'outdoor seating', 'cozy cafe', 'cold brew']
-
   // Load payment options
   useEffect(() => {
     api.get('/api/PaymentOption')
@@ -32,33 +30,6 @@ export default function SearchPage() {
     .then(res => setCategories(res.data))
     .catch(() => setCategories([]))
   }, [])
-
-  // MAIN SEARCH FUNCTION (fixed)
-  // const fetchSearch = () => {
-  //   setLoading(true)
-
-  //   api.get('/api/Locations/search', {
-  //     params: {
-  //       query: query || '',
-  //       drinkQuery: drinkQuery || undefined,
-  //       minRating: rating ? Number(rating) : undefined,
-  //       categoryTags: selectedCategory ? [selectedCategory] : undefined,
-  //       paymentOptionTags: selectedPayments.length > 0 ? selectedPayments : undefined,
-  //       longitude: 15.8457503,
-  //       latitude: 45.7976803,
-  //       radiusMeters: Number(distance)
-  //     }
-  //   })
-  //     .then(res => {
-  //       const data = Array.isArray(res.data)
-  //         ? res.data
-  //         : res.data.locations || []
-
-  //       setResults(data)
-  //     })
-  //     .catch(() => setResults([]))
-  //     .finally(() => setLoading(false))
-  // }
 
   const fetchSearch = () => {
     setLoading(true)
@@ -79,7 +50,7 @@ export default function SearchPage() {
 
     params.append('longitude', '15.8457503')
     params.append('latitude', '45.7976803')
-    params.append('radiusMeters', distance)
+    params.append('radiusMeters', '200000')
 
     api.get(`/api/Locations/search?${params.toString()}`)
       .then(res => {
@@ -160,7 +131,7 @@ export default function SearchPage() {
               <option value="5">5 stars</option>
             </select>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <input
               type="number"
               min="1"
@@ -170,7 +141,7 @@ export default function SearchPage() {
               className="border border-[#E8D5B7] rounded-xl px-4 py-3 outline-none"
               style={{ width: '140px' }}
             />
-          </div>
+          </div> */}
 
             <select
               value={selectedCategory}
@@ -301,6 +272,33 @@ export default function SearchPage() {
                     <div style={{ fontSize: '0.9rem', color: '#8C7861' }}>
                       {cafe.address.street}, {cafe.address.city}
                     </div>
+                     {cafe.paymentOptionTags?.length > 0 && (
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          gap: '6px',
+                          marginTop: '10px'
+                        }}
+                      >
+                        {cafe.paymentOptionTags.map(payment => (
+                          <span
+                            key={payment}
+                            style={{
+                              background: '#F5EFE6',
+                              color: '#6B3F1F',
+                              padding: '4px 10px',
+                              borderRadius: '999px',
+                              fontSize: '12px',
+                              fontWeight: 500,
+                              border: '1px solid #E8D5B7'
+                            }}
+                          >
+                            {payment}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </Link>
