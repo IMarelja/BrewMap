@@ -456,7 +456,7 @@ const deleteCafe = async () => {
                       <div style={{ marginBottom: '1rem' }}> 
                         <label style={{ fontSize: '14px', fontWeight: 500, color: '#2C1A0E', display: 'block', marginBottom: '6px' }}>
                           Comment</label> 
-                        <textarea value={comment} onChange={e => setComment(e.target.value)} required rows={3} placeholder="Share your experience..." style={{ width: '100%', padding: '10px 14px', border: '1px solid #E8D5B7', borderRadius: '8px', fontSize: '14px', background: '#FDFAF7', resize: 'vertical', boxSizing: 'border-box' }} /> 
+                        <textarea value={comment} onChange={e => setComment(e.target.value)} rows={3} placeholder="Share your experience..." style={{ width: '100%', padding: '10px 14px', border: '1px solid #E8D5B7', borderRadius: '8px', fontSize: '14px', background: '#FDFAF7', resize: 'vertical', boxSizing: 'border-box' }} /> 
                         </div>
                         <button type="submit" disabled={submitting} style={{ background: '#2C1A0E', color: '#F5EFE6', border: 'none', padding: '10px 24px', borderRadius: '8px', fontSize: '14px', fontWeight: 500, cursor: submitting ? 'not-allowed' : 'pointer' }}>
                           {submitting ? 'Submitting...' : 'Submit Review'}
