@@ -407,7 +407,6 @@ const deleteDrink = async () => {
             <textarea
               value={comment}
               onChange={e => setComment(e.target.value)}
-              required
               rows={3}
               placeholder="Share your thoughts..."
               style={{

@@ -80,17 +80,6 @@ export interface AuthResponse {
   user: User
 }
 
-export interface Flag {
-  id: string
-  reason: string
-  description?: string
-  status: string
-  createdAt: string
-  targetType: string
-  targetId: string
-}
-
-
 export interface CreateFlagRequest {
   target: {
     type: 'location' | 'product' | 'review' | 'user'
@@ -103,12 +92,21 @@ export interface CreateFlagRequest {
 export interface Flag {
   id: string
   reportedByUserId: string
+
   target: {
-    type: string
+    type: 'location' | 'product' | 'review' | 'user'
     id: string
   }
+
   reason: string
   description?: string
-  status: string
+
+  status: 'pending' | 'reviewed' | 'resolved'
+
+  resolvedByAdminId?: string
+  resolvedAt?: string
+  resolutionNote?: string
+
   createdAt: string
+  updatedAt: string
 }

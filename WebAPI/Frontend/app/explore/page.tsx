@@ -27,6 +27,9 @@ const [selectedCategories, setSelectedCategories] = useState<string[]>([])
 const [paymentOptions, setPaymentOptions] = useState<any[]>([])
 const [categories, setCategories] = useState<any[]>([])
 
+const [drinkSearch, setDrinkSearch] = useState('')
+const [locationDrinks, setLocationDrinks] = useState<Record<string, string[]>>({})
+
 
   useEffect(() => {
     if ("geolocation" in navigator) {
@@ -44,8 +47,46 @@ const [categories, setCategories] = useState<any[]>([])
       fetchCafes(45.8150, 15.9819)
       fetchFilterData()
     }
-    // eslint-disable-next-line
-  }, [])
+
+}, [])
+
+  useEffect(() => {
+    if (cafes.length === 0) return
+
+    const fetchDrinks = async () => {
+      try {
+        const results = await Promise.all(
+          cafes.map(async (cafe) => {
+            try {
+              const res = await api.get(`/api/Drink/location/${cafe.id}`)
+
+              return {
+                locationId: cafe.id,
+                drinks: (res.data || []).map((d: any) => d.name)
+              }
+            } catch {
+              return {
+                locationId: cafe.id,
+                drinks: []
+              }
+            }
+          })
+        )
+
+        const drinkMap: Record<string, string[]> = {}
+
+        results.forEach((result) => {
+          drinkMap[result.locationId] = result.drinks
+        })
+
+        setLocationDrinks(drinkMap)
+      } catch (err) {
+        console.error('Failed to fetch drinks', err)
+      }
+    }
+
+    fetchDrinks()
+  }, [cafes])
 
   const fetchFilterData = async () => {
     try {
@@ -78,36 +119,51 @@ const [categories, setCategories] = useState<any[]>([])
   }
   // --- Flexible Filtering Logic ---
   const filteredCafes = useMemo(() => {
-    return cafes.filter(cafe => {
-
+    return cafes.filter((cafe) => {
       // Rating
       if ((cafe.averageRating ?? 0) < minRating) {
         return false
       }
 
-      // CATEGORY (OR logic)
+      // Categories (OR)
       if (selectedCategories.length > 0) {
-          const cafeCategory = (cafe.categoryTag || '').toLowerCase()
-        
-          const matchesCategory = selectedCategories.some(category => 
-            cafeCategory.includes(category.toLowerCase()) 
-          ) 
-          if (!matchesCategory) 
-            { 
-              return false 
-            } 
+        const cafeCategory = (cafe.categoryTag || '').toLowerCase()
+
+        const matchesCategory = selectedCategories.some((category) =>
+          cafeCategory.includes(category.toLowerCase())
+        )
+
+        if (!matchesCategory) {
+          return false
+        }
       }
 
-      // PAYMENT (AND logic)
+      // Payments (AND)
       if (selectedPaymentOptions.length > 0) {
-        const cafePayments =
-          (cafe.paymentOptionTags || []).map(t => t.toLowerCase())
+        const cafePayments = (cafe.paymentOptionTags || []).map((t) =>
+          t.toLowerCase()
+        )
 
-        const hasAllPayments = selectedPaymentOptions.every(payment =>
+        const hasAllPayments = selectedPaymentOptions.every((payment) =>
           cafePayments.includes(payment.toLowerCase())
         )
 
-        if (!hasAllPayments) return false
+        if (!hasAllPayments) {
+          return false
+        }
+      }
+
+      // Drinks
+      if (drinkSearch.trim()) {
+        const drinks = locationDrinks[cafe.id] || []
+
+        const matchesDrink = drinks.some((drink) =>
+          drink.toLowerCase().includes(drinkSearch.toLowerCase())
+        )
+
+        if (!matchesDrink) {
+          return false
+        }
       }
 
       return true
@@ -116,7 +172,9 @@ const [categories, setCategories] = useState<any[]>([])
     cafes,
     minRating,
     selectedCategories,
-    selectedPaymentOptions
+    selectedPaymentOptions,
+    drinkSearch,
+    locationDrinks
   ])
   
   const toggleArrayFilter = (item: string, state: string[], setState: (val: string[]) => void) => {
@@ -126,6 +184,7 @@ const [categories, setCategories] = useState<any[]>([])
     setMinRating(0)
     setSelectedPaymentOptions([])
     setSelectedCategories([])
+    setDrinkSearch('')
   }
   return (
 
@@ -146,12 +205,15 @@ const [categories, setCategories] = useState<any[]>([])
               <Filter size={18} /> Filters
               {(minRating > 0 ||
                 selectedPaymentOptions.length > 0 ||
-                selectedCategories.length > 0) && (
+                selectedCategories.length > 0||
+                drinkSearch.trim()
+              ) && (
                 <span style={badgeStyle}>
                   {
                     selectedPaymentOptions.length +
                     selectedCategories.length +
-                    (minRating > 0 ? 1 : 0)
+                    (minRating > 0 ? 1 : 0) +
+                    (drinkSearch.trim() ? 1 : 0)
                   }
                 </span>
               )}
@@ -264,6 +326,23 @@ const [categories, setCategories] = useState<any[]>([])
                   ))}
                 </div>
               </section>
+
+              <section style={filterSectionStyle}>
+              <p style={filterLabelStyle}>Drink</p>
+
+              <input
+                type="text"
+                placeholder="Espresso, Latte, Matcha..."
+                value={drinkSearch}
+                onChange={(e) => setDrinkSearch(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  borderRadius: '8px',
+                  border: '1px solid #EADBC8'
+                }}
+              />
+            </section>
               </div>
               <div style={{ padding: '1.5rem', borderTop: '1px solid #EADBC8' }}>
                 <button onClick={() => setIsFilterOpen(false)} style={applyBtnStyle}>
