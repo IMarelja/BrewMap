@@ -24,6 +24,9 @@ export interface Cafe {
   paymentOptionTags: string[]
   drinks: string[]
   openingHours: Record<string, OpeningHours>
+  contact?: {
+    website?: string
+  }
   averageRating?: number
   totalReviews?: number
   createdAt?: string
@@ -57,7 +60,7 @@ export interface Review {
 export interface Drink {
   id: string
   name: string
-  price?: number
+  description?: string
 }
 
 export interface Category {
@@ -77,14 +80,33 @@ export interface AuthResponse {
   user: User
 }
 
-export interface Flag {
-  id: string
-  reason: string
-  description?: string
-  status: string
-  createdAt: string
+export interface CreateFlagRequest {
   target: {
-    type: string
+    type: 'location' | 'product' | 'review' | 'user'
     id: string
   }
+  reason: string
+  description?: string
+}
+
+export interface Flag {
+  id: string
+  reportedByUserId: string
+
+  target: {
+    type: 'location' | 'product' | 'review' | 'user'
+    id: string
+  }
+
+  reason: string
+  description?: string
+
+  status: 'pending' | 'reviewed' | 'resolved'
+
+  resolvedByAdminId?: string
+  resolvedAt?: string
+  resolutionNote?: string
+
+  createdAt: string
+  updatedAt: string
 }

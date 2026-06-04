@@ -1,5 +1,7 @@
 using System.Text;
+using System.Net;
 using BrewMapAPI.Data;
+using BrewMapAPI.Email;
 using BrewMapAPI.Models;
 using BrewMapAPI.Repository.Auth;
 using BrewMapAPI.Repository.Drinks;
@@ -9,8 +11,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using BrewMapAPI.Service.Review;
-using BrewMapAPI.Service.Pins;
 using BrewMapAPI.Repository.Reviews;
+using BrewMapAPI.Service.Pins;
 using BrewMapAPI.Repository.Pins;
 using BrewMapAPI.Repository.Locations;
 using BrewMapAPI.Service.Location;
@@ -24,8 +26,56 @@ using BrewMapAPI.Service.User;
 using BrewMapAPI.Repository.Users;
 using BrewMapAPI.Service.Category;
 using BrewMapAPI.Service.PaymentOption;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var projectRootPath = Path.GetFullPath(
+    Path.Combine(builder.Environment.ContentRootPath, "..", "..", ".."));
+var envPath = Path.Combine(projectRootPath, ".env");
+if (File.Exists(envPath))
+{
+    Env.Load(envPath);
+}
+
+var bindIp = GetRequiredEnvironmentVariable("BIND_IP");
+var httpPort = GetRequiredPort("HTTP_PORT");
+var httpsPort = GetRequiredPort("HTTPS_PORT");
+
+if (!IPAddress.TryParse(bindIp, out _))
+{
+    throw new InvalidOperationException(
+        "Environment variable 'BIND_IP' is required and must be a valid IP address.");
+}
+
+builder.WebHost.UseUrls(
+    $"http://{bindIp}:{httpPort}",
+    $"https://{bindIp}:{httpsPort}");
+
+static string GetRequiredEnvironmentVariable(string name)
+{
+    var value = Environment.GetEnvironmentVariable(name);
+    if (string.IsNullOrWhiteSpace(value))
+    {
+        throw new InvalidOperationException(
+            $"Environment variable '{name}' is required but was not provided.");
+    }
+
+    return value;
+}
+
+static int GetRequiredPort(string name)
+{
+    var rawValue = GetRequiredEnvironmentVariable(name);
+
+    if (!int.TryParse(rawValue, out var port) || port is < 1 or > 65535)
+    {
+        throw new InvalidOperationException(
+            $"Environment variable '{name}' must be an integer between 1 and 65535.");
+    }
+
+    return port;
+}
 
 // Configure strong-typed settings for MongoDB
 builder.Services.Configure<DatabaseSettings>(
@@ -101,6 +151,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+
+var emailConfig = builder.Configuration
+    .GetSection("EmailConfiguration")
+    .Get<EmailConfiguration>();
+builder.Services.AddSingleton(emailConfig);
+builder.Services.AddScoped<IEmailSender, EmailSender>();
+
 // Business level architecture
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDrinkService, DrinkService>();
@@ -119,6 +176,9 @@ builder.Services.AddScoped<IDrinkRepo, DrinkRepo>();
 builder.Services.AddScoped<IReviewRepo, ReviewRepo>();
 builder.Services.AddScoped<ILocationRepo, LocationRepo>();
 builder.Services.AddScoped<IPinRepo, PinRepo>();
+builder.Services.AddScoped<IUserRepo, UserRepo>();
+builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
+builder.Services.AddScoped<IPaymentOptionRepo, PaymentOptionRepo>();
 builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<IFlagRepo, FlagRepo>();
 builder.Services.AddScoped<IModerationRepo, ModerationRepo>();

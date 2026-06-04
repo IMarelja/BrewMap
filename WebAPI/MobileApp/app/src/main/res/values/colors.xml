@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- BrewMap brand palette — sourced from frontend/tailwind.config.ts -->
+    <color name="brew_bg">#F5EFE6</color>       <!-- warm cream — screen background       -->
+    <color name="brew_dark">#2C1A0E</color>     <!-- dark espresso — headings, buttons     -->
+    <color name="brew_brown">#6B3F1F</color>    <!-- medium brown — secondary text, labels -->
+    <color name="brew_accent">#C8854A</color>   <!-- copper — accent / highlight           -->
+    <color name="brew_light">#E8D5B7</color>    <!-- light tan — borders, dividers         -->
+    <color name="brew_input_bg">#FDFAF7</color> <!-- near-white — input field background   -->
+    <color name="brew_card">#FFFFFF</color>     <!-- white — card / form surface           -->
+
+    <!-- Auth form feedback box -->
+    <color name="auth_error_bg">#FCE8E6</color>
+    <color name="auth_error_border">#D93025</color>
+    <color name="auth_error_text">#8A1D18</color>
+    <color name="auth_success_bg">#E6F4EA</color>
+    <color name="auth_success_border">#1E8E3E</color>
+    <color name="auth_success_text">#0D652D</color>
+</resources>

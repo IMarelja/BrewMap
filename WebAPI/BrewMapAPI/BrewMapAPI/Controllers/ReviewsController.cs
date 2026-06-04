@@ -21,6 +21,7 @@ namespace BrewMapAPI.Controllers
         private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
         [HttpGet("{id}")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> GetById(string id)
         {
             try
@@ -37,6 +38,7 @@ namespace BrewMapAPI.Controllers
         }
 
         [HttpGet("location/{locationId}")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> GetByLocationId(string locationId)
         {
             try
@@ -51,6 +53,7 @@ namespace BrewMapAPI.Controllers
         }
 
         [HttpGet("drink/{drinkId}")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> GetByDrinkId(string drinkId)
         {
             try
@@ -65,6 +68,7 @@ namespace BrewMapAPI.Controllers
         }
 
         [HttpGet("mine")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> GetOwnReviews()
         {
             try
@@ -83,6 +87,7 @@ namespace BrewMapAPI.Controllers
         }
 
         [HttpGet("byUser/{userId}")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> GetByUserIdReviews(string userId)
         {
             try
@@ -97,6 +102,7 @@ namespace BrewMapAPI.Controllers
         }
 
         [HttpPost("location/{locationId}")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> CreateLocationReview(string locationId, [FromBody] CreateReviewBody body)
         {
             try
@@ -133,6 +139,7 @@ namespace BrewMapAPI.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> UpdateReview(string id, [FromBody] UpdateReview update)
         {
             try
@@ -153,6 +160,7 @@ namespace BrewMapAPI.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles =  "admin,user")]
         public async Task<IActionResult> DeleteReview(string id)
         {
             try

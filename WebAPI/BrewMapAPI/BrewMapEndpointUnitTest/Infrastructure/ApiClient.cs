@@ -25,16 +25,20 @@ public class ApiClient
     public string? ValidUserEmail { get; }
 
     public string? ValidUserId { get; }
+    public string? ValidAdminId { get; }
     public string? ValidLocationId { get; }
     public string? ValidDrinkId { get; }
     public string? ValidPaymentOptionTag { get; }
     public string? ValidCategoryTag { get; }
+    public string? ValidFlagId { get; }
     public double SearchLongitude { get; }
     public double SearchLatitude { get; }
     public double SearchRadiusMeters { get; }
     public bool HasSearchLongitude { get; }
     public bool HasSearchLatitude { get; }
     public bool HasSearchRadiusMeters { get; }
+    
+
 
     public ApiClient()
     {
@@ -55,10 +59,12 @@ public class ApiClient
         ValidUserEmail =        config["ApiSettings:ValidCredentialsUser:Email"];;
 
         ValidUserId =               config["ApiSettings:TestData:ValidUserId"];
+        ValidAdminId =              config["ApiSettings:TestData:ValidAdminId"];
         ValidLocationId =           config["ApiSettings:TestData:ValidLocationId"];
         ValidDrinkId =              config["ApiSettings:TestData:ValidDrinkId"];
         ValidPaymentOptionTag =     config["ApiSettings:TestData:ValidPaymentOptionTag"];
         ValidCategoryTag =          config["ApiSettings:TestData:ValidCategoryTag"];
+        ValidFlagId =               config["ApiSettings:TestData:ValidFlagId"];
 
         var searchLongitudeRaw = config["ApiSettings:TestData:Coordinates:0"];
         var searchLatitudeRaw = config["ApiSettings:TestData:Coordinates:1"];

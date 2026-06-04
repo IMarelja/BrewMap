@@ -3,6 +3,7 @@ using BrewMapAPI.Models;
 using BrewMapAPI.Repository;
 using BrewMapAPI.Repository.Categories;
 using BrewMapAPI.Repository.Drinks;
+using BrewMapAPI.Repository.Flags;
 using BrewMapAPI.Repository.Locations;
 using BrewMapAPI.Repository.PaymentOptions;
 using FuzzySharp;
@@ -19,17 +20,20 @@ namespace BrewMapAPI.Service.Location
         private readonly ICategoryRepo _categoryRepo;
         private readonly IPaymentOptionRepo _paymentOptionRepo;
         private readonly IDrinkRepo _drinkRepo;
+        private readonly IFlagRepo _flagRepo;
 
         public LocationService(
             ILocationRepo repo,
             ICategoryRepo categoryRepo,
             IPaymentOptionRepo paymentOptionRepo,
-            IDrinkRepo drinkRepo)
+            IDrinkRepo drinkRepo,
+            IFlagRepo flagRepo)
         {
             _repo = repo;
             _categoryRepo = categoryRepo;
             _paymentOptionRepo = paymentOptionRepo;
             _drinkRepo = drinkRepo;
+            _flagRepo = flagRepo;
         }
 
         public async Task<ReadLocation> CreateAsync(CreateLocation dto, string userId)
@@ -110,8 +114,14 @@ namespace BrewMapAPI.Service.Location
             var location = await _repo.GetByIdAsync(id);
             if (location == null) return false;
 
-            await _repo.DeleteAsync(id);
-            return true;
+            var deleted = await _repo.DeleteAsync(id);
+
+            if (deleted)
+            {
+                await _flagRepo.DeleteByTarget("location", id);
+            }
+
+            return deleted;
         }
 
         public async Task<IEnumerable<ReadLocation>> SearchAsync(

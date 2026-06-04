@@ -1,0 +1,44 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Base.Theme.MobileApp" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Primary: dark espresso — MaterialButton fill, focused outlines/labels -->
+        <item name="colorPrimary">@color/brew_dark</item>
+        <item name="colorOnPrimary">@color/brew_bg</item>
+        <item name="colorPrimaryContainer">@color/brew_light</item>
+        <item name="colorOnPrimaryContainer">@color/brew_dark</item>
+
+        <!-- Secondary: copper accent -->
+        <item name="colorSecondary">@color/brew_accent</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/brew_light</item>
+        <item name="colorOnSecondaryContainer">@color/brew_dark</item>
+
+        <!-- Tertiary: medium brown -->
+        <item name="colorTertiary">@color/brew_brown</item>
+        <item name="colorOnTertiary">@color/white</item>
+
+        <!-- Background & Surface -->
+        <item name="android:colorBackground">@color/brew_bg</item>
+        <item name="colorSurface">@color/brew_card</item>
+        <item name="colorOnSurface">@color/brew_dark</item>
+        <item name="colorOnSurfaceVariant">@color/brew_brown</item>
+        <item name="colorSurfaceVariant">@color/brew_input_bg</item>
+
+        <!-- Outlines — TextInputLayout unfocused border -->
+        <item name="colorOutline">@color/brew_light</item>
+        <item name="colorOutlineVariant">@color/brew_light</item>
+
+        <!-- Status bar: cream background with dark icons -->
+        <item name="android:statusBarColor">@color/brew_bg</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+    </style>
+
+    <style name="Theme.MobileApp" parent="Base.Theme.MobileApp" />
+
+    <!-- Reusable TextInputLayout style: outlined box with brew input background -->
+    <style name="Widget.BrewMap.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@color/brew_input_bg</item>
+        <item name="boxStrokeColor">@color/brew_light</item>
+    </style>
+
+</resources>
