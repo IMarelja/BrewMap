@@ -50,7 +50,7 @@ export default function SearchPage() {
 
     params.append('longitude', '15.8457503')
     params.append('latitude', '45.7976803')
-    params.append('radiusMeters', '200000')
+    params.append('radiusMeters', distance)
 
     api.get(`/api/Locations/search?${params.toString()}`)
       .then(res => {
@@ -131,17 +131,18 @@ export default function SearchPage() {
               <option value="5">5 stars</option>
             </select>
 
-          {/* <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <input
-              type="number"
-              min="1"
+            <select
               value={distance}
               onChange={e => setDistance(e.target.value)}
-              placeholder="Distance"
-              className="border border-[#E8D5B7] rounded-xl px-4 py-3 outline-none"
-              style={{ width: '140px' }}
-            />
-          </div> */}
+              className="border border-[#E8D5B7] rounded-xl px-4 py-3"
+            >
+              <option value="5000">5 km</option>
+              <option value="10000">10 km</option>
+              <option value="20000">20 km</option>
+              <option value="30000">30 km</option>
+              <option value="40000">40 km</option>
+              <option value="50000">50 km</option>
+            </select>
 
             <select
               value={selectedCategory}
