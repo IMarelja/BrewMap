@@ -14,7 +14,7 @@ export default function ForgotPasswordPage() {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/Auth/send-reset-email`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5239'}/api/Auth/send-reset-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -43,7 +43,7 @@ export default function ForgotPasswordPage() {
             </div>
           </Link>
           <h1 style={{ marginTop: '1.5rem', fontSize: '1.75rem', fontWeight: 600, color: '#2C1A0E' }}>Forgot your password?</h1>
-          <p style={{ color: '#6B3F1F', marginTop: '0.5rem' }}>Enter your email and we'll send you a reset link</p>
+          <p style={{ color: '#6B3F1F', marginTop: '0.5rem' }}>Enter your email and we'll send you a reset token</p>
         </div>
 
         <div style={{ background: '#fff', border: '1px solid #E8D5B7', borderRadius: '16px', padding: '2rem' }}>
@@ -52,14 +52,14 @@ export default function ForgotPasswordPage() {
               <div style={{ fontSize: '48px', marginBottom: '1rem' }}>☕</div>
               <h2 style={{ color: '#2C1A0E', fontWeight: 600, marginBottom: '0.5rem' }}>Check your inbox!</h2>
               <p style={{ color: '#6B3F1F', fontSize: '14px' }}>
-                If an account exists for <strong>{email}</strong>, a reset link has been sent.
+                If an account exists for <strong>{email}</strong>, a reset token has been sent. Copy the token from your email and use it on the next page.
               </p>
-              <Link href="/login" style={{
+              <Link href="/reset-password" style={{
                 display: 'block', marginTop: '1.5rem', padding: '12px',
                 background: '#2C1A0E', color: '#F5EFE6', borderRadius: '8px',
                 textDecoration: 'none', fontSize: '15px', fontWeight: 500, textAlign: 'center'
               }}>
-                Back to Sign In
+                Enter Reset Token →
               </Link>
             </div>
           ) : (
@@ -88,7 +88,7 @@ export default function ForgotPasswordPage() {
                   fontSize: '16px', fontWeight: 500,
                   cursor: loading ? 'not-allowed' : 'pointer'
                 }}>
-                  {loading ? 'Sending...' : 'Send Reset Link'}
+                  {loading ? 'Sending...' : 'Send Reset Token'}
                 </button>
               </form>
             </>
