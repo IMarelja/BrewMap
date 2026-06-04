@@ -1,9 +1,10 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ProtectedRoute from '@/components/auth/protected-route'
 import Navbar from '@/components/ui/navbar'
 import api from '@/lib/api'
 import { getUser } from '@/lib/auth'
+import { Review } from '@/lib/types'
 
 // Simple SVG Eye Icon 
 const EyeIcon = ({ visible }: { visible: boolean }) => (
@@ -35,6 +36,126 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+
+  const [reviews, setReviews] = useState<Review[]>([])
+  const [loadingReviews, setLoadingReviews] = useState(true)
+  const [deletingAccount, setDeletingAccount] = useState(false)
+
+
+  const [exporting, setExporting] = useState(false)
+
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const res = await api.get('/api/Review/mine')
+        setReviews(res.data)
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoadingReviews(false)
+      }
+    }
+
+    fetchReviews()
+  }, [])
+
+const handleExportData = async () => {
+  try {
+    setExporting(true)
+    setMessage('')
+    setError('')
+
+    const res = await api.get('/api/User/me/export')
+
+    const csvContent =
+      typeof res.data === 'string'
+        ? res.data
+        : JSON.stringify(res.data, null, 2)
+
+    const blob = new Blob([csvContent], {
+      type: 'text/csv;charset=utf-8;'
+    })
+
+    const url = window.URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'brewmap-user-data.csv'
+
+    document.body.appendChild(link)
+    link.click()
+
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+
+    setMessage('Data exported successfully.')
+  } catch (err: any) {
+    console.error(err)
+
+    setError(
+      err.response?.data?.message ||
+      'Failed to export data.'
+    )
+  } finally {
+    setExporting(false)
+  }
+}
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      'Are you sure you want to permanently delete your account? This action cannot be undone.'
+    )
+
+    if (!confirmed) return
+
+    try {
+      setDeletingAccount(true)
+      setMessage('')
+      setError('')
+
+      await api.delete('/api/User/me')
+
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+
+      window.location.href = '/login'
+    } catch (err: any) {
+      console.error(err)
+
+      setError(
+        err.response?.data?.message ||
+        'Failed to delete account.'
+      )
+    } finally {
+      setDeletingAccount(false)
+    }
+  }
+
+  const deleteReview = async (reviewId: string) => {
+  const confirmed = window.confirm(
+    'Delete this review?'
+  )
+
+  if (!confirmed) return
+
+  try {
+    await api.delete(`/api/Review/${reviewId}`)
+
+    setReviews(prev =>
+      prev.filter(r => r.id !== reviewId)
+    )
+
+    setMessage('Review deleted successfully.')
+  } catch (err: any) {
+    console.error(err)
+
+    setError(
+      err.response?.data?.message ||
+        'Failed to delete review.'
+    )
+  }
+}
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -140,6 +261,216 @@ export default function ProfilePage() {
                 {saving ? 'Saving...' : 'Change Password'}
               </button>
             </form>
+          </div>
+
+          {/* Delete reviews Section */}
+          <div
+            style={{
+              background: '#fff',
+              border: '1px solid #E8D5B7',
+              borderRadius: '16px',
+              padding: '2rem',
+              marginTop: '1.5rem'
+            }}
+          >
+            <h2
+              style={{
+                fontSize: '16px',
+                fontWeight: 600,
+                color: '#2C1A0E',
+                marginBottom: '1.5rem'
+              }}
+            >
+              My Reviews
+            </h2>
+
+            {loadingReviews ? (
+              <p style={{ color: '#6B3F1F' }}>
+                Loading reviews...
+              </p>
+            ) : reviews.length === 0 ? (
+              <p style={{ color: '#6B3F1F' }}>
+                You haven't written any reviews yet.
+              </p>
+            ) : (
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1rem'
+                }}
+              >
+                {reviews.map(review => (
+                  <div
+                    key={review.id}
+                    style={{
+                      border: '1px solid #E8D5B7',
+                      borderRadius: '12px',
+                      padding: '1rem',
+                      background: '#FDFAF7'
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '10px'
+                      }}
+                    >
+                      <span
+                        style={{
+                          color: '#2C1A0E',
+                          fontWeight: 600
+                        }}
+                      >
+                        {'★'.repeat(review.rating)}
+                      </span>
+
+                      <button
+                        onClick={() =>
+                          deleteReview(review.id)
+                        }
+                        style={{
+                          background: '#991B1B',
+                          color: '#fff',
+                          border: 'none',
+                          padding: '6px 12px',
+                          borderRadius: '8px',
+                          fontSize: '12px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+
+                    <p
+                      style={{
+                        margin: 0,
+                        color: '#2C1A0E',
+                        lineHeight: 1.6
+                      }}
+                    >
+                      {review.comment}
+                    </p>
+
+                    <p
+                      style={{
+                        marginTop: '10px',
+                        fontSize: '12px',
+                        color: '#6B3F1F'
+                      }}
+                    >
+                      {new Date(
+                        review.createdAt
+                      ).toLocaleDateString()}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+      <div
+        style={{
+          background: '#fff',
+          border: '1px solid #E8D5B7',
+          borderRadius: '16px',
+          padding: '2rem',
+          marginTop: '1.5rem'
+        }}
+      >
+        <h2
+          style={{
+            fontSize: '16px',
+            fontWeight: 600,
+            color: '#2C1A0E',
+            marginBottom: '1rem'
+          }}
+        >
+          Data Export
+        </h2>
+
+        <p
+          style={{
+            color: '#6B3F1F',
+            fontSize: '14px',
+            marginBottom: '1rem'
+          }}
+        >
+          Download a copy of all data associated with your account.
+        </p>
+
+        <button
+          onClick={handleExportData}
+          disabled={exporting}
+          style={{
+            background: '#2C1A0E',
+            color: '#fff',
+            border: 'none',
+            padding: '10px 24px',
+            borderRadius: '8px',
+            cursor: exporting ? 'not-allowed' : 'pointer'
+          }}
+        >
+          {exporting
+            ? 'Preparing Export...'
+            : 'Download My Data'}
+        </button>
+      </div>
+
+          <div
+            style={{
+              background: '#fff',
+              border: '1px solid #FECACA',
+              borderRadius: '16px',
+              padding: '2rem',
+              marginTop: '1.5rem'
+            }}
+          >
+            <h2
+              style={{
+                fontSize: '16px',
+                fontWeight: 600,
+                color: '#991B1B',
+                marginBottom: '1rem'
+              }}
+            >
+              Danger Zone
+            </h2>
+
+            <p
+              style={{
+                color: '#7F1D1D',
+                fontSize: '14px',
+                lineHeight: 1.6,
+                marginBottom: '1.5rem'
+              }}
+            >
+              Permanently delete your BrewMap account and all associated data.
+              This action cannot be undone.
+            </p>
+
+            <button
+              onClick={handleDeleteAccount}
+              disabled={deletingAccount}
+              style={{
+                background: '#991B1B',
+                color: '#fff',
+                border: 'none',
+                padding: '10px 24px',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: 500,
+                cursor: deletingAccount ? 'not-allowed' : 'pointer',
+                opacity: deletingAccount ? 0.7 : 1
+              }}
+            >
+              {deletingAccount
+                ? 'Deleting Account...'
+                : 'Delete My Account'}
+            </button>
           </div>
         </div>
       </div>

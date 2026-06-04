@@ -21,9 +21,16 @@ export default function ExplorePage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   // --- Filter States ---
   const [minRating, setMinRating] = useState<number>(0)
-  const [selectedPrices, setSelectedPrices] = useState<string[]>([]) // Array for multiple prices
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
-  const [selectedDrinks, setSelectedDrinks] = useState<string[]>([])
+const [selectedPaymentOptions, setSelectedPaymentOptions] = useState<string[]>([])
+const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+
+const [paymentOptions, setPaymentOptions] = useState<any[]>([])
+const [categories, setCategories] = useState<any[]>([])
+
+const [drinkSearch, setDrinkSearch] = useState('')
+const [locationDrinks, setLocationDrinks] = useState<Record<string, string[]>>({})
+
+
   useEffect(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition((pos) => {
@@ -31,14 +38,70 @@ export default function ExplorePage() {
         const lng = pos.coords.longitude
         setUserLocation([lat, lng])
         fetchCafes(lat, lng)
+        fetchFilterData()
       }, () => {
         fetchCafes(45.8150, 15.9819)
+        fetchFilterData()
       })
     } else {
       fetchCafes(45.8150, 15.9819)
+      fetchFilterData()
     }
-    // eslint-disable-next-line
-  }, [])
+
+}, [])
+
+  useEffect(() => {
+    if (cafes.length === 0) return
+
+    const fetchDrinks = async () => {
+      try {
+        const results = await Promise.all(
+          cafes.map(async (cafe) => {
+            try {
+              const res = await api.get(`/api/Drink/location/${cafe.id}`)
+
+              return {
+                locationId: cafe.id,
+                drinks: (res.data || []).map((d: any) => d.name)
+              }
+            } catch {
+              return {
+                locationId: cafe.id,
+                drinks: []
+              }
+            }
+          })
+        )
+
+        const drinkMap: Record<string, string[]> = {}
+
+        results.forEach((result) => {
+          drinkMap[result.locationId] = result.drinks
+        })
+
+        setLocationDrinks(drinkMap)
+      } catch (err) {
+        console.error('Failed to fetch drinks', err)
+      }
+    }
+
+    fetchDrinks()
+  }, [cafes])
+
+  const fetchFilterData = async () => {
+    try {
+      const [paymentRes, categoryRes] = await Promise.all([
+        api.get('/api/PaymentOption'),
+        api.get('/api/Category')
+      ])
+
+      setPaymentOptions(paymentRes.data || [])
+      setCategories(categoryRes.data || [])
+    } catch (err) {
+      console.error('Failed to fetch filters', err)
+    }
+  }
+
   const fetchCafes = async (lat: number, lng: number) => {
     setLoading(true)
     try {
@@ -56,39 +119,72 @@ export default function ExplorePage() {
   }
   // --- Flexible Filtering Logic ---
   const filteredCafes = useMemo(() => {
-    return cafes.filter(cafe => {
-      // 1. Rating (Min)
-      if ((cafe.averageRating ?? 0) < minRating) return false
-      if (selectedPrices.length > 0) {
-        const priceMap: Record<string, number> = { '$': 1, '$$': 2, '$$$': 3, '$$$$': 4 }
-        const cafePrice = cafe.averageRating
-        const match = selectedPrices.some(p => priceMap[p] === cafePrice)
-        if (!match) return false
+    return cafes.filter((cafe) => {
+      // Rating
+      if ((cafe.averageRating ?? 0) < minRating) {
+        return false
       }
-      // 3. CategoryTag filter
+
+      // Categories (OR)
       if (selectedCategories.length > 0) {
-        const cafeCategory = cafe.categoryTag?.toLowerCase() || ''
-        const matchesCategory = selectedCategories.some(category =>
+        const cafeCategory = (cafe.categoryTag || '').toLowerCase()
+
+        const matchesCategory = selectedCategories.some((category) =>
           cafeCategory.includes(category.toLowerCase())
         )
-        if (!matchesCategory) return false
+
+        if (!matchesCategory) {
+          return false
+        }
       }
-      if (selectedDrinks.length > 0) {
-        const cafeDrinks = (cafe.drinks || []).map(d => String(d).toLowerCase())
-        const hasAny = selectedDrinks.some(s => cafeDrinks.some(drink => drink.includes(s.toLowerCase())))
-        if (!hasAny) return false
+
+      // Payments (AND)
+      if (selectedPaymentOptions.length > 0) {
+        const cafePayments = (cafe.paymentOptionTags || []).map((t) =>
+          t.toLowerCase()
+        )
+
+        const hasAllPayments = selectedPaymentOptions.every((payment) =>
+          cafePayments.includes(payment.toLowerCase())
+        )
+
+        if (!hasAllPayments) {
+          return false
+        }
       }
+
+      // Drinks
+      if (drinkSearch.trim()) {
+        const drinks = locationDrinks[cafe.id] || []
+
+        const matchesDrink = drinks.some((drink) =>
+          drink.toLowerCase().includes(drinkSearch.toLowerCase())
+        )
+
+        if (!matchesDrink) {
+          return false
+        }
+      }
+
       return true
     })
-  }, [cafes, minRating, selectedPrices, selectedCategories, selectedDrinks])
+  }, [
+    cafes,
+    minRating,
+    selectedCategories,
+    selectedPaymentOptions,
+    drinkSearch,
+    locationDrinks
+  ])
+  
   const toggleArrayFilter = (item: string, state: string[], setState: (val: string[]) => void) => {
     setState(state.includes(item) ? state.filter(i => i !== item) : [...state, item])
   }
   const clearFilters = () => {
     setMinRating(0)
-    setSelectedPrices([])
+    setSelectedPaymentOptions([])
     setSelectedCategories([])
-    setSelectedDrinks([])
+    setDrinkSearch('')
   }
   return (
 
@@ -107,9 +203,18 @@ export default function ExplorePage() {
             </Link>
             <button onClick={() => setIsFilterOpen(true)} style={filterButtonStyle}>
               <Filter size={18} /> Filters
-              {(minRating > 0 || selectedPrices.length > 0 || selectedCategories.length > 0 || selectedDrinks.length > 0) && (
+              {(minRating > 0 ||
+                selectedPaymentOptions.length > 0 ||
+                selectedCategories.length > 0||
+                drinkSearch.trim()
+              ) && (
                 <span style={badgeStyle}>
-                  {selectedPrices.length + selectedCategories.length + selectedDrinks.length + (minRating > 0 ? 1 : 0)}
+                  {
+                    selectedPaymentOptions.length +
+                    selectedCategories.length +
+                    (minRating > 0 ? 1 : 0) +
+                    (drinkSearch.trim() ? 1 : 0)
+                  }
                 </span>
               )}
             </button>
@@ -132,7 +237,14 @@ export default function ExplorePage() {
               ) : (
                 <div style={view === 'list' ? { display: 'flex', flexDirection: 'column', gap: '1rem' } : { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
                   {filteredCafes.map(cafe => (
-                    <div key={cafe.id} style={view === 'list' ? listViewCardStyle : gridViewCardStyle}>
+                <Link
+                  key={cafe.id}
+                  href={`/cafe/${cafe.id}`}
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  <div style={view === 'list' ? listViewCardStyle : gridViewCardStyle}>
+                    {/* <div key={cafe.id} style={view === 'list' ? listViewCardStyle : gridViewCardStyle}> */}
+
                       <img src={cafe.imageUrl || "/placeholder.png"} alt={cafe.name} style={view === 'list' ? { width: '120px', height: '120px', borderRadius: '12px', objectFit: 'cover' } : { width: '100%', height: '200px', objectFit: 'cover' }} />
                       <div style={{ padding: view === 'list' ? '0' : '1rem', flex: 1 }}>
                         <h3 style={{ margin: '0 0 4px 0', color: '#2C1A0E' }}>{cafe.name}</h3>
@@ -142,8 +254,10 @@ export default function ExplorePage() {
                         <p style={{ margin: 0, fontSize: '0.85rem', color: '#6B3F1F' }}>{cafe.address?.street || cafe.city}</p>
                       </div>
                     </div>
-                  ))}
+                  </Link>
+                ))}
                 </div>
+                
               )}
             </>
           )}
@@ -166,43 +280,69 @@ export default function ExplorePage() {
                   <p style={filterLabelStyle}>Minimum Rating: {minRating > 0 ? `${minRating}+` : 'Any'}</p>
                   <input type="range" min="0" max="5" step="0.5" value={minRating} onChange={(e) => setMinRating(Number(e.target.value))} style={{ width: '100%', accentColor: '#5C3A21' }} />
                 </section>
-                {/* Price Level (Multi-select) */}
-                <section style={filterSectionStyle}>
-                  <p style={filterLabelStyle}>Price Range</p>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    {['$', '$$', '$$$', '$$$$'].map(p => (
-                      <button
-                        key={p}
-                        onClick={() => toggleArrayFilter(p, selectedPrices, setSelectedPrices)}
-                        style={priceBtnStyle(selectedPrices.includes(p))}
-                      >
-                        {p}
-                      </button>
-                    ))}
-                  </div>
-                </section>
-                {/* Drinks Selection (Multi-select) */}
-                <section style={filterSectionStyle}>
-                  <p style={filterLabelStyle}><Coffee size={16} style={{display: 'inline', marginRight: '8px', verticalAlign: 'middle'}}/> Drinks</p>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                    {['Espresso', 'Matcha', 'Cold Brew', 'Specialty Tea', 'Juice', 'Chai'].map(d => (
-                      <label key={d} style={checkboxLabelStyle}>
-                        <input type="checkbox" checked={selectedDrinks.includes(d)} onChange={() => toggleArrayFilter(d, selectedDrinks, setSelectedDrinks)} /> {d}
-                      </label>
-                    ))}
-                  </div>
-                </section>
-                {/* Amenities */}
-                <section style={filterSectionStyle}>
-                  <p style={filterLabelStyle}>Amenities</p>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                    {['WiFi', 'Outdoor', 'Parking', 'Pets', 'Power'].map(a => (
-                      <label key={a} style={checkboxLabelStyle}>
-                        <input type="checkbox" checked={selectedCategories.includes(a)} onChange={() => toggleArrayFilter(a, selectedCategories, setSelectedCategories)} /> {a}
-                      </label>
-                    ))}
-                  </div>
-                </section>
+
+              <section style={filterSectionStyle}>
+                <p style={filterLabelStyle}>Payment Options</p>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  {paymentOptions.map((option: any) => (
+                    <label key={option.tag} style={checkboxLabelStyle}>
+                      <input
+                        type="checkbox"
+                        checked={selectedPaymentOptions.includes(option.tag)}
+                        onChange={() =>
+                          toggleArrayFilter(
+                            option.tag,
+                            selectedPaymentOptions,
+                            setSelectedPaymentOptions
+                          )
+                        }
+                      />
+                      {option.name}
+                    </label>
+                  ))}
+                </div>
+              </section>
+
+              <section style={filterSectionStyle}>
+                <p style={filterLabelStyle}>Categories</p>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  {categories.map((category: any) => (
+                    <label key={category.tag} style={checkboxLabelStyle}>
+                      <input
+                        type="checkbox"
+                        checked={selectedCategories.includes(category.tag)}
+                        onChange={() =>
+                          toggleArrayFilter(
+                            category.tag,
+                            selectedCategories,
+                            setSelectedCategories
+                          )
+                        }
+                      />
+                      {category.name}
+                    </label>
+                  ))}
+                </div>
+              </section>
+
+              <section style={filterSectionStyle}>
+              <p style={filterLabelStyle}>Drink</p>
+
+              <input
+                type="text"
+                placeholder="Espresso, Latte, Matcha..."
+                value={drinkSearch}
+                onChange={(e) => setDrinkSearch(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  borderRadius: '8px',
+                  border: '1px solid #EADBC8'
+                }}
+              />
+            </section>
               </div>
               <div style={{ padding: '1.5rem', borderTop: '1px solid #EADBC8' }}>
                 <button onClick={() => setIsFilterOpen(false)} style={applyBtnStyle}>
