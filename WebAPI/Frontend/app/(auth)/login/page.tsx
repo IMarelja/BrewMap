@@ -114,8 +114,12 @@ export default function LoginPage() {
     </button>
   </div>
 </div>
-            <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <input
+            <div style={{ marginBottom: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+  <Link href="/forgot-password" style={{ fontSize: '13px', color: '#6B3F1F', textDecoration: 'none' }}>
+    Forgot password?
+  </Link>
+</div>
+<div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>     <input
                 type="checkbox"
                 id="rememberMe"
                 checked={rememberMe}
