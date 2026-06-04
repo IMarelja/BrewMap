@@ -4,14 +4,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.textfield.TextInputEditText
 import hr.algebra.mobileapp.R
 import hr.algebra.mobileapp.adapters.DrinkAdapter
+import hr.algebra.mobileapp.models.drink.CreateDrinkRequest
+import hr.algebra.mobileapp.models.drink.Drink
 import hr.algebra.mobileapp.service.ServiceProvider
+import kotlinx.coroutines.NonCancellable.parent
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
@@ -22,7 +30,13 @@ class LocationDrinksListFragment : Fragment() {
     private lateinit var tvDrinkState: TextView
     private lateinit var rvDrinks: RecyclerView
 
-    private val drinkAdapter = DrinkAdapter()
+    private lateinit var btnAddDrink: MaterialButton
+
+    private val drinkAdapter = DrinkAdapter().apply {
+        setOnItemLongClickListener { drink ->
+            editDrinkDialog(drink)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,8 +64,118 @@ class LocationDrinksListFragment : Fragment() {
             return
         }
 
+        btnAddDrink = view.findViewById(R.id.btn_add_drink)
+        btnAddDrink.setOnClickListener {
+            createDrinkDialog()
+        }
+
         loadDrinks(locationId)
     }
+
+    private fun createDrinkDialog(){
+        val dialogView = layoutInflater.inflate(R.layout.dialog_drink_form, null)
+        val etName = dialogView.findViewById<TextInputEditText>(R.id.et_drink_name)
+        val etDescription = dialogView.findViewById<TextInputEditText>(R.id.et_drink_description)
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Create drink")
+            .setView(dialogView)
+            .setPositiveButton("Save") { _, _ ->
+                val name = etName.text.toString().trim()
+                val description = etDescription.text.toString().trim().takeIf { it.isNotEmpty() }
+
+                if (name.isEmpty()) {
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Error")
+                        .setMessage("Name cannot be empty")
+                        .setPositiveButton("OK", null)
+                        .show()
+                    return@setPositiveButton
+                }
+
+                createDrink(name, description)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun createDrink(name: String, description: String?) {
+        viewLifecycleOwner.lifecycleScope.launch {
+
+            val locationId = requireArguments().getString(ARG_LOCATION_ID).orEmpty()
+            val request = CreateDrinkRequest( name, description, locationId)
+            val drinkResult = ServiceProvider.drinkService.create(request)
+
+            if (drinkResult.isSuccess){
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Success")
+                    .setMessage("Drink created successfully")
+                    .setPositiveButton("OK") { _, _ ->
+                        loadDrinks(locationId)
+                    }
+                    .show()
+            } else {
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Error")
+                    .setMessage("Unable to create drink: ${drinkResult.errorMessage()}")
+                    .setPositiveButton("OK", null)
+                    .show()
+            }
+        }
+    }
+
+    private fun editDrinkDialog(drink: Drink){
+        val dialogView = layoutInflater.inflate(R.layout.dialog_drink_form, null)
+        val etName = dialogView.findViewById<TextInputEditText>(R.id.et_drink_name)
+        val etDescription = dialogView.findViewById<TextInputEditText>(R.id.et_drink_description)
+
+        etName.setText(drink.name)
+        etDescription.setText(drink.description ?: "")
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Edit drink")
+            .setView(dialogView)
+            .setPositiveButton("Save") { _, _ ->
+                val name = etName.text.toString().trim()
+                val description = etDescription.text.toString().trim().takeIf { it.isNotEmpty() }
+
+                if (name.isEmpty()) {
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Error")
+                        .setMessage("Name cannot be empty")
+                        .setPositiveButton("OK", null)
+                        .show()
+                    return@setPositiveButton
+                }
+
+                updateDrink(drink.id, name, description, drink.availableAtLocationId)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun updateDrink(drinkId: String, name: String, description: String?, locationId: String){
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = ServiceProvider.drinkService.update(drinkId, name, description)
+
+            if (result.isSuccess) {
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Success")
+                    .setMessage("Drink updated successfully")
+                    .setPositiveButton("OK") { _, _ ->
+                        loadDrinks(locationId)
+                    }
+                    .show()
+            } else {
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Error")
+                    .setMessage("Unable to update drink: ${result.errorMessage()}")
+                    .setPositiveButton("OK", null)
+                    .show()
+            }
+        }
+    }
+
 
     private fun loadDrinks(locationId: String) {
         progressDrinks.visibility = View.VISIBLE

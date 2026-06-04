@@ -11,6 +11,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import hr.algebra.mobileapp.R
@@ -18,6 +19,7 @@ import hr.algebra.mobileapp.adapters.ReviewAdapter
 import hr.algebra.mobileapp.auth.TokenManager
 import hr.algebra.mobileapp.models.review.Review
 import hr.algebra.mobileapp.service.ServiceProvider
+import kotlinx.coroutines.NonCancellable.parent
 import kotlinx.coroutines.launch
 
 class LocationReviewsListFragment : Fragment() {
@@ -26,7 +28,7 @@ class LocationReviewsListFragment : Fragment() {
     private lateinit var tvReviewState: TextView
     private lateinit var rvReviews: RecyclerView
 
-    private lateinit var fabAddReview: FloatingActionButton
+    private lateinit var btnAddReview: MaterialButton
 
     private val reviewAdapter = ReviewAdapter().apply {
         setOnItemLongClickListener { review ->
@@ -67,8 +69,8 @@ class LocationReviewsListFragment : Fragment() {
             return
         }
 
-        fabAddReview = view.findViewById(R.id.fab_add_review)
-        fabAddReview.setOnClickListener {
+        btnAddReview = view.findViewById(R.id.btn_add_review)
+        btnAddReview.setOnClickListener {
             addReviewDialog()
         }
 

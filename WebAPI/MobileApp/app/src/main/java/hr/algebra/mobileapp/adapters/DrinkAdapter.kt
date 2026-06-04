@@ -12,6 +12,8 @@ class DrinkAdapter : RecyclerView.Adapter<DrinkAdapter.DrinkViewHolder>() {
 
     private val items = mutableListOf<Drink>()
 
+    private var onItemLongClickListener: ((Drink) -> Unit)? = null
+
     fun submitData(drinks: List<Drink>) {
         items.clear()
         items.addAll(drinks)
@@ -21,7 +23,18 @@ class DrinkAdapter : RecyclerView.Adapter<DrinkAdapter.DrinkViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DrinkViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_drink, parent, false)
-        return DrinkViewHolder(view)
+
+        val viewHolder = DrinkViewHolder(view)
+
+        view.setOnLongClickListener { v ->
+            val position = viewHolder.adapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                onItemLongClickListener?.invoke(items[position])
+            }
+            true
+        }
+
+        return viewHolder
     }
 
     override fun onBindViewHolder(holder: DrinkViewHolder, position: Int) {
@@ -40,5 +53,9 @@ class DrinkAdapter : RecyclerView.Adapter<DrinkAdapter.DrinkViewHolder>() {
             tvRating.text = itemView.context.getString(R.string.drink_score_format, drink.aggregatedRating.average, drink.aggregatedRating.count)
             tvDescription.text = drink.description ?: ""
         }
+    }
+
+    fun setOnItemLongClickListener(listener: (Drink) -> Unit) {
+        this.onItemLongClickListener = listener
     }
 }

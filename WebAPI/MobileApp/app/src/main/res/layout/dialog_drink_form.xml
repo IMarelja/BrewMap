@@ -8,29 +8,26 @@
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Rating 1-5">
-
+        android:hint="Drink name">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/et_rating"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="number"/>
+            android:inputType="text"
+            android:id="@+id/et_drink_name"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Comment (optional)">
-
+        android:hint="Drink description (optional)">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/et_comment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"/>
-
+            android:inputType="text"
+            android:id="@+id/et_drink_description"/>
     </com.google.android.material.textfield.TextInputLayout>
 
 </LinearLayout>
