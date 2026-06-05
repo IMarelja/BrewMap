@@ -12,15 +12,23 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.textfield.TextInputEditText
 import hr.algebra.mobileapp.MainActivity
 import hr.algebra.mobileapp.R
 import hr.algebra.mobileapp.cache.PersistentCache
+import hr.algebra.mobileapp.models.location.Address
+import hr.algebra.mobileapp.models.location.Contact
+import hr.algebra.mobileapp.models.location.CreateLocationRequest
+import hr.algebra.mobileapp.models.location.DayOpeningHours
 import hr.algebra.mobileapp.models.location.Location
 import hr.algebra.mobileapp.models.location.Pin
 import hr.algebra.mobileapp.service.ServiceProvider
@@ -65,6 +73,8 @@ class LocationMapFragment : Fragment() {
         configureUserLocationOverlay()
     }
 
+    private lateinit var fabAddLocation: FloatingActionButton
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -76,6 +86,10 @@ class LocationMapFragment : Fragment() {
 
         mapView = view.findViewById(R.id.map_view)
         progressPins = view.findViewById(R.id.progress_pins)
+        fabAddLocation = view.findViewById(R.id.fab_add_location)
+        fabAddLocation.setOnClickListener {
+            createLocationDialog()
+        }
 
         mapView.setTileSource(TileSourceFactory.MAPNIK)
         mapView.setMultiTouchControls(true)
@@ -365,4 +379,116 @@ class LocationMapFragment : Fragment() {
         private const val DEFAULT_LATITUDE = 45.8150
         private const val DEFAULT_LONGITUDE = 15.9819
     }
+
+    private fun createLocationDialog(){
+        val dialogView = layoutInflater.inflate(R.layout.dialog_create_location_form, null)
+        val etLocationName = dialogView.findViewById<TextInputEditText>(R.id.et_location_name)
+        val etLocationDescription = dialogView.findViewById<TextInputEditText>(R.id.et_location_description)
+        val etLocationAddress = dialogView.findViewById<TextInputEditText>(R.id.et_location_address)
+        val etLocationCity = dialogView.findViewById<TextInputEditText>(R.id.et_location_city)
+        val etLocationCountry = dialogView.findViewById<TextInputEditText>(R.id.et_location_country)
+        val etLocationPostalCode = dialogView.findViewById<TextInputEditText>(R.id.et_location_postal_code)
+        val etLocationLatitude = dialogView.findViewById<TextInputEditText>(R.id.et_location_latitude)
+        val etLocationLongitude = dialogView.findViewById<TextInputEditText>(R.id.et_location_longitude)
+        val etLocationCategory = dialogView.findViewById<TextInputEditText>(R.id.et_location_category)
+        val etPaymentOptions = dialogView.findViewById<TextInputEditText>(R.id.et_location_payment_options)
+        val etOpenTime = dialogView.findViewById<TextInputEditText>(R.id.et_location_open_time)
+        val etClosingTime = dialogView.findViewById<TextInputEditText>(R.id.et_location_close_time)
+        val cbSundayClosed = dialogView.findViewById<CheckBox>(R.id.cb_location_sunday_closed)
+        val etContact = dialogView.findViewById<TextInputEditText>(R.id.et_location_website)
+
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Create Location")
+            .setView(dialogView)
+            .setPositiveButton("Create") { _, _ ->
+                val name = etLocationName.text.toString().trim()
+                val description = etLocationDescription.text.toString().trim()
+                val address = etLocationAddress.text.toString().trim()
+                val city = etLocationCity.text.toString().trim()
+                val country = etLocationCountry.text.toString().trim()
+                val postalCode = etLocationPostalCode.text.toString().trim()
+                val latitude = etLocationLatitude.text.toString().toDouble()
+                val longitude = etLocationLongitude.text.toString().toDouble()
+                val category = etLocationCategory.text.toString().trim()
+
+                if(name.isEmpty() || address.isEmpty() || city.isEmpty() || country.isEmpty() || postalCode.isEmpty() || latitude == null || longitude == null || category.isEmpty()){
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Error")
+                        .setMessage("Please fill in all fields")
+                        .setPositiveButton("OK") { _, _ ->
+                            return@setPositiveButton
+                        }
+                        .show()
+                }
+
+                val paymentTags = etPaymentOptions.text.toString().split(",")
+                    .map { it.trim() }
+
+                val openTime = etOpenTime.text.toString().trim()
+                val closeTime = etClosingTime.text.toString().trim()
+                val sundayClosed = cbSundayClosed.isChecked
+                val contact = etContact.text.toString().trim().takeIf { it.isNotEmpty() }
+
+
+                createLocation(name, description, address, city, country, postalCode, latitude, longitude, category, paymentTags, openTime, closeTime, sundayClosed, contact)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun createLocation(
+        name: String,
+        description: String,
+        address: String,
+        city: String,
+        country: String,
+        postalCode: String,
+        latitude: Double,
+        longitude: Double,
+        category: String,
+        paymentTags: List<String>,
+        openTime: String,
+        closeTime: String,
+        sundayClosed: Boolean,
+        contact: String?
+    ) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val fullAddress = Address(address, city, country, postalCode)
+            val contact = if(contact != null) Contact(contact) else null
+            val openingHours = mapOf(
+                "monday" to DayOpeningHours(openTime, closeTime, false),
+                "tuesday" to DayOpeningHours(openTime, closeTime, false),
+                "wednesday" to DayOpeningHours(openTime, closeTime, false),
+                "thursday" to DayOpeningHours(openTime, closeTime, false),
+                "friday" to DayOpeningHours(openTime, closeTime, false),
+                "saturday" to DayOpeningHours(openTime, closeTime, false),
+                "sunday" to DayOpeningHours(
+                    if (sundayClosed) null else openTime,
+                    if (sundayClosed) null else closeTime,
+                    sundayClosed
+                )
+            )
+
+            val request = CreateLocationRequest(name, description, fullAddress, latitude, longitude, category, paymentTags, contact, openingHours)
+            val result = ServiceProvider.locationService.create(request)
+            if(result.isSuccess){
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Success")
+                    .setMessage("Location successfully created")
+                    .setPositiveButton("OK") {_, _, ->
+                        loadPinsForCurrentBounds()
+                    }
+                    .show()
+            } else{
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Error")
+                    .setMessage("Unable to create location: ${result.errorMessage()}")
+                    .setPositiveButton("OK", null)
+                    .show()
+            }
+        }
+    }
+
+
 }

@@ -6,11 +6,17 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
+import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
@@ -31,6 +37,11 @@ import org.osmdroid.views.overlay.Marker
 import kotlin.math.roundToInt
 import androidx.core.graphics.scale
 import androidx.core.graphics.drawable.toDrawable
+import com.google.android.material.textfield.TextInputEditText
+import hr.algebra.mobileapp.models.location.Address
+import hr.algebra.mobileapp.models.location.Contact
+import hr.algebra.mobileapp.models.location.DayOpeningHours
+import hr.algebra.mobileapp.models.location.UpdateLocationRequest
 
 class LocationDetailFragment : Fragment() {
 
@@ -54,6 +65,9 @@ class LocationDetailFragment : Fragment() {
     private var activeSection: Section = Section.NONE
     private var isOpeningHoursVisible = false
 
+    private var currentLocation : Location? = null
+    private lateinit var btnEditLocation: MaterialButton
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -73,6 +87,7 @@ class LocationDetailFragment : Fragment() {
         btnOpeningHours = view.findViewById(R.id.btn_opening_hours)
         btnReviews = view.findViewById(R.id.btn_reviews)
         btnDrinks = view.findViewById(R.id.btn_drinks)
+        btnEditLocation = view.findViewById(R.id.btn_edit_location)
 
         mapView.setTileSource(TileSourceFactory.MAPNIK)
         mapView.setMultiTouchControls(true)
@@ -108,6 +123,10 @@ class LocationDetailFragment : Fragment() {
             } else {
                 showSection(Section.DRINKS)
             }
+        }
+
+        btnEditLocation.setOnClickListener {
+            editLocationDialog()
         }
 
         updateSectionButtonState(Section.NONE)
@@ -178,6 +197,7 @@ class LocationDetailFragment : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun bindLocation(location: Location, metaText: String) {
+        currentLocation = location
         tvName.text = location.name
         tvRating.text = "${"%.1f".format(location.averageRating)} ★ (${location.totalReviews} reviews)"
         tvAddress.text = "${location.address.street}, ${location.address.city}, ${location.address.country}"
@@ -340,4 +360,135 @@ class LocationDetailFragment : Fragment() {
             return fragment
         }
     }
+
+
+    private fun editLocationDialog(){
+        val location = currentLocation
+
+        if(location == null){
+            AlertDialog.Builder(requireContext())
+                .setTitle("Error")
+                .setMessage("Unable to load location")
+                .setPositiveButton("OK", null)
+                .show()
+            return
+        }
+
+        val dialogView=layoutInflater.inflate(R.layout.dialog_location_form, null)
+        val etName = dialogView.findViewById<TextInputEditText>(R.id.et_location_name)
+        val etDescription = dialogView.findViewById<TextInputEditText>(R.id.et_location_description)
+        val etAddress = dialogView.findViewById<TextInputEditText>(R.id.et_location_address)
+        val etCity = dialogView.findViewById<TextInputEditText>(R.id.et_location_city)
+        val etCountry = dialogView.findViewById<TextInputEditText>(R.id.et_location_country)
+        val etPostalCode = dialogView.findViewById<TextInputEditText>(R.id.et_location_postal_code)
+        val etCategory = dialogView.findViewById<TextInputEditText>(R.id.et_location_category)
+        val etPaymentOptions = dialogView.findViewById<TextInputEditText>(R.id.et_location_payment_options)
+        val etOpenTime = dialogView.findViewById<TextInputEditText>(R.id.et_location_open_time)
+        val etCloseTime = dialogView.findViewById<TextInputEditText>(R.id.et_location_close_time)
+        val cbSundayClosed = dialogView.findViewById<CheckBox>(R.id.cb_location_sunday_closed)
+        val etWebsite = dialogView.findViewById<TextInputEditText>(R.id.et_location_website)
+
+        etName.setText(location.name)
+        etDescription.setText(location.description ?: "")
+        etAddress.setText(location.address.street)
+        etCity.setText(location.address.city)
+        etCountry.setText(location.address.country)
+        etPostalCode.setText(location.address.postalCode)
+        etCategory.setText(location.categoryTag)
+        etPaymentOptions.setText(location.paymentOptionTags.joinToString(", "))
+
+        val hours = location.openingHours["monday"]
+        if(hours != null && !hours.isClosed){
+            etOpenTime.setText(hours.open ?: "")
+            etCloseTime.setText(hours.close ?: "")
+        }
+        val sundayHours = location.openingHours["sunday"]
+        cbSundayClosed.isChecked = sundayHours?.isClosed == true
+
+        etWebsite.setText(location.contact?.website ?: "")
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Edit location")
+            .setView(dialogView)
+            .setPositiveButton("Save") { _, _ ->
+                val name = etName.text.toString().trim()
+                if (name.isEmpty()) {
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Error")
+                        .setMessage("Location name cannot be empty")
+                        .setPositiveButton("OK", null)
+                        .show()
+                    return@setPositiveButton
+                }
+
+                val paymentOptions = etPaymentOptions.text.toString().split(",")
+                    .map { it.trim() }
+
+                val openTime = etOpenTime.text.toString().trim()
+                val closeTime = etCloseTime.text.toString().trim()
+                val sundayClosed = cbSundayClosed.isChecked
+                val website = etWebsite.text.toString().trim().takeIf { it.isNotEmpty() }
+
+
+                updateLocation(name, etDescription.text.toString(),
+                    etAddress.text.toString(), etCity.text.toString(), etCountry.text.toString(),
+                    etPostalCode.text.toString(), etCategory.text.toString(), paymentOptions,
+                    openTime, closeTime, sundayClosed, website)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun updateLocation(name: String, description: String,
+                               address: String, city: String, country: String,
+                               postalCode: String, category: String, paymentTags: List<String>,
+                               openTime: String, closeTime: String, sundayClosed: Boolean, contact: String?){
+        viewLifecycleOwner.lifecycleScope.launch {
+            val location = currentLocation ?: return@launch
+
+            val fullAddress = Address(address, city, country, postalCode)
+            val contact = if(contact != null) Contact(contact) else null
+            val openingHours = mapOf(
+                "monday" to DayOpeningHours(openTime, closeTime, false),
+                "tuesday" to DayOpeningHours(openTime, closeTime, false),
+                "wednesday" to DayOpeningHours(openTime, closeTime, false),
+                "thursday" to DayOpeningHours(openTime, closeTime, false),
+                "friday" to DayOpeningHours(openTime, closeTime, false),
+                "saturday" to DayOpeningHours(openTime, closeTime, false),
+                "sunday" to DayOpeningHours(
+                    if (sundayClosed) null else openTime,
+                    if (sundayClosed) null else closeTime,
+                    sundayClosed
+                )
+            )
+
+            val request = UpdateLocationRequest(
+                name, description.takeIf { it.isNotEmpty() },
+                fullAddress, category,
+                paymentTags,
+                contact,
+                openingHours,
+                null)
+
+            val result = ServiceProvider.locationService.update(location.id, request)
+
+            if(result.isSuccess){
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Success")
+                    .setMessage("Location updated successfully")
+                    .setPositiveButton("OK") { _, _ ->
+                        loadLocationDetails(location.id)
+                    }
+                    .show()
+            } else {
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Error")
+                    .setMessage("Error updating location: ${result.errorMessage()}")
+                    .setPositiveButton("OK", null)
+                    .show()
+            }
+        }
+    }
+
+
 }

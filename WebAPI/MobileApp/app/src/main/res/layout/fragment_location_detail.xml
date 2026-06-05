@@ -104,6 +104,22 @@
                 android:text="@string/drinks" />
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_edit_location"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Edit location" />
+        </LinearLayout>
+
+
+
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/location_content_container"
             android:layout_width="match_parent"
