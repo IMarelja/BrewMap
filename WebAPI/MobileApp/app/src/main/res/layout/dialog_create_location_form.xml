@@ -13,7 +13,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Name *">
+            android:hint="@string/required_name">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_location_name"
@@ -25,7 +25,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Description">
+            android:hint="@string/optional_description">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_location_description"
@@ -37,7 +37,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Address *">
+            android:hint="@string/required_address">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_location_address"
@@ -49,7 +49,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="City *">
+            android:hint="@string/required_city">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_location_city"
@@ -61,7 +61,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Country *">
+            android:hint="@string/required_country">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_location_country"
@@ -73,7 +73,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Postal Code *">
+            android:hint="@string/required_postal_code">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_location_postal_code"
@@ -86,7 +86,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Location (tap or drag pin to set) *" />
+            android:text="@string/location_tap_to_set" />
 
         <org.osmdroid.views.MapView
             android:id="@+id/dialog_map_view"
@@ -103,7 +103,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:hint="Latitude *">
+                android:hint="@string/latitude">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_location_latitude"
@@ -118,7 +118,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="8dp"
-                android:hint="Longitude *">
+                android:hint="@string/longitude">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_location_longitude"
@@ -132,7 +132,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Category *">
+            android:hint="@string/required_category">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_location_category"
@@ -144,7 +144,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Payment methods (FORMAT: cash, card, mobile) *">
+            android:hint="@string/required_payment_methods">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -158,7 +158,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:textColor="@color/brew_dark"
-            android:text="Opening hours (FORMAT HH:MM) *"/>
+            android:text="@string/required_opening_hours_format_hh_mm"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -169,7 +169,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:hint="Opening">
+                android:hint="@string/required_opening">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_location_open_time"
@@ -184,7 +184,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="8dp"
-                android:hint="Closing">
+                android:hint="@string/closing">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_location_close_time"
@@ -206,7 +206,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Website">
+            android:hint="@string/optional_website">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_location_website"

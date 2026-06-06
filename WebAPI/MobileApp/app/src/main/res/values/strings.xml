@@ -112,4 +112,21 @@
 
     <!-- Min rating label -->
     <string name="min_rating_format">Minimum rating: %1$s+</string>
+    <string name="optional_name">Name *</string>
+    <string name="description">Description</string>
+    <string name="required_name">Name *</string>
+    <string name="optional_description">Description</string>
+    <string name="required_address">Address *</string>
+    <string name="required_city">City *</string>
+    <string name="required_country">Country *</string>
+    <string name="required_postal_code">Postal Code *</string>
+    <string name="location_tap_to_set">Location (tap to set) *</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
+    <string name="required_category">Category *</string>
+    <string name="required_payment_methods">Payment methods *</string>
+    <string name="required_opening_hours_format_hh_mm">Opening hours (FORMAT HH:MM) *</string>
+    <string name="required_opening">Opening</string>
+    <string name="closing">Closing</string>
+    <string name="optional_website">Website</string>
 </resources>
