@@ -92,7 +92,7 @@ class ReviewServiceApi : IReviewService {
         return result
     }
 
-    // ── POST api/Review/drinkService/{drinkId} ──────────────────────────────────────
+    // ── POST api/Review/drink/{drinkId} ──────────────────────────────────────
 
     override suspend fun createForDrink(drinkId: String, rating: Int, comment: String?): ServiceResult<Review> {
         val client = API.createClient()

@@ -184,7 +184,7 @@ class HardCodeData {
 
     /**
      * Seed drinks spread across several seeded locations.
-     * Each drinkService maps to one [Location] via [Drink.availableAtLocationId].
+     * Each drink maps to one [Location] via [Drink.availableAtLocationId].
      *
      * Mutable so [hr.algebra.mobileapp.service.drink.DrinkServiceHardCode] can create/update drinks.
      * All drinks start with a zero [AggregatedRating] — the aggregate is built from [reviews] on init.
@@ -218,7 +218,7 @@ class HardCodeData {
 
         // Cafe Vanilla (hc-loc-009) — 2 drinks
         drink("hc-drk-014", "Vanilla Latte",       "Espresso with vanilla-infused milk.", "hc-loc-009"),
-        drink("hc-drk-015", "Hot Chocolate",       "Thick Belgian chocolate drinkService.",    "hc-loc-009"),
+        drink("hc-drk-015", "Hot Chocolate",       "Thick Belgian chocolate drink.",    "hc-loc-009"),
 
         // Koncept Mlinček (hc-loc-010) — 2 drinks
         drink("hc-drk-016", "Specialty Filter",   "Single-origin pour-over coffee.",  "hc-loc-010"),

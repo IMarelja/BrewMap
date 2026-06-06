@@ -6,7 +6,7 @@ import hr.algebra.mobileapp.models.drink.CreateDrinkRequest
 import hr.algebra.mobileapp.models.drink.Drink
 
 /**
- * Contract for drinkService read **and write** operations.
+ * Contract for drink read **and write** operations.
  *
  * Three implementations:
  *  - [DrinkServiceApi]        — live BrewMap REST API  (requires authService token)
