@@ -37,8 +37,7 @@ import org.osmdroid.views.overlay.Marker
 import kotlin.math.roundToInt
 import androidx.core.graphics.scale
 import androidx.core.graphics.drawable.toDrawable
-import android.text.Editable
-import android.text.TextWatcher
+import android.app.TimePickerDialog
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.LinearLayout
@@ -424,6 +423,15 @@ class LocationDetailFragment : Fragment() {
             }
         }
 
+        fun parseTime(t: String): Pair<Int, Int>? {
+            val parts = t.trim().split(":")
+            if (parts.size != 2) return null
+            val h = parts[0].toIntOrNull() ?: return null
+            val m = parts[1].toIntOrNull() ?: return null
+            return Pair(h, m)
+        }
+        fun fmtTime(h: Int, m: Int) = "$h:${m.toString().padStart(2, '0')}"
+
         data class DayRow(
             val key: String,
             val tilOpen: TextInputLayout,
@@ -432,6 +440,9 @@ class LocationDetailFragment : Fragment() {
             val etClose: TextInputEditText,
             val cbClosed: CheckBox
         )
+
+        val defaultOpen  = "8:00"
+        val defaultClose = "22:00"
 
         val days = listOf("monday","tuesday","wednesday","thursday","friday","saturday","sunday")
         val dayLabels = listOf("Mon","Tue","Wed","Thu","Fri","Sat","Sun")
@@ -449,9 +460,11 @@ class LocationDetailFragment : Fragment() {
                 cbClosed.isChecked = true
                 etOpen.isEnabled = false
                 etClose.isEnabled = false
+                tilOpen.isEnabled = false
+                tilClose.isEnabled = false
             } else {
-                etOpen.setText(dayHours?.open ?: "")
-                etClose.setText(dayHours?.close ?: "")
+                etOpen.setText(dayHours?.open?.let { parseTime(it)?.let { (h,m) -> fmtTime(h,m) } } ?: defaultOpen)
+                etClose.setText(dayHours?.close?.let { parseTime(it)?.let { (h,m) -> fmtTime(h,m) } } ?: defaultClose)
             }
 
             cbClosed.setOnCheckedChangeListener { _, closed ->
@@ -459,19 +472,39 @@ class LocationDetailFragment : Fragment() {
                 etClose.isEnabled = !closed
                 tilOpen.isEnabled = !closed
                 tilClose.isEnabled = !closed
-                if (closed) tilClose.error = null
+                if (!closed) {
+                    if (etOpen.text.isNullOrBlank())  etOpen.setText(defaultOpen)
+                    if (etClose.text.isNullOrBlank()) etClose.setText(defaultClose)
+                }
             }
 
-            etClose.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
-                override fun afterTextChanged(s: Editable?) {
-                    val open  = etOpen.text.toString().trim()
-                    val close = s.toString().trim()
-                    tilClose.error = if (close.isNotEmpty() && open.isNotEmpty() && close < open)
-                        "Close must be after open" else null
-                }
-            })
+            etOpen.setOnClickListener {
+                val (initH, initM) = parseTime(etOpen.text.toString()) ?: parseTime(defaultOpen)!!
+                TimePickerDialog(requireContext(), { _, h, m ->
+                    val (closeH, closeM) = parseTime(etClose.text.toString()) ?: parseTime(defaultClose)!!
+                    val openMins  = h * 60 + m
+                    val closeMins = closeH * 60 + closeM
+                    val (finalH, finalM) = if (openMins >= closeMins) {
+                        val adj = closeMins - 60
+                        if (adj < 0) Pair(0, 0) else Pair(adj / 60, adj % 60)
+                    } else Pair(h, m)
+                    etOpen.setText(fmtTime(finalH, finalM))
+                }, initH, initM, true).show()
+            }
+
+            etClose.setOnClickListener {
+                val (initH, initM) = parseTime(etClose.text.toString()) ?: parseTime(defaultClose)!!
+                TimePickerDialog(requireContext(), { _, h, m ->
+                    val (openH, openM) = parseTime(etOpen.text.toString()) ?: parseTime(defaultOpen)!!
+                    val openMins  = openH * 60 + openM
+                    val closeMins = h * 60 + m
+                    val (finalH, finalM) = if (closeMins <= openMins) {
+                        val adj = openMins + 60
+                        if (adj >= 24 * 60) Pair(23, 59) else Pair(adj / 60, adj % 60)
+                    } else Pair(h, m)
+                    etClose.setText(fmtTime(finalH, finalM))
+                }, initH, initM, true).show()
+            }
 
             llOpeningHours.addView(rowView)
             DayRow(key, tilOpen, etOpen, tilClose, etClose, cbClosed)
@@ -498,18 +531,6 @@ class LocationDetailFragment : Fragment() {
                         (llPaymentOptions.getChildAt(i) as? CheckBox)?.isChecked == true
                     }
                     .map { it.tag }
-
-                val hasTimeError = dayRows.any { row ->
-                    !row.cbClosed.isChecked && row.tilClose.error != null
-                }
-                if (hasTimeError) {
-                    AlertDialog.Builder(requireContext())
-                        .setTitle("Error")
-                        .setMessage("Fix closing times before saving")
-                        .setPositiveButton("OK", null)
-                        .show()
-                    return@setPositiveButton
-                }
 
                 val openingHours = dayRows.associate { row ->
                     val closed = row.cbClosed.isChecked
