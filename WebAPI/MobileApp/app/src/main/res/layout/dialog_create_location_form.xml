@@ -130,78 +130,46 @@
         </LinearLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_location_category"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/required_category">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_location_category"
+            <AutoCompleteTextView
+                android:id="@+id/spinner_location_category"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text" />
+                android:textColor="@color/brew_dark"
+                android:focusable="false"
+                android:inputType="none" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/required_payment_methods">
+            android:layout_marginTop="8dp"
+            android:textColor="@color/brew_dark"
+            android:text="@string/payment_options" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/et_location_payment_options"
-                android:inputType="text"/>
-        </com.google.android.material.textfield.TextInputLayout>
+        <LinearLayout
+            android:id="@+id/ll_payment_options"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:textColor="@color/brew_dark"
-            android:text="@string/required_opening_hours_format_hh_mm"/>
+            android:text="@string/required_opening_hours_hh_mm" />
 
         <LinearLayout
+            android:id="@+id/ll_opening_hours"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="@string/required_opening">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_location_open_time"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:text="08:00" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:hint="@string/closing">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_location_close_time"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:text="22:00" />
-            </com.google.android.material.textfield.TextInputLayout>
-        </LinearLayout>
-
-        <CheckBox
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/cb_location_sunday_closed"
-            android:buttonTint="@color/brew_checkbox_tint"
-            android:textColor="@color/brew_dark"
-            android:text="Sunday Closed"/>
+            android:orientation="vertical" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"

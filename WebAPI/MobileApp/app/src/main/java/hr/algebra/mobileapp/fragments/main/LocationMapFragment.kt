@@ -12,9 +12,16 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.app.TimePickerDialog
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.CheckBox
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.Toast
+import com.google.android.material.textfield.TextInputLayout
+import hr.algebra.mobileapp.models.category.Category
+import hr.algebra.mobileapp.models.paymentoption.PaymentOption
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
@@ -384,21 +391,19 @@ class LocationMapFragment : Fragment() {
 
     private fun createLocationDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_create_location_form, null)
-        val etLocationName = dialogView.findViewById<TextInputEditText>(R.id.et_location_name)
+        val etLocationName        = dialogView.findViewById<TextInputEditText>(R.id.et_location_name)
         val etLocationDescription = dialogView.findViewById<TextInputEditText>(R.id.et_location_description)
-        val etLocationAddress = dialogView.findViewById<TextInputEditText>(R.id.et_location_address)
-        val etLocationCity = dialogView.findViewById<TextInputEditText>(R.id.et_location_city)
-        val etLocationCountry = dialogView.findViewById<TextInputEditText>(R.id.et_location_country)
-        val etLocationPostalCode = dialogView.findViewById<TextInputEditText>(R.id.et_location_postal_code)
-        val etLocationLatitude = dialogView.findViewById<TextInputEditText>(R.id.et_location_latitude)
-        val etLocationLongitude = dialogView.findViewById<TextInputEditText>(R.id.et_location_longitude)
-        val etLocationCategory = dialogView.findViewById<TextInputEditText>(R.id.et_location_category)
-        val etPaymentOptions = dialogView.findViewById<TextInputEditText>(R.id.et_location_payment_options)
-        val etOpenTime = dialogView.findViewById<TextInputEditText>(R.id.et_location_open_time)
-        val etClosingTime = dialogView.findViewById<TextInputEditText>(R.id.et_location_close_time)
-        val cbSundayClosed = dialogView.findViewById<CheckBox>(R.id.cb_location_sunday_closed)
-        val etContact = dialogView.findViewById<TextInputEditText>(R.id.et_location_website)
-        val dialogMapView = dialogView.findViewById<MapView>(R.id.dialog_map_view)
+        val etLocationAddress     = dialogView.findViewById<TextInputEditText>(R.id.et_location_address)
+        val etLocationCity        = dialogView.findViewById<TextInputEditText>(R.id.et_location_city)
+        val etLocationCountry     = dialogView.findViewById<TextInputEditText>(R.id.et_location_country)
+        val etLocationPostalCode  = dialogView.findViewById<TextInputEditText>(R.id.et_location_postal_code)
+        val etLocationLatitude    = dialogView.findViewById<TextInputEditText>(R.id.et_location_latitude)
+        val etLocationLongitude   = dialogView.findViewById<TextInputEditText>(R.id.et_location_longitude)
+        val spinnerCategory       = dialogView.findViewById<AutoCompleteTextView>(R.id.spinner_location_category)
+        val llPaymentOptions      = dialogView.findViewById<LinearLayout>(R.id.ll_payment_options)
+        val llOpeningHours        = dialogView.findViewById<LinearLayout>(R.id.ll_opening_hours)
+        val etContact             = dialogView.findViewById<TextInputEditText>(R.id.et_location_website)
+        val dialogMapView         = dialogView.findViewById<MapView>(R.id.dialog_map_view)
 
         val hasFine = isPermissionGranted(Manifest.permission.ACCESS_FINE_LOCATION)
         val hasCoarse = isPermissionGranted(Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -450,19 +455,104 @@ class LocationMapFragment : Fragment() {
         }))
         dialogMapView.overlays.add(dialogMarker)
 
+        var categories: List<Category> = emptyList()
+        var paymentOptions: List<PaymentOption> = emptyList()
+        viewLifecycleOwner.lifecycleScope.launch {
+            val catResult = ServiceProvider.categoryService.getAll()
+            categories = catResult.data ?: emptyList()
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, categories.map { it.name })
+            spinnerCategory.setAdapter(adapter)
+
+            val payResult = ServiceProvider.paymentOptionService.getAll()
+            paymentOptions = payResult.data ?: emptyList()
+            paymentOptions.forEach { option ->
+                val cb = CheckBox(requireContext()).apply {
+                    text = option.name
+                    isChecked = false
+                    buttonTintList = resources.getColorStateList(R.color.brew_checkbox_tint, null)
+                    setTextColor(resources.getColor(R.color.brew_dark, null))
+                }
+                llPaymentOptions.addView(cb)
+            }
+        }
+
+        fun parseTime(t: String): Pair<Int, Int>? {
+            val parts = t.trim().split(":")
+            if (parts.size != 2) return null
+            return Pair(parts[0].toIntOrNull() ?: return null, parts[1].toIntOrNull() ?: return null)
+        }
+        fun fmtTime(h: Int, m: Int) = "$h:${m.toString().padStart(2, '0')}"
+
+        val defaultOpen  = "8:00"
+        val defaultClose = "22:00"
+        val days      = listOf("monday","tuesday","wednesday","thursday","friday","saturday","sunday")
+        val dayLabels = listOf("Mon","Tue","Wed","Thu","Fri","Sat","Sun")
+
+        data class DayRow(val key: String, val tilOpen: TextInputLayout, val etOpen: TextInputEditText,
+                          val tilClose: TextInputLayout, val etClose: TextInputEditText, val cbClosed: CheckBox)
+
+        val dayRows = days.mapIndexed { i, key ->
+            val rowView = layoutInflater.inflate(R.layout.item_opening_hours_row, llOpeningHours, false)
+            rowView.findViewById<android.widget.TextView>(R.id.tv_day_name).text = dayLabels[i]
+            val tilOpen  = rowView.findViewById<TextInputLayout>(R.id.til_open_time)
+            val etOpen   = rowView.findViewById<TextInputEditText>(R.id.et_open_time)
+            val tilClose = rowView.findViewById<TextInputLayout>(R.id.til_close_time)
+            val etClose  = rowView.findViewById<TextInputEditText>(R.id.et_close_time)
+            val cbClosed = rowView.findViewById<CheckBox>(R.id.cb_is_closed)
+
+            etOpen.setText(defaultOpen)
+            etClose.setText(defaultClose)
+
+            cbClosed.setOnCheckedChangeListener { _, closed ->
+                etOpen.isEnabled = !closed
+                etClose.isEnabled = !closed
+                tilOpen.isEnabled = !closed
+                tilClose.isEnabled = !closed
+                if (!closed) {
+                    if (etOpen.text.isNullOrBlank())  etOpen.setText(defaultOpen)
+                    if (etClose.text.isNullOrBlank()) etClose.setText(defaultClose)
+                }
+            }
+
+            etOpen.setOnClickListener {
+                val (initH, initM) = parseTime(etOpen.text.toString()) ?: parseTime(defaultOpen)!!
+                TimePickerDialog(requireContext(), { _, h, m ->
+                    val (closeH, closeM) = parseTime(etClose.text.toString()) ?: parseTime(defaultClose)!!
+                    val openMins = h * 60 + m; val closeMins = closeH * 60 + closeM
+                    val (fH, fM) = if (openMins >= closeMins) { val a = closeMins - 60; if (a < 0) Pair(0,0) else Pair(a/60, a%60) } else Pair(h, m)
+                    etOpen.setText(fmtTime(fH, fM))
+                }, initH, initM, true).show()
+            }
+
+            etClose.setOnClickListener {
+                val (initH, initM) = parseTime(etClose.text.toString()) ?: parseTime(defaultClose)!!
+                TimePickerDialog(requireContext(), { _, h, m ->
+                    val (openH, openM) = parseTime(etOpen.text.toString()) ?: parseTime(defaultOpen)!!
+                    val openMins = openH * 60 + openM; val closeMins = h * 60 + m
+                    val (fH, fM) = if (closeMins <= openMins) { val a = openMins + 60; if (a >= 1440) Pair(23,59) else Pair(a/60, a%60) } else Pair(h, m)
+                    etClose.setText(fmtTime(fH, fM))
+                }, initH, initM, true).show()
+            }
+
+            llOpeningHours.addView(rowView)
+            DayRow(key, tilOpen, etOpen, tilClose, etClose, cbClosed)
+        }
+
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle(R.string.dialog_title_create_location)
             .setView(dialogView)
             .setPositiveButton(R.string.btn_create) { _, _ ->
-                val name = etLocationName.text.toString().trim()
+                val name        = etLocationName.text.toString().trim()
                 val description = etLocationDescription.text.toString().trim()
-                val address = etLocationAddress.text.toString().trim()
-                val city = etLocationCity.text.toString().trim()
-                val country = etLocationCountry.text.toString().trim()
-                val postalCode = etLocationPostalCode.text.toString().trim()
-                val latitude = etLocationLatitude.text.toString().toDoubleOrNull()
-                val longitude = etLocationLongitude.text.toString().toDoubleOrNull()
-                val category = etLocationCategory.text.toString().trim()
+                val address     = etLocationAddress.text.toString().trim()
+                val city        = etLocationCity.text.toString().trim()
+                val country     = etLocationCountry.text.toString().trim()
+                val postalCode  = etLocationPostalCode.text.toString().trim()
+                val latitude    = etLocationLatitude.text.toString().toDoubleOrNull()
+                val longitude   = etLocationLongitude.text.toString().toDoubleOrNull()
+
+                val selectedCategoryName = spinnerCategory.text.toString().trim()
+                val category = categories.firstOrNull { it.name == selectedCategoryName }?.tag ?: ""
 
                 if (name.isEmpty() || address.isEmpty() || city.isEmpty() || country.isEmpty()
                     || postalCode.isEmpty() || latitude == null || longitude == null || category.isEmpty()
@@ -475,16 +565,21 @@ class LocationMapFragment : Fragment() {
                     return@setPositiveButton
                 }
 
-                val paymentTags = etPaymentOptions.text.toString().split(",")
-                    .map { it.trim() }
-                    .filter { it.isNotEmpty() }
+                val selectedPaymentTags = paymentOptions
+                    .filterIndexed { i, _ -> (llPaymentOptions.getChildAt(i) as? CheckBox)?.isChecked == true }
+                    .map { it.tag }
 
-                val openTime = etOpenTime.text.toString().trim()
-                val closeTime = etClosingTime.text.toString().trim()
-                val sundayClosed = cbSundayClosed.isChecked
+                val openingHours = dayRows.associate { row ->
+                    val closed = row.cbClosed.isChecked
+                    row.key to DayOpeningHours(
+                        if (closed) null else row.etOpen.text.toString().trim(),
+                        if (closed) null else row.etClose.text.toString().trim(),
+                        closed
+                    )
+                }
+
                 val contact = etContact.text.toString().trim().takeIf { it.isNotEmpty() }
-
-                createLocation(name, description, address, city, country, postalCode, latitude, longitude, category, paymentTags, openTime, closeTime, sundayClosed, contact)
+                createLocation(name, description, address, city, country, postalCode, latitude, longitude, category, selectedPaymentTags, openingHours, contact)
             }
             .setNegativeButton(R.string.btn_cancel, null)
             .setOnDismissListener { dialogMapView.onDetach() }
@@ -505,27 +600,12 @@ class LocationMapFragment : Fragment() {
         longitude: Double,
         category: String,
         paymentTags: List<String>,
-        openTime: String,
-        closeTime: String,
-        sundayClosed: Boolean,
+        openingHours: Map<String, DayOpeningHours>,
         contact: String?
     ) {
         viewLifecycleOwner.lifecycleScope.launch {
             val fullAddress = Address(address, city, country, postalCode)
             val contact = if(contact != null) Contact(contact) else null
-            val openingHours = mapOf(
-                "monday" to DayOpeningHours(openTime, closeTime, false),
-                "tuesday" to DayOpeningHours(openTime, closeTime, false),
-                "wednesday" to DayOpeningHours(openTime, closeTime, false),
-                "thursday" to DayOpeningHours(openTime, closeTime, false),
-                "friday" to DayOpeningHours(openTime, closeTime, false),
-                "saturday" to DayOpeningHours(openTime, closeTime, false),
-                "sunday" to DayOpeningHours(
-                    if (sundayClosed) null else openTime,
-                    if (sundayClosed) null else closeTime,
-                    sundayClosed
-                )
-            )
 
             val request = CreateLocationRequest(name, description, fullAddress, latitude, longitude, category, paymentTags, contact, openingHours)
             val result = ServiceProvider.locationService.create(request)
