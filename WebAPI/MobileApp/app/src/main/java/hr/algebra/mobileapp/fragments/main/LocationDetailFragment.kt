@@ -37,7 +37,10 @@ import org.osmdroid.views.overlay.Marker
 import kotlin.math.roundToInt
 import androidx.core.graphics.scale
 import androidx.core.graphics.drawable.toDrawable
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import com.google.android.material.textfield.TextInputEditText
+import hr.algebra.mobileapp.models.category.Category
 import hr.algebra.mobileapp.models.location.Address
 import hr.algebra.mobileapp.models.location.Contact
 import hr.algebra.mobileapp.models.location.DayOpeningHours
@@ -381,7 +384,7 @@ class LocationDetailFragment : Fragment() {
         val etCity = dialogView.findViewById<TextInputEditText>(R.id.et_location_city)
         val etCountry = dialogView.findViewById<TextInputEditText>(R.id.et_location_country)
         val etPostalCode = dialogView.findViewById<TextInputEditText>(R.id.et_location_postal_code)
-        val etCategory = dialogView.findViewById<TextInputEditText>(R.id.et_location_category)
+        val spinnerCategory = dialogView.findViewById<AutoCompleteTextView>(R.id.spinner_location_category)
         val etPaymentOptions = dialogView.findViewById<TextInputEditText>(R.id.et_location_payment_options)
         val etOpenTime = dialogView.findViewById<TextInputEditText>(R.id.et_location_open_time)
         val etCloseTime = dialogView.findViewById<TextInputEditText>(R.id.et_location_close_time)
@@ -394,7 +397,16 @@ class LocationDetailFragment : Fragment() {
         etCity.setText(location.address.city)
         etCountry.setText(location.address.country)
         etPostalCode.setText(location.address.postalCode)
-        etCategory.setText(location.categoryTag)
+        var categories: List<Category> = emptyList()
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = ServiceProvider.categoryService.getAll()
+            categories = result.data ?: emptyList()
+            val names = categories.map { it.name }
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, names)
+            spinnerCategory.setAdapter(adapter)
+            val current = categories.firstOrNull { it.tag == location.categoryTag }
+            if (current != null) spinnerCategory.setText(current.name, false)
+        }
         etPaymentOptions.setText(location.paymentOptionTags.joinToString(", "))
 
         val hours = location.openingHours["monday"]
@@ -430,9 +442,13 @@ class LocationDetailFragment : Fragment() {
                 val website = etWebsite.text.toString().trim().takeIf { it.isNotEmpty() }
 
 
+                val selectedName = spinnerCategory.text.toString().trim()
+                val categoryTag = categories.firstOrNull { it.name == selectedName }?.tag
+                    ?: location.categoryTag
+
                 updateLocation(name, etDescription.text.toString(),
                     etAddress.text.toString(), etCity.text.toString(), etCountry.text.toString(),
-                    etPostalCode.text.toString(), etCategory.text.toString(), paymentOptions,
+                    etPostalCode.text.toString(), categoryTag, paymentOptions,
                     openTime, closeTime, sundayClosed, website)
             }
             .setNegativeButton("Cancel", null)
