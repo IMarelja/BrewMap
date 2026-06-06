@@ -35,11 +35,13 @@ import hr.algebra.mobileapp.service.ServiceProvider
 import hr.algebra.mobileapp.state.MapViewportStore
 import kotlinx.coroutines.launch
 import org.osmdroid.events.MapAdapter
+import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.events.ScrollEvent
 import org.osmdroid.events.ZoomEvent
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
@@ -380,7 +382,7 @@ class LocationMapFragment : Fragment() {
         private const val DEFAULT_LONGITUDE = 15.9819
     }
 
-    private fun createLocationDialog(){
+    private fun createLocationDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_create_location_form, null)
         val etLocationName = dialogView.findViewById<TextInputEditText>(R.id.et_location_name)
         val etLocationDescription = dialogView.findViewById<TextInputEditText>(R.id.et_location_description)
@@ -396,9 +398,59 @@ class LocationMapFragment : Fragment() {
         val etClosingTime = dialogView.findViewById<TextInputEditText>(R.id.et_location_close_time)
         val cbSundayClosed = dialogView.findViewById<CheckBox>(R.id.cb_location_sunday_closed)
         val etContact = dialogView.findViewById<TextInputEditText>(R.id.et_location_website)
+        val dialogMapView = dialogView.findViewById<MapView>(R.id.dialog_map_view)
 
+        val hasFine = isPermissionGranted(Manifest.permission.ACCESS_FINE_LOCATION)
+        val hasCoarse = isPermissionGranted(Manifest.permission.ACCESS_COARSE_LOCATION)
+        val initialPoint: GeoPoint = if (hasFine || hasCoarse) {
+            myLocationOverlay?.myLocation
+                ?: GeoPoint(mapView.mapCenter.latitude, mapView.mapCenter.longitude)
+        } else {
+            GeoPoint(mapView.mapCenter.latitude, mapView.mapCenter.longitude)
+        }
 
-        AlertDialog.Builder(requireContext())
+        dialogMapView.setTileSource(TileSourceFactory.MAPNIK)
+        dialogMapView.setMultiTouchControls(true)
+        dialogMapView.controller.setZoom(15.0)
+        dialogMapView.controller.setCenter(initialPoint)
+        dialogMapView.setOnTouchListener { v, _ ->
+            v.parent.requestDisallowInterceptTouchEvent(true)
+            false
+        }
+
+        etLocationLatitude.setText("%.6f".format(initialPoint.latitude))
+        etLocationLongitude.setText("%.6f".format(initialPoint.longitude))
+
+        val dialogMarker = Marker(dialogMapView).apply {
+            position = initialPoint
+            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            isDraggable = true
+            setOnMarkerClickListener { _, _ -> true }
+        }
+
+        fun updateCoords(point: GeoPoint) {
+            etLocationLatitude.setText("%.6f".format(point.latitude))
+            etLocationLongitude.setText("%.6f".format(point.longitude))
+        }
+
+        dialogMarker.setOnMarkerDragListener(object : Marker.OnMarkerDragListener {
+            override fun onMarkerDrag(m: Marker) = updateCoords(m.position)
+            override fun onMarkerDragEnd(m: Marker) = updateCoords(m.position)
+            override fun onMarkerDragStart(m: Marker) {}
+        })
+
+        dialogMapView.overlays.add(MapEventsOverlay(object : MapEventsReceiver {
+            override fun singleTapConfirmedHelper(p: GeoPoint): Boolean {
+                dialogMarker.position = p
+                updateCoords(p)
+                dialogMapView.invalidate()
+                return true
+            }
+            override fun longPressHelper(p: GeoPoint): Boolean = false
+        }))
+        dialogMapView.overlays.add(dialogMarker)
+
+        val dialog = AlertDialog.Builder(requireContext())
             .setTitle("Create Location")
             .setView(dialogView)
             .setPositiveButton("Create") { _, _ ->
@@ -408,33 +460,38 @@ class LocationMapFragment : Fragment() {
                 val city = etLocationCity.text.toString().trim()
                 val country = etLocationCountry.text.toString().trim()
                 val postalCode = etLocationPostalCode.text.toString().trim()
-                val latitude = etLocationLatitude.text.toString().toDouble()
-                val longitude = etLocationLongitude.text.toString().toDouble()
+                val latitude = etLocationLatitude.text.toString().toDoubleOrNull()
+                val longitude = etLocationLongitude.text.toString().toDoubleOrNull()
                 val category = etLocationCategory.text.toString().trim()
 
-                if(name.isEmpty() || address.isEmpty() || city.isEmpty() || country.isEmpty() || postalCode.isEmpty() || latitude == null || longitude == null || category.isEmpty()){
+                if (name.isEmpty() || address.isEmpty() || city.isEmpty() || country.isEmpty()
+                    || postalCode.isEmpty() || latitude == null || longitude == null || category.isEmpty()
+                ) {
                     AlertDialog.Builder(requireContext())
                         .setTitle("Error")
                         .setMessage("Please fill in all fields")
-                        .setPositiveButton("OK") { _, _ ->
-                            return@setPositiveButton
-                        }
+                        .setPositiveButton("OK", null)
                         .show()
+                    return@setPositiveButton
                 }
 
                 val paymentTags = etPaymentOptions.text.toString().split(",")
                     .map { it.trim() }
+                    .filter { it.isNotEmpty() }
 
                 val openTime = etOpenTime.text.toString().trim()
                 val closeTime = etClosingTime.text.toString().trim()
                 val sundayClosed = cbSundayClosed.isChecked
                 val contact = etContact.text.toString().trim().takeIf { it.isNotEmpty() }
 
-
                 createLocation(name, description, address, city, country, postalCode, latitude, longitude, category, paymentTags, openTime, closeTime, sundayClosed, contact)
             }
             .setNegativeButton("Cancel", null)
-            .show()
+            .setOnDismissListener { dialogMapView.onDetach() }
+            .create()
+
+        dialog.show()
+        dialogMapView.onResume()
     }
 
     private fun createLocation(
