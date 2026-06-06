@@ -374,9 +374,9 @@ class LocationDetailFragment : Fragment() {
 
         if(location == null){
             AlertDialog.Builder(requireContext())
-                .setTitle("Error")
-                .setMessage("Unable to load location")
-                .setPositiveButton("OK", null)
+                .setTitle(R.string.dialog_title_error)
+                .setMessage(R.string.error_load_location)
+                .setPositiveButton(R.string.btn_ok, null)
                 .show()
             return
         }
@@ -513,15 +513,15 @@ class LocationDetailFragment : Fragment() {
         etWebsite.setText(location.contact?.website ?: "")
 
         AlertDialog.Builder(requireContext())
-            .setTitle("Edit location")
+            .setTitle(R.string.dialog_title_edit_location)
             .setView(dialogView)
-            .setPositiveButton("Save") { _, _ ->
+            .setPositiveButton(R.string.btn_save) { _, _ ->
                 val name = etName.text.toString().trim()
                 if (name.isEmpty()) {
                     AlertDialog.Builder(requireContext())
-                        .setTitle("Error")
-                        .setMessage("Location name cannot be empty")
-                        .setPositiveButton("OK", null)
+                        .setTitle(R.string.dialog_title_error)
+                        .setMessage(R.string.error_location_name_empty)
+                        .setPositiveButton(R.string.btn_ok, null)
                         .show()
                     return@setPositiveButton
                 }
@@ -552,7 +552,7 @@ class LocationDetailFragment : Fragment() {
                     etPostalCode.text.toString(), categoryTag, selectedPaymentTags,
                     openingHours, website)
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(R.string.btn_cancel, null)
             .show()
     }
 
@@ -578,17 +578,17 @@ class LocationDetailFragment : Fragment() {
 
             if(result.isSuccess){
                 AlertDialog.Builder(requireContext())
-                    .setTitle("Success")
-                    .setMessage("Location updated successfully")
-                    .setPositiveButton("OK") { _, _ ->
+                    .setTitle(R.string.dialog_title_success)
+                    .setMessage(R.string.success_location_updated)
+                    .setPositiveButton(R.string.btn_ok) { _, _ ->
                         loadLocationDetails(location.id)
                     }
                     .show()
             } else {
                 AlertDialog.Builder(requireContext())
-                    .setTitle("Error")
-                    .setMessage("Error updating location: ${result.errorMessage()}")
-                    .setPositiveButton("OK", null)
+                    .setTitle(R.string.dialog_title_error)
+                    .setMessage(getString(R.string.error_update_location_format, result.errorMessage()))
+                    .setPositiveButton(R.string.btn_ok, null)
                     .show()
             }
         }

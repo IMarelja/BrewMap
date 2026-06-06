@@ -129,4 +129,51 @@
     <string name="required_opening">Opening</string>
     <string name="closing">Closing</string>
     <string name="optional_website">Website</string>
+    <string name="required_opening_hours_hh_mm">Opening hours (HH:MM - Opened/Closed check box) *</string>
+
+    <!-- Dialog titles -->
+    <string name="dialog_title_error">Error</string>
+    <string name="dialog_title_success">Success</string>
+    <string name="dialog_title_create_location">Create Location</string>
+    <string name="dialog_title_edit_location">Edit location</string>
+    <string name="dialog_title_create_drink">Create drink</string>
+    <string name="dialog_title_edit_drink">Edit drink</string>
+    <string name="dialog_title_add_review">Add review</string>
+    <string name="dialog_title_edit_review">Edit review</string>
+    <string name="dialog_title_delete_review">Delete review</string>
+    <string name="dialog_title_choose_option">Choose option</string>
+
+    <!-- Dialog buttons -->
+    <string name="btn_ok">OK</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_create">Create</string>
+    <string name="btn_delete">Delete</string>
+    <string name="btn_edit">Edit</string>
+
+    <!-- Location dialog messages -->
+    <string name="error_fill_all_fields">Please fill in all fields</string>
+    <string name="error_load_location">Unable to load location</string>
+    <string name="error_location_name_empty">Location name cannot be empty</string>
+    <string name="success_location_created">Location successfully created</string>
+    <string name="error_create_location_format">Unable to create location: %1$s</string>
+    <string name="success_location_updated">Location updated successfully</string>
+    <string name="error_update_location_format">Error updating location: %1$s</string>
+
+    <!-- Drink dialog messages -->
+    <string name="error_name_empty">Name cannot be empty</string>
+    <string name="success_drink_created">Drink created successfully</string>
+    <string name="error_create_drink_format">Unable to create drink: %1$s</string>
+    <string name="success_drink_updated">Drink updated successfully</string>
+    <string name="error_update_drink_format">Unable to update drink: %1$s</string>
+
+    <!-- Review dialog messages -->
+    <string name="error_edit_own_reviews">You can only edit your own reviews</string>
+    <string name="error_rating_range">Rating must be between 1-5</string>
+    <string name="confirm_delete_review">Are you sure you want to delete this review?</string>
+    <string name="success_review_added">Review added successfully</string>
+    <string name="success_review_updated">Review updated successfully</string>
+    <string name="success_review_deleted">Review deleted successfully</string>
+    <string name="error_delete_review_format">Unable to delete review: %1$s</string>
+    <string name="error_update_review_format">Unable to update review: %1$s</string>
 </resources>

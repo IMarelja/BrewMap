@@ -78,24 +78,24 @@ class LocationDrinksListFragment : Fragment() {
         val etDescription = dialogView.findViewById<TextInputEditText>(R.id.et_drink_description)
 
         AlertDialog.Builder(requireContext())
-            .setTitle("Create drink")
+            .setTitle(R.string.dialog_title_create_drink)
             .setView(dialogView)
-            .setPositiveButton("Save") { _, _ ->
+            .setPositiveButton(R.string.btn_save) { _, _ ->
                 val name = etName.text.toString().trim()
                 val description = etDescription.text.toString().trim().takeIf { it.isNotEmpty() }
 
                 if (name.isEmpty()) {
                     AlertDialog.Builder(requireContext())
-                        .setTitle("Error")
-                        .setMessage("Name cannot be empty")
-                        .setPositiveButton("OK", null)
+                        .setTitle(R.string.dialog_title_error)
+                        .setMessage(R.string.error_name_empty)
+                        .setPositiveButton(R.string.btn_ok, null)
                         .show()
                     return@setPositiveButton
                 }
 
                 createDrink(name, description)
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(R.string.btn_cancel, null)
             .show()
     }
 
@@ -108,17 +108,17 @@ class LocationDrinksListFragment : Fragment() {
 
             if (drinkResult.isSuccess){
                 AlertDialog.Builder(requireContext())
-                    .setTitle("Success")
-                    .setMessage("Drink created successfully")
-                    .setPositiveButton("OK") { _, _ ->
+                    .setTitle(R.string.dialog_title_success)
+                    .setMessage(R.string.success_drink_created)
+                    .setPositiveButton(R.string.btn_ok) { _, _ ->
                         loadDrinks(locationId)
                     }
                     .show()
             } else {
                 AlertDialog.Builder(requireContext())
-                    .setTitle("Error")
-                    .setMessage("Unable to create drink: ${drinkResult.errorMessage()}")
-                    .setPositiveButton("OK", null)
+                    .setTitle(R.string.dialog_title_error)
+                    .setMessage(getString(R.string.error_create_drink_format, drinkResult.errorMessage()))
+                    .setPositiveButton(R.string.btn_ok, null)
                     .show()
             }
         }
@@ -133,24 +133,24 @@ class LocationDrinksListFragment : Fragment() {
         etDescription.setText(drink.description ?: "")
 
         AlertDialog.Builder(requireContext())
-            .setTitle("Edit drink")
+            .setTitle(R.string.dialog_title_edit_drink)
             .setView(dialogView)
-            .setPositiveButton("Save") { _, _ ->
+            .setPositiveButton(R.string.btn_save) { _, _ ->
                 val name = etName.text.toString().trim()
                 val description = etDescription.text.toString().trim().takeIf { it.isNotEmpty() }
 
                 if (name.isEmpty()) {
                     AlertDialog.Builder(requireContext())
-                        .setTitle("Error")
-                        .setMessage("Name cannot be empty")
-                        .setPositiveButton("OK", null)
+                        .setTitle(R.string.dialog_title_error)
+                        .setMessage(R.string.error_name_empty)
+                        .setPositiveButton(R.string.btn_ok, null)
                         .show()
                     return@setPositiveButton
                 }
 
                 updateDrink(drink.id, name, description, drink.availableAtLocationId)
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(R.string.btn_cancel, null)
             .show()
     }
 
@@ -160,17 +160,17 @@ class LocationDrinksListFragment : Fragment() {
 
             if (result.isSuccess) {
                 AlertDialog.Builder(requireContext())
-                    .setTitle("Success")
-                    .setMessage("Drink updated successfully")
-                    .setPositiveButton("OK") { _, _ ->
+                    .setTitle(R.string.dialog_title_success)
+                    .setMessage(R.string.success_drink_updated)
+                    .setPositiveButton(R.string.btn_ok) { _, _ ->
                         loadDrinks(locationId)
                     }
                     .show()
             } else {
                 AlertDialog.Builder(requireContext())
-                    .setTitle("Error")
-                    .setMessage("Unable to update drink: ${result.errorMessage()}")
-                    .setPositiveButton("OK", null)
+                    .setTitle(R.string.dialog_title_error)
+                    .setMessage(getString(R.string.error_update_drink_format, result.errorMessage()))
+                    .setPositiveButton(R.string.btn_ok, null)
                     .show()
             }
         }

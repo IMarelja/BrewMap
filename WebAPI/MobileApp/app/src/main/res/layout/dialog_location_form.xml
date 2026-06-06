@@ -14,7 +14,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Name *">
+            android:hint="@string/required_name">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -26,7 +26,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Description">
+            android:hint="@string/optional_description">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -38,7 +38,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Address *">
+            android:hint="@string/required_address">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -50,7 +50,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="City *">
+            android:hint="@string/required_city">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -62,7 +62,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Country *">
+            android:hint="@string/required_city">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -74,7 +74,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Postal code *">
+            android:hint="@string/required_postal_code">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -106,7 +106,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:textColor="@color/brew_dark"
-            android:text="Payment options *" />
+            android:text="@string/payment_options" />
 
         <LinearLayout
             android:id="@+id/ll_payment_options"
@@ -119,7 +119,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:textColor="@color/brew_dark"
-            android:text="Opening hours (HH:MM - Opened/Closed check box) *" />
+            android:text="@string/required_opening_hours_hh_mm" />
 
         <LinearLayout
             android:id="@+id/ll_opening_hours"
@@ -130,7 +130,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Website">
+            android:hint="@string/optional_website">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_location_website"

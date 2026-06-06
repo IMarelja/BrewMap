@@ -36,9 +36,9 @@ class LocationReviewsListFragment : Fragment() {
                 editReviewDialog(review)
             } else{
                 AlertDialog.Builder(requireContext())
-                    .setTitle("Error")
-                    .setMessage("You can only edit you own reviews")
-                    .setPositiveButton("OK", null)
+                    .setTitle(R.string.dialog_title_error)
+                    .setMessage(R.string.error_edit_own_reviews)
+                    .setPositiveButton(R.string.btn_ok, null)
                     .show()
             }
         }
@@ -83,18 +83,18 @@ class LocationReviewsListFragment : Fragment() {
         val etComment = dialogView.findViewById<TextInputEditText>(R.id.et_comment)
 
         AlertDialog.Builder(requireContext())
-            .setTitle("Add review")
+            .setTitle(R.string.dialog_title_add_review)
             .setView(dialogView)
-            .setPositiveButton("Save") {_,_ ->
+            .setPositiveButton(R.string.btn_save) {_,_ ->
                 val rating = etRating.text.toString().toIntOrNull()
                 val comment = etComment.text.toString().trim().takeIf { it.isNotEmpty() }
 
                 if(rating == null || rating > 5 || rating < 1){
 
                     AlertDialog.Builder(requireContext())
-                        .setTitle("Error")
-                        .setMessage("Rating must be between 1-5")
-                        .setPositiveButton("OK", null)
+                        .setTitle(R.string.dialog_title_error)
+                        .setMessage(R.string.error_rating_range)
+                        .setPositiveButton(R.string.btn_ok, null)
                         .show()
                     return@setPositiveButton
                 }
@@ -105,31 +105,31 @@ class LocationReviewsListFragment : Fragment() {
 
                     if(result.isSuccess){
                         AlertDialog.Builder(requireContext())
-                            .setTitle("Success")
-                            .setMessage("Review added successfully")
-                            .setPositiveButton("OK") { _, _ ->
+                            .setTitle(R.string.dialog_title_success)
+                            .setMessage(R.string.success_review_added)
+                            .setPositiveButton(R.string.btn_ok) { _, _ ->
                                 loadReviews(locationId)
                             }
                             .show()
                     } else {
                         AlertDialog.Builder(requireContext())
-                            .setTitle("Error")
+                            .setTitle(R.string.dialog_title_error)
                             .setMessage(result.errorMessage())
-                            .setPositiveButton("OK", null)
+                            .setPositiveButton(R.string.btn_ok, null)
                             .show()
                     }
                 }
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(R.string.btn_cancel, null)
             .show()
     }
 
     private fun editReviewDialog(review: Review) {
 
-        val options = arrayOf("Edit", "Delete")
+        val options = arrayOf(getString(R.string.btn_edit), getString(R.string.btn_delete))
 
         AlertDialog.Builder(requireContext())
-            .setTitle("Choose option")
+            .setTitle(R.string.dialog_title_choose_option)
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> editReview(review)
@@ -148,53 +148,53 @@ class LocationReviewsListFragment : Fragment() {
         etComment.setText(review.comment ?: "")
 
         AlertDialog.Builder(requireContext())
-            .setTitle("Edit review")
+            .setTitle(R.string.dialog_title_edit_review)
             .setView(dialogView)
-            .setPositiveButton("Save") { _, _ ->
+            .setPositiveButton(R.string.btn_save) { _, _ ->
                 val rating = etRating.text.toString().toIntOrNull()
                 val comment = etComment.text.toString().trim().takeIf { it.isNotEmpty() }
 
                 if (rating == null || rating > 5 || rating < 1) {
                     AlertDialog.Builder(requireContext())
-                        .setTitle("Error")
-                        .setMessage("Rating must be between 1-5")
-                        .setPositiveButton("OK", null)
+                        .setTitle(R.string.dialog_title_error)
+                        .setMessage(R.string.error_rating_range)
+                        .setPositiveButton(R.string.btn_ok, null)
                         .show()
                     return@setPositiveButton
                 }
 
                 updateReview(review.id, rating, comment, review.targetId)
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(R.string.btn_cancel, null)
             .show()
     }
 
     private fun deleteReview(review: Review) {
         AlertDialog.Builder(requireContext())
-            .setTitle("Delete review")
-            .setMessage("Are you sure you want to delete this review?")
-            .setPositiveButton("Delete") { _, _ ->
+            .setTitle(R.string.dialog_title_delete_review)
+            .setMessage(R.string.confirm_delete_review)
+            .setPositiveButton(R.string.btn_delete) { _, _ ->
                 viewLifecycleOwner.lifecycleScope.launch {
                     val result = ServiceProvider.reviewService.delete(review.id)
 
                     if (result.isSuccess) {
                         AlertDialog.Builder(requireContext())
-                            .setTitle("Success")
-                            .setMessage("Review deleted successfully")
-                            .setPositiveButton("OK") { _, _ ->
+                            .setTitle(R.string.dialog_title_success)
+                            .setMessage(R.string.success_review_deleted)
+                            .setPositiveButton(R.string.btn_ok) { _, _ ->
                                 loadReviews(review.targetId)
                             }
                             .show()
                     } else {
                         AlertDialog.Builder(requireContext())
-                            .setTitle("Error")
-                            .setMessage("Unable to delete review: ${result.errorMessage()}")
-                            .setPositiveButton("OK", null)
+                            .setTitle(R.string.dialog_title_error)
+                            .setMessage(getString(R.string.error_delete_review_format, result.errorMessage()))
+                            .setPositiveButton(R.string.btn_ok, null)
                             .show()
                     }
                 }
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(R.string.btn_cancel, null)
             .show()
     }
 
@@ -204,17 +204,17 @@ class LocationReviewsListFragment : Fragment() {
 
             if (result.isSuccess) {
                 AlertDialog.Builder(requireContext())
-                    .setTitle("Success")
-                    .setMessage("Review updated successfully")
-                    .setPositiveButton("OK") { _, _ ->
+                    .setTitle(R.string.dialog_title_success)
+                    .setMessage(R.string.success_review_updated)
+                    .setPositiveButton(R.string.btn_ok) { _, _ ->
                         loadReviews(locationId)
                     }
                     .show()
             } else {
                 AlertDialog.Builder(requireContext())
-                    .setTitle("Error")
-                    .setMessage("Unable to update review: ${result.errorMessage()}")
-                    .setPositiveButton("OK", null)
+                    .setTitle(R.string.dialog_title_error)
+                    .setMessage(getString(R.string.error_update_review_format, result.errorMessage()))
+                    .setPositiveButton(R.string.btn_ok, null)
                     .show()
             }
         }

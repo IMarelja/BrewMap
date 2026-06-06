@@ -451,9 +451,9 @@ class LocationMapFragment : Fragment() {
         dialogMapView.overlays.add(dialogMarker)
 
         val dialog = AlertDialog.Builder(requireContext())
-            .setTitle("Create Location")
+            .setTitle(R.string.dialog_title_create_location)
             .setView(dialogView)
-            .setPositiveButton("Create") { _, _ ->
+            .setPositiveButton(R.string.btn_create) { _, _ ->
                 val name = etLocationName.text.toString().trim()
                 val description = etLocationDescription.text.toString().trim()
                 val address = etLocationAddress.text.toString().trim()
@@ -468,9 +468,9 @@ class LocationMapFragment : Fragment() {
                     || postalCode.isEmpty() || latitude == null || longitude == null || category.isEmpty()
                 ) {
                     AlertDialog.Builder(requireContext())
-                        .setTitle("Error")
-                        .setMessage("Please fill in all fields")
-                        .setPositiveButton("OK", null)
+                        .setTitle(R.string.dialog_title_error)
+                        .setMessage(R.string.error_fill_all_fields)
+                        .setPositiveButton(R.string.btn_ok, null)
                         .show()
                     return@setPositiveButton
                 }
@@ -486,7 +486,7 @@ class LocationMapFragment : Fragment() {
 
                 createLocation(name, description, address, city, country, postalCode, latitude, longitude, category, paymentTags, openTime, closeTime, sundayClosed, contact)
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(R.string.btn_cancel, null)
             .setOnDismissListener { dialogMapView.onDetach() }
             .create()
 
@@ -531,17 +531,17 @@ class LocationMapFragment : Fragment() {
             val result = ServiceProvider.locationService.create(request)
             if(result.isSuccess){
                 AlertDialog.Builder(requireContext())
-                    .setTitle("Success")
-                    .setMessage("Location successfully created")
-                    .setPositiveButton("OK") {_, _, ->
+                    .setTitle(R.string.dialog_title_success)
+                    .setMessage(R.string.success_location_created)
+                    .setPositiveButton(R.string.btn_ok) {_, _, ->
                         loadPinsForCurrentBounds()
                     }
                     .show()
             } else{
                 AlertDialog.Builder(requireContext())
-                    .setTitle("Error")
-                    .setMessage("Unable to create location: ${result.errorMessage()}")
-                    .setPositiveButton("OK", null)
+                    .setTitle(R.string.dialog_title_error)
+                    .setMessage(getString(R.string.error_create_location_format, result.errorMessage()))
+                    .setPositiveButton(R.string.btn_ok, null)
                     .show()
             }
         }
