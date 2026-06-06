@@ -12,6 +12,7 @@
         android:padding="15dp">
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_location_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/required_name">
@@ -36,6 +37,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_location_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/required_address">
@@ -48,6 +50,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_location_city"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/required_city">
@@ -60,9 +63,10 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_location_country"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/required_city">
+            android:hint="@string/required_country">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -72,6 +76,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_location_postal_code"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/required_postal_code">
@@ -115,6 +120,7 @@
             android:orientation="vertical" />
 
         <TextView
+            android:id="@+id/tv_opening_hours_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"

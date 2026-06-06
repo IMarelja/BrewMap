@@ -382,6 +382,13 @@ class LocationDetailFragment : Fragment() {
         }
 
         val dialogView=layoutInflater.inflate(R.layout.dialog_location_form, null)
+        val tilName        = dialogView.findViewById<TextInputLayout>(R.id.til_location_name)
+        val tilAddress     = dialogView.findViewById<TextInputLayout>(R.id.til_location_address)
+        val tilCity        = dialogView.findViewById<TextInputLayout>(R.id.til_location_city)
+        val tilCountry     = dialogView.findViewById<TextInputLayout>(R.id.til_location_country)
+        val tilPostalCode  = dialogView.findViewById<TextInputLayout>(R.id.til_location_postal_code)
+        val tilCategory    = dialogView.findViewById<TextInputLayout>(R.id.til_location_category)
+        val tvOpeningHoursLabel = dialogView.findViewById<android.widget.TextView>(R.id.tv_opening_hours_label)
         val etName = dialogView.findViewById<TextInputEditText>(R.id.et_location_name)
         val etDescription = dialogView.findViewById<TextInputEditText>(R.id.et_location_description)
         val etAddress = dialogView.findViewById<TextInputEditText>(R.id.et_location_address)
@@ -512,19 +519,39 @@ class LocationDetailFragment : Fragment() {
 
         etWebsite.setText(location.contact?.website ?: "")
 
-        AlertDialog.Builder(requireContext())
+        val dialog = AlertDialog.Builder(requireContext())
             .setTitle(R.string.dialog_title_edit_location)
             .setView(dialogView)
-            .setPositiveButton(R.string.btn_save) { _, _ ->
-                val name = etName.text.toString().trim()
-                if (name.isEmpty()) {
-                    AlertDialog.Builder(requireContext())
-                        .setTitle(R.string.dialog_title_error)
-                        .setMessage(R.string.error_location_name_empty)
-                        .setPositiveButton(R.string.btn_ok, null)
-                        .show()
-                    return@setPositiveButton
-                }
+            .setPositiveButton(R.string.btn_save, null)
+            .setNegativeButton(R.string.btn_cancel, null)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val name       = etName.text.toString().trim()
+                val address    = etAddress.text.toString().trim()
+                val city       = etCity.text.toString().trim()
+                val country    = etCountry.text.toString().trim()
+                val postalCode = etPostalCode.text.toString().trim()
+                val selectedCategoryName = spinnerCategory.text.toString().trim()
+                val categoryTag = categories.firstOrNull { it.name == selectedCategoryName }?.tag
+
+                val allDaysClosed = dayRows.all { it.cbClosed.isChecked }
+
+                val req = getString(R.string.error_field_required)
+                tilName.error       = if (name.isEmpty()) req else null
+                tilAddress.error    = if (address.isEmpty()) req else null
+                tilCity.error       = if (city.isEmpty()) req else null
+                tilCountry.error    = if (country.isEmpty()) req else null
+                tilPostalCode.error = if (postalCode.isEmpty()) req else null
+                tilCategory.error   = if (categoryTag == null) req else null
+
+                val errorColor   = resources.getColor(R.color.auth_error_border, null)
+                val defaultColor = resources.getColor(R.color.brew_dark, null)
+                tvOpeningHoursLabel.setTextColor(if (allDaysClosed) errorColor else defaultColor)
+
+                if (name.isEmpty() || address.isEmpty() || city.isEmpty() || country.isEmpty()
+                    || postalCode.isEmpty() || categoryTag == null || allDaysClosed) return@setOnClickListener
 
                 val selectedPaymentTags = paymentOptions
                     .filterIndexed { i, _ ->
@@ -543,17 +570,13 @@ class LocationDetailFragment : Fragment() {
 
                 val website = etWebsite.text.toString().trim().takeIf { it.isNotEmpty() }
 
-                val selectedName = spinnerCategory.text.toString().trim()
-                val categoryTag = categories.firstOrNull { it.name == selectedName }?.tag
-                    ?: location.categoryTag
-
+                dialog.dismiss()
                 updateLocation(name, etDescription.text.toString(),
-                    etAddress.text.toString(), etCity.text.toString(), etCountry.text.toString(),
-                    etPostalCode.text.toString(), categoryTag, selectedPaymentTags,
+                    address, city, country, postalCode, categoryTag, selectedPaymentTags,
                     openingHours, website)
             }
-            .setNegativeButton(R.string.btn_cancel, null)
-            .show()
+        }
+        dialog.show()
     }
 
     private fun updateLocation(name: String, description: String,

@@ -343,6 +343,13 @@ class LocationSearchFragment : Fragment() {
 
     private fun createLocationDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_create_location_form, null)
+        val tilName        = dialogView.findViewById<TextInputLayout>(R.id.til_location_name)
+        val tilAddress     = dialogView.findViewById<TextInputLayout>(R.id.til_location_address)
+        val tilCity        = dialogView.findViewById<TextInputLayout>(R.id.til_location_city)
+        val tilCountry     = dialogView.findViewById<TextInputLayout>(R.id.til_location_country)
+        val tilPostalCode  = dialogView.findViewById<TextInputLayout>(R.id.til_location_postal_code)
+        val tilCategory    = dialogView.findViewById<TextInputLayout>(R.id.til_location_category)
+        val tvOpeningHoursLabel = dialogView.findViewById<android.widget.TextView>(R.id.tv_opening_hours_label)
         val etLocationName        = dialogView.findViewById<TextInputEditText>(R.id.et_location_name)
         val etLocationDescription = dialogView.findViewById<TextInputEditText>(R.id.et_location_description)
         val etLocationAddress     = dialogView.findViewById<TextInputEditText>(R.id.et_location_address)
@@ -487,7 +494,13 @@ class LocationSearchFragment : Fragment() {
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle(R.string.dialog_title_create_location)
             .setView(dialogView)
-            .setPositiveButton(R.string.btn_create) { _, _ ->
+            .setPositiveButton(R.string.btn_create, null)
+            .setNegativeButton(R.string.btn_cancel, null)
+            .setOnDismissListener { dialogMapView.onDetach() }
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                 val name        = etLocationName.text.toString().trim()
                 val description = etLocationDescription.text.toString().trim()
                 val address     = etLocationAddress.text.toString().trim()
@@ -496,20 +509,26 @@ class LocationSearchFragment : Fragment() {
                 val postalCode  = etLocationPostalCode.text.toString().trim()
                 val latitude    = etLocationLatitude.text.toString().toDoubleOrNull()
                 val longitude   = etLocationLongitude.text.toString().toDoubleOrNull()
-
                 val selectedCategoryName = spinnerCategory.text.toString().trim()
-                val category = categories.firstOrNull { it.name == selectedCategoryName }?.tag ?: ""
+                val category = categories.firstOrNull { it.name == selectedCategoryName }?.tag
+
+                val allDaysClosed = dayRows.all { it.cbClosed.isChecked }
+
+                val req = getString(R.string.error_field_required)
+                tilName.error       = if (name.isEmpty()) req else null
+                tilAddress.error    = if (address.isEmpty()) req else null
+                tilCity.error       = if (city.isEmpty()) req else null
+                tilCountry.error    = if (country.isEmpty()) req else null
+                tilPostalCode.error = if (postalCode.isEmpty()) req else null
+                tilCategory.error   = if (category == null) req else null
+
+                val errorColor   = resources.getColor(R.color.auth_error_border, null)
+                val defaultColor = resources.getColor(R.color.brew_dark, null)
+                tvOpeningHoursLabel.setTextColor(if (allDaysClosed) errorColor else defaultColor)
 
                 if (name.isEmpty() || address.isEmpty() || city.isEmpty() || country.isEmpty()
-                    || postalCode.isEmpty() || latitude == null || longitude == null || category.isEmpty()
-                ) {
-                    AlertDialog.Builder(requireContext())
-                        .setTitle(R.string.dialog_title_error)
-                        .setMessage(R.string.error_fill_all_fields)
-                        .setPositiveButton(R.string.btn_ok, null)
-                        .show()
-                    return@setPositiveButton
-                }
+                    || postalCode.isEmpty() || latitude == null || longitude == null
+                    || category == null || allDaysClosed) return@setOnClickListener
 
                 val selectedPaymentTags = paymentOptions
                     .filterIndexed { i, _ -> (llPaymentOptions.getChildAt(i) as? CheckBox)?.isChecked == true }
@@ -525,11 +544,10 @@ class LocationSearchFragment : Fragment() {
                 }
 
                 val contact = etContact.text.toString().trim().takeIf { it.isNotEmpty() }
+                dialog.dismiss()
                 createLocation(name, description, address, city, country, postalCode, latitude, longitude, category, selectedPaymentTags, openingHours, contact)
             }
-            .setNegativeButton(R.string.btn_cancel, null)
-            .setOnDismissListener { dialogMapView.onDetach() }
-            .create()
+        }
 
         dialog.show()
         dialogMapView.onResume()
