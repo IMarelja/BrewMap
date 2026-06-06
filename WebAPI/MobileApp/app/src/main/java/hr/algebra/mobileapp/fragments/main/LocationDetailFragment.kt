@@ -37,10 +37,13 @@ import org.osmdroid.views.overlay.Marker
 import kotlin.math.roundToInt
 import androidx.core.graphics.scale
 import androidx.core.graphics.drawable.toDrawable
+import android.text.Editable
+import android.text.TextWatcher
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.LinearLayout
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import hr.algebra.mobileapp.models.category.Category
 import hr.algebra.mobileapp.models.paymentoption.PaymentOption
 import hr.algebra.mobileapp.models.location.Address
@@ -388,9 +391,7 @@ class LocationDetailFragment : Fragment() {
         val etPostalCode = dialogView.findViewById<TextInputEditText>(R.id.et_location_postal_code)
         val spinnerCategory = dialogView.findViewById<AutoCompleteTextView>(R.id.spinner_location_category)
         val llPaymentOptions = dialogView.findViewById<LinearLayout>(R.id.ll_payment_options)
-        val etOpenTime = dialogView.findViewById<TextInputEditText>(R.id.et_location_open_time)
-        val etCloseTime = dialogView.findViewById<TextInputEditText>(R.id.et_location_close_time)
-        val cbSundayClosed = dialogView.findViewById<CheckBox>(R.id.cb_location_sunday_closed)
+        val llOpeningHours = dialogView.findViewById<LinearLayout>(R.id.ll_opening_hours)
         val etWebsite = dialogView.findViewById<TextInputEditText>(R.id.et_location_website)
 
         etName.setText(location.name)
@@ -423,13 +424,58 @@ class LocationDetailFragment : Fragment() {
             }
         }
 
-        val hours = location.openingHours["monday"]
-        if(hours != null && !hours.isClosed){
-            etOpenTime.setText(hours.open ?: "")
-            etCloseTime.setText(hours.close ?: "")
+        data class DayRow(
+            val key: String,
+            val tilOpen: TextInputLayout,
+            val etOpen: TextInputEditText,
+            val tilClose: TextInputLayout,
+            val etClose: TextInputEditText,
+            val cbClosed: CheckBox
+        )
+
+        val days = listOf("monday","tuesday","wednesday","thursday","friday","saturday","sunday")
+        val dayLabels = listOf("Mon","Tue","Wed","Thu","Fri","Sat","Sun")
+        val dayRows = days.mapIndexed { i, key ->
+            val rowView = layoutInflater.inflate(R.layout.item_opening_hours_row, llOpeningHours, false)
+            rowView.findViewById<android.widget.TextView>(R.id.tv_day_name).text = dayLabels[i]
+            val tilOpen  = rowView.findViewById<TextInputLayout>(R.id.til_open_time)
+            val etOpen   = rowView.findViewById<TextInputEditText>(R.id.et_open_time)
+            val tilClose = rowView.findViewById<TextInputLayout>(R.id.til_close_time)
+            val etClose  = rowView.findViewById<TextInputEditText>(R.id.et_close_time)
+            val cbClosed = rowView.findViewById<CheckBox>(R.id.cb_is_closed)
+
+            val dayHours = location.openingHours[key]
+            if (dayHours?.isClosed == true) {
+                cbClosed.isChecked = true
+                etOpen.isEnabled = false
+                etClose.isEnabled = false
+            } else {
+                etOpen.setText(dayHours?.open ?: "")
+                etClose.setText(dayHours?.close ?: "")
+            }
+
+            cbClosed.setOnCheckedChangeListener { _, closed ->
+                etOpen.isEnabled = !closed
+                etClose.isEnabled = !closed
+                tilOpen.isEnabled = !closed
+                tilClose.isEnabled = !closed
+                if (closed) tilClose.error = null
+            }
+
+            etClose.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+                override fun afterTextChanged(s: Editable?) {
+                    val open  = etOpen.text.toString().trim()
+                    val close = s.toString().trim()
+                    tilClose.error = if (close.isNotEmpty() && open.isNotEmpty() && close < open)
+                        "Close must be after open" else null
+                }
+            })
+
+            llOpeningHours.addView(rowView)
+            DayRow(key, tilOpen, etOpen, tilClose, etClose, cbClosed)
         }
-        val sundayHours = location.openingHours["sunday"]
-        cbSundayClosed.isChecked = sundayHours?.isClosed == true
 
         etWebsite.setText(location.contact?.website ?: "")
 
@@ -453,11 +499,28 @@ class LocationDetailFragment : Fragment() {
                     }
                     .map { it.tag }
 
-                val openTime = etOpenTime.text.toString().trim()
-                val closeTime = etCloseTime.text.toString().trim()
-                val sundayClosed = cbSundayClosed.isChecked
-                val website = etWebsite.text.toString().trim().takeIf { it.isNotEmpty() }
+                val hasTimeError = dayRows.any { row ->
+                    !row.cbClosed.isChecked && row.tilClose.error != null
+                }
+                if (hasTimeError) {
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Error")
+                        .setMessage("Fix closing times before saving")
+                        .setPositiveButton("OK", null)
+                        .show()
+                    return@setPositiveButton
+                }
 
+                val openingHours = dayRows.associate { row ->
+                    val closed = row.cbClosed.isChecked
+                    row.key to DayOpeningHours(
+                        if (closed) null else row.etOpen.text.toString().trim(),
+                        if (closed) null else row.etClose.text.toString().trim(),
+                        closed
+                    )
+                }
+
+                val website = etWebsite.text.toString().trim().takeIf { it.isNotEmpty() }
 
                 val selectedName = spinnerCategory.text.toString().trim()
                 val categoryTag = categories.firstOrNull { it.name == selectedName }?.tag
@@ -466,7 +529,7 @@ class LocationDetailFragment : Fragment() {
                 updateLocation(name, etDescription.text.toString(),
                     etAddress.text.toString(), etCity.text.toString(), etCountry.text.toString(),
                     etPostalCode.text.toString(), categoryTag, selectedPaymentTags,
-                    openTime, closeTime, sundayClosed, website)
+                    openingHours, website)
             }
             .setNegativeButton("Cancel", null)
             .show()
@@ -475,25 +538,12 @@ class LocationDetailFragment : Fragment() {
     private fun updateLocation(name: String, description: String,
                                address: String, city: String, country: String,
                                postalCode: String, category: String, paymentTags: List<String>,
-                               openTime: String, closeTime: String, sundayClosed: Boolean, contact: String?){
+                               openingHours: Map<String, DayOpeningHours>, contact: String?){
         viewLifecycleOwner.lifecycleScope.launch {
             val location = currentLocation ?: return@launch
 
             val fullAddress = Address(address, city, country, postalCode)
             val contact = if(contact != null) Contact(contact) else null
-            val openingHours = mapOf(
-                "monday" to DayOpeningHours(openTime, closeTime, false),
-                "tuesday" to DayOpeningHours(openTime, closeTime, false),
-                "wednesday" to DayOpeningHours(openTime, closeTime, false),
-                "thursday" to DayOpeningHours(openTime, closeTime, false),
-                "friday" to DayOpeningHours(openTime, closeTime, false),
-                "saturday" to DayOpeningHours(openTime, closeTime, false),
-                "sunday" to DayOpeningHours(
-                    if (sundayClosed) null else openTime,
-                    if (sundayClosed) null else closeTime,
-                    sundayClosed
-                )
-            )
 
             val request = UpdateLocationRequest(
                 name, description.takeIf { it.isNotEmpty() },

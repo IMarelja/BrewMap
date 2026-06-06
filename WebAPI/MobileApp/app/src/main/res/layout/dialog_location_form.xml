@@ -119,48 +119,13 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:textColor="@color/brew_dark"
-            android:text="Opening hours (FORMAT HH:MM) *"/>
+            android:text="Opening hours (HH:MM - Opened/Closed check box) *" />
 
         <LinearLayout
+            android:id="@+id/ll_opening_hours"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Opening">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_location_open_time"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:hint="Closing">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_location_close_time"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"/>
-            </com.google.android.material.textfield.TextInputLayout>
-        </LinearLayout>
-
-        <CheckBox
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/cb_location_sunday_closed"
-            android:buttonTint="@color/brew_checkbox_tint"
-            android:textColor="@color/brew_dark"
-            android:text="Sunday Closed"/>
+            android:orientation="vertical" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
