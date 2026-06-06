@@ -16,11 +16,11 @@
         android:orientation="vertical"
         android:padding="12dp">
 
-        <TextView
-            android:id="@+id/tv_review_username"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_review_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/brew_dark"
+            android:textColor="@color/brew_light"
             android:textSize="15sp"
             android:textStyle="bold" />
 

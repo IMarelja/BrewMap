@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
+import hr.algebra.mobileapp.MainActivity
 import hr.algebra.mobileapp.R
 import hr.algebra.mobileapp.models.review.Review
 
@@ -32,7 +34,7 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
     override fun getItemCount(): Int = items.size
 
     class ReviewViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val tvUsername: TextView = itemView.findViewById(R.id.tv_review_username)
+        private val tvUsername: MaterialButton = itemView.findViewById(R.id.btn_review_username)
         private val tvRating: TextView = itemView.findViewById(R.id.tv_review_rating)
         private val tvComment: TextView = itemView.findViewById(R.id.tv_review_comment)
         private val tvDate: TextView = itemView.findViewById(R.id.tv_review_date)
@@ -45,6 +47,9 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
                 tvUsername.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
             } else {
                 tvUsername.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+            }
+            tvUsername.setOnClickListener {
+                MainActivity().openStrangerProfile(review.userId)
             }
             tvRating.text = ctx.getString(R.string.review_rating_format, review.rating)
             tvComment.text = review.comment?.takeIf { it.isNotBlank() } ?: ctx.getString(R.string.review_no_comment)

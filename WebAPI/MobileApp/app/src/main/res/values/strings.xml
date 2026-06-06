@@ -112,4 +112,17 @@
 
     <!-- Min rating label -->
     <string name="min_rating_format">Minimum rating: %1$s+</string>
+
+
+    <string name="my_profile">My Profile</string>
+    <string name="user_profile">User Profile</string>
+    <string name="edit_details">Edit Details</string>
+    <string name="edit_your_details">Edit your details</string>
+    <string name="hint_new_email">New Email</string>
+    <string name="btn_update_email">Update Email</string>
+    <string name="hint_current_password">Current Password</string>
+    <string name="hint_new_password">New Password</string>
+    <string name="hint_confirm_new_password">Confirm New Password</string>
+    <string name="btn_update_password">Update Password</string>
+    <string name="error_missing_user_id">Missing user id</string>
 </resources>

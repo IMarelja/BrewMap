@@ -15,6 +15,9 @@ import hr.algebra.mobileapp.fragments.auth.LoginActivity
 import hr.algebra.mobileapp.fragments.main.LocationDetailFragment
 import hr.algebra.mobileapp.fragments.main.LocationMapFragment
 import hr.algebra.mobileapp.fragments.main.LocationSearchFragment
+import hr.algebra.mobileapp.fragments.profile.ProfileMyFragment
+import hr.algebra.mobileapp.fragments.profile.ProfileSettingsFragment
+import hr.algebra.mobileapp.fragments.profile.ProfileStrangerFragment
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -47,6 +50,10 @@ class MainActivity : AppCompatActivity() {
 
         toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
+                R.id.action_profile -> {
+                    showRootFragment(ProfileMyFragment(), TAG_PROFILE)
+                    true
+                }
                 R.id.action_logout -> {
                     logout()
                     true
@@ -94,11 +101,36 @@ class MainActivity : AppCompatActivity() {
         toolbar.title = getString(R.string.title_location)
     }
 
+    fun openStrangerProfile(userId: String) {
+        supportFragmentManager.beginTransaction()
+            .replace(
+                R.id.main_fragment_container,
+                ProfileStrangerFragment.newInstance(userId),
+                TAG_STRANGER
+            )
+            .addToBackStack(TAG_STRANGER)
+            .commit()
+        toolbar.title = "Stranger Profile"
+    }
+
+    fun openProfileSettings() {
+        supportFragmentManager.beginTransaction()
+            .replace(
+                R.id.main_fragment_container,
+                ProfileSettingsFragment(),
+                TAG_SETTINGS
+            )
+            .addToBackStack(TAG_SETTINGS)
+            .commit()
+        toolbar.title = "Profile Settings"
+    }
+
     /**
      * Clear the stored JWT and send the userService back to the login screen.
      *
      * Call this from any fragment or menu action that implements "Log out".
      */
+
     fun logout() {
         TokenManager.clearToken()
         val intent = Intent(this, LoginActivity::class.java)
@@ -130,5 +162,8 @@ class MainActivity : AppCompatActivity() {
         private const val TAG_MAP = "tag_map"
         private const val TAG_SEARCH = "tag_search"
         private const val TAG_DETAIL = "tag_detail"
+        private const val TAG_PROFILE = "tag_profile"
+        private const val TAG_STRANGER = "tag_stranger"
+        private const val TAG_SETTINGS = "tag_settings"
     }
 }
