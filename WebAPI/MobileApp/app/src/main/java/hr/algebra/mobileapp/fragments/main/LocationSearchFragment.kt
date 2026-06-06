@@ -566,7 +566,7 @@ class LocationSearchFragment : Fragment() {
             } else{
                 AlertDialog.Builder(requireContext())
                     .setTitle(R.string.dialog_title_error)
-                    .setMessage(getString(R.string.error_create_location_format, result.errorMessage()))
+                    .setMessage(getString(R.string.error_create_location_format, result.errorMessage() ?: getString(R.string.error_unknown)))
                     .setPositiveButton(R.string.btn_ok, null)
                     .show()
             }

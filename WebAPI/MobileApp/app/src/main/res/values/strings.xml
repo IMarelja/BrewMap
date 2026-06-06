@@ -174,6 +174,8 @@
     <string name="success_review_added">Review added successfully</string>
     <string name="success_review_updated">Review updated successfully</string>
     <string name="success_review_deleted">Review deleted successfully</string>
+    <string name="error_add_review_format">Unable to add review: %1$s</string>
     <string name="error_delete_review_format">Unable to delete review: %1$s</string>
     <string name="error_update_review_format">Unable to update review: %1$s</string>
+    <string name="error_unknown">An unknown error occurred.</string>
 </resources>
