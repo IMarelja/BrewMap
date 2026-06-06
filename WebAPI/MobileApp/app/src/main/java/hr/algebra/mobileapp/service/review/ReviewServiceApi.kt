@@ -78,7 +78,7 @@ class ReviewServiceApi : IReviewService {
         return result
     }
 
-    // ── POST api/Review/locationService/{locationId} ─────────────────────────────────
+    // ── POST api/Review/location/{locationId} ─────────────────────────────────
 
     override suspend fun createForLocation(locationId: String, rating: Int, comment: String?): ServiceResult<Review> {
         val client = API.createClient()
