@@ -39,8 +39,10 @@ import androidx.core.graphics.scale
 import androidx.core.graphics.drawable.toDrawable
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.LinearLayout
 import com.google.android.material.textfield.TextInputEditText
 import hr.algebra.mobileapp.models.category.Category
+import hr.algebra.mobileapp.models.paymentoption.PaymentOption
 import hr.algebra.mobileapp.models.location.Address
 import hr.algebra.mobileapp.models.location.Contact
 import hr.algebra.mobileapp.models.location.DayOpeningHours
@@ -385,7 +387,7 @@ class LocationDetailFragment : Fragment() {
         val etCountry = dialogView.findViewById<TextInputEditText>(R.id.et_location_country)
         val etPostalCode = dialogView.findViewById<TextInputEditText>(R.id.et_location_postal_code)
         val spinnerCategory = dialogView.findViewById<AutoCompleteTextView>(R.id.spinner_location_category)
-        val etPaymentOptions = dialogView.findViewById<TextInputEditText>(R.id.et_location_payment_options)
+        val llPaymentOptions = dialogView.findViewById<LinearLayout>(R.id.ll_payment_options)
         val etOpenTime = dialogView.findViewById<TextInputEditText>(R.id.et_location_open_time)
         val etCloseTime = dialogView.findViewById<TextInputEditText>(R.id.et_location_close_time)
         val cbSundayClosed = dialogView.findViewById<CheckBox>(R.id.cb_location_sunday_closed)
@@ -398,16 +400,28 @@ class LocationDetailFragment : Fragment() {
         etCountry.setText(location.address.country)
         etPostalCode.setText(location.address.postalCode)
         var categories: List<Category> = emptyList()
+        var paymentOptions: List<PaymentOption> = emptyList()
         viewLifecycleOwner.lifecycleScope.launch {
-            val result = ServiceProvider.categoryService.getAll()
-            categories = result.data ?: emptyList()
+            val catResult = ServiceProvider.categoryService.getAll()
+            categories = catResult.data ?: emptyList()
             val names = categories.map { it.name }
             val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, names)
             spinnerCategory.setAdapter(adapter)
             val current = categories.firstOrNull { it.tag == location.categoryTag }
             if (current != null) spinnerCategory.setText(current.name, false)
+
+            val payResult = ServiceProvider.paymentOptionService.getAll()
+            paymentOptions = payResult.data ?: emptyList()
+            paymentOptions.forEach { option ->
+                val cb = CheckBox(requireContext()).apply {
+                    text = option.name
+                    isChecked = option.tag in location.paymentOptionTags
+                    buttonTintList = resources.getColorStateList(R.color.brew_checkbox_tint, null)
+                    setTextColor(resources.getColor(R.color.brew_dark, null))
+                }
+                llPaymentOptions.addView(cb)
+            }
         }
-        etPaymentOptions.setText(location.paymentOptionTags.joinToString(", "))
 
         val hours = location.openingHours["monday"]
         if(hours != null && !hours.isClosed){
@@ -433,8 +447,11 @@ class LocationDetailFragment : Fragment() {
                     return@setPositiveButton
                 }
 
-                val paymentOptions = etPaymentOptions.text.toString().split(",")
-                    .map { it.trim() }
+                val selectedPaymentTags = paymentOptions
+                    .filterIndexed { i, _ ->
+                        (llPaymentOptions.getChildAt(i) as? CheckBox)?.isChecked == true
+                    }
+                    .map { it.tag }
 
                 val openTime = etOpenTime.text.toString().trim()
                 val closeTime = etCloseTime.text.toString().trim()
@@ -448,7 +465,7 @@ class LocationDetailFragment : Fragment() {
 
                 updateLocation(name, etDescription.text.toString(),
                     etAddress.text.toString(), etCity.text.toString(), etCountry.text.toString(),
-                    etPostalCode.text.toString(), categoryTag, paymentOptions,
+                    etPostalCode.text.toString(), categoryTag, selectedPaymentTags,
                     openTime, closeTime, sundayClosed, website)
             }
             .setNegativeButton("Cancel", null)
