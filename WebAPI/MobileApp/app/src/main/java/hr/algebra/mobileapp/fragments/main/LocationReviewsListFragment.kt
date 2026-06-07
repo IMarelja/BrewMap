@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
+import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -77,16 +78,34 @@ class LocationReviewsListFragment : Fragment() {
         loadReviews(locationId)
     }
 
+    private fun ratingFromRadioGroup(rgRating: RadioGroup): Int? = when (rgRating.checkedRadioButtonId) {
+        R.id.rb_rating_1 -> 1
+        R.id.rb_rating_2 -> 2
+        R.id.rb_rating_3 -> 3
+        R.id.rb_rating_4 -> 4
+        R.id.rb_rating_5 -> 5
+        else -> null
+    }
+
+    private fun radioButtonIdForRating(rating: Int): Int? = when (rating) {
+        1 -> R.id.rb_rating_1
+        2 -> R.id.rb_rating_2
+        3 -> R.id.rb_rating_3
+        4 -> R.id.rb_rating_4
+        5 -> R.id.rb_rating_5
+        else -> null
+    }
+
     private fun addReviewDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_review_form, null)
-        val etRating= dialogView.findViewById<TextInputEditText>(R.id.et_rating)
+        val rgRating = dialogView.findViewById<RadioGroup>(R.id.rg_rating)
         val etComment = dialogView.findViewById<TextInputEditText>(R.id.et_comment)
 
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.dialog_title_add_review)
             .setView(dialogView)
             .setPositiveButton(R.string.btn_save) {_,_ ->
-                val rating = etRating.text.toString().toIntOrNull()
+                val rating = ratingFromRadioGroup(rgRating)
                 val comment = etComment.text.toString().trim().takeIf { it.isNotEmpty() }
 
                 if(rating == null || rating > 5 || rating < 1){
@@ -141,17 +160,17 @@ class LocationReviewsListFragment : Fragment() {
 
     private fun editReview(review: Review) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_review_form, null)
-        val etRating= dialogView.findViewById<TextInputEditText>(R.id.et_rating)
+        val rgRating = dialogView.findViewById<RadioGroup>(R.id.rg_rating)
         val etComment = dialogView.findViewById<TextInputEditText>(R.id.et_comment)
 
-        etRating.setText(review.rating.toString())
+        radioButtonIdForRating(review.rating)?.let { rgRating.check(it) }
         etComment.setText(review.comment ?: "")
 
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.dialog_title_edit_review)
             .setView(dialogView)
             .setPositiveButton(R.string.btn_save) { _, _ ->
-                val rating = etRating.text.toString().toIntOrNull()
+                val rating = ratingFromRadioGroup(rgRating)
                 val comment = etComment.text.toString().trim().takeIf { it.isNotEmpty() }
 
                 if (rating == null || rating > 5 || rating < 1) {
