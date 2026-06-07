@@ -43,6 +43,12 @@ class LocationReviewsListFragment : Fragment() {
                     .show()
             }
         }
+        setOnReportReviewClickListener { review ->
+            // Reporting is not implemented yet.
+        }
+        setOnReportUserClickListener { review ->
+            // Reporting is not implemented yet.
+        }
     }
 
     override fun onCreateView(

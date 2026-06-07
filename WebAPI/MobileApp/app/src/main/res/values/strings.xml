@@ -153,6 +153,8 @@
     <string name="btn_add_review">Add review</string>
     <string name="btn_edit_drink">Edit drink</string>
     <string name="btn_report_drink">Report drink</string>
+    <string name="btn_report_review">Report the review</string>
+    <string name="btn_report_user">Report the user</string>
     <string name="btn_more_options">More options</string>
 
     <!-- Location dialog messages -->

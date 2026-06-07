@@ -4,7 +4,9 @@ import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
+import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
 import hr.algebra.mobileapp.R
 import hr.algebra.mobileapp.models.review.Review
@@ -14,6 +16,8 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
     private val items = mutableListOf<Review>()
 
     private var onItemLongClickListener: ((Review) -> Unit)? = null
+    private var onReportReviewClickListener: ((Review) -> Unit)? = null
+    private var onReportUserClickListener: ((Review) -> Unit)? = null
 
     fun submitData(reviews: List<Review>) {
         items.clear()
@@ -35,6 +39,23 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
             true
         }
 
+        viewHolder.btnMenu.setOnClickListener { anchor ->
+            val position = viewHolder.adapterPosition
+            if (position == RecyclerView.NO_POSITION) return@setOnClickListener
+            val review = items[position]
+
+            PopupMenu(anchor.context, anchor).apply {
+                inflate(R.menu.menu_review_item)
+                setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        R.id.action_report_review -> { onReportReviewClickListener?.invoke(review); true }
+                        R.id.action_report_user -> { onReportUserClickListener?.invoke(review); true }
+                        else -> false
+                    }
+                }
+            }.show()
+        }
+
         return viewHolder
     }
 
@@ -49,6 +70,7 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
         private val tvRating: TextView = itemView.findViewById(R.id.tv_review_rating)
         private val tvComment: TextView = itemView.findViewById(R.id.tv_review_comment)
         private val tvDate: TextView = itemView.findViewById(R.id.tv_review_date)
+        val btnMenu: ImageButton = itemView.findViewById(R.id.btn_review_menu)
 
         fun bind(review: Review) {
             val ctx = itemView.context
@@ -67,5 +89,13 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
 
     fun setOnItemLongClickListener(listener: (Review) -> Unit) {
         this.onItemLongClickListener = listener
+    }
+
+    fun setOnReportReviewClickListener(listener: (Review) -> Unit) {
+        this.onReportReviewClickListener = listener
+    }
+
+    fun setOnReportUserClickListener(listener: (Review) -> Unit) {
+        this.onReportUserClickListener = listener
     }
 }
