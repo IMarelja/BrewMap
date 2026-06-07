@@ -34,8 +34,11 @@ class LocationDrinksListFragment : Fragment() {
     private lateinit var btnAddDrink: MaterialButton
 
     private val drinkAdapter = DrinkAdapter().apply {
-        setOnItemLongClickListener { drink ->
+        setOnEditClickListener { drink ->
             editDrinkDialog(drink)
+        }
+        setOnReportClickListener { drink ->
+            // Reporting is not implemented yet.
         }
         setOnAddReviewClickListener { drink ->
             addDrinkReviewDialog(drink)

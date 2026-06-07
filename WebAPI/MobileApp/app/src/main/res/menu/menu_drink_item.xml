@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_edit_drink"
+        android:title="@string/btn_edit_drink" />
+    <item
+        android:id="@+id/action_report_drink"
+        android:title="@string/btn_report_drink" />
+</menu>

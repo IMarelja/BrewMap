@@ -3,7 +3,9 @@ package hr.algebra.mobileapp.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
+import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import hr.algebra.mobileapp.R
@@ -13,7 +15,8 @@ class DrinkAdapter : RecyclerView.Adapter<DrinkAdapter.DrinkViewHolder>() {
 
     private val items = mutableListOf<Drink>()
 
-    private var onItemLongClickListener: ((Drink) -> Unit)? = null
+    private var onEditClickListener: ((Drink) -> Unit)? = null
+    private var onReportClickListener: ((Drink) -> Unit)? = null
     private var onAddReviewClickListener: ((Drink) -> Unit)? = null
 
     fun submitData(drinks: List<Drink>) {
@@ -28,12 +31,21 @@ class DrinkAdapter : RecyclerView.Adapter<DrinkAdapter.DrinkViewHolder>() {
 
         val viewHolder = DrinkViewHolder(view)
 
-        view.setOnLongClickListener { v ->
+        viewHolder.btnMenu.setOnClickListener { anchor ->
             val position = viewHolder.adapterPosition
-            if (position != RecyclerView.NO_POSITION) {
-                onItemLongClickListener?.invoke(items[position])
-            }
-            true
+            if (position == RecyclerView.NO_POSITION) return@setOnClickListener
+            val drink = items[position]
+
+            PopupMenu(anchor.context, anchor).apply {
+                inflate(R.menu.menu_drink_item)
+                setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        R.id.action_edit_drink -> { onEditClickListener?.invoke(drink); true }
+                        R.id.action_report_drink -> { onReportClickListener?.invoke(drink); true }
+                        else -> false
+                    }
+                }
+            }.show()
         }
 
         viewHolder.btnAddReview.setOnClickListener {
@@ -56,6 +68,7 @@ class DrinkAdapter : RecyclerView.Adapter<DrinkAdapter.DrinkViewHolder>() {
         private val tvName: TextView = itemView.findViewById(R.id.tv_drink_name)
         private val tvRating: TextView = itemView.findViewById(R.id.tv_drink_rating)
         private val tvDescription: TextView = itemView.findViewById(R.id.tv_drink_description)
+        val btnMenu: ImageButton = itemView.findViewById(R.id.btn_drink_menu)
         val btnAddReview: MaterialButton = itemView.findViewById(R.id.btn_add_drink_review)
 
         fun bind(drink: Drink) {
@@ -65,8 +78,12 @@ class DrinkAdapter : RecyclerView.Adapter<DrinkAdapter.DrinkViewHolder>() {
         }
     }
 
-    fun setOnItemLongClickListener(listener: (Drink) -> Unit) {
-        this.onItemLongClickListener = listener
+    fun setOnEditClickListener(listener: (Drink) -> Unit) {
+        this.onEditClickListener = listener
+    }
+
+    fun setOnReportClickListener(listener: (Drink) -> Unit) {
+        this.onReportClickListener = listener
     }
 
     fun setOnAddReviewClickListener(listener: (Drink) -> Unit) {
