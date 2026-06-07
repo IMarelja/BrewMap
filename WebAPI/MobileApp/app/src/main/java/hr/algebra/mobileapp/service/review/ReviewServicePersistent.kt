@@ -97,6 +97,11 @@ class ReviewServicePersistent : IReviewService {
         val result = api.createForDrink(drinkId, rating, comment)
         if (result.isSuccess) {
             PersistentCache.remove("review_drink_$drinkId")
+            // A new reviewService changes the drink's aggregatedRating (count + average).
+            // We don't know which locationService this drinkService belongs to here, so evict every
+            // cached drinkService entry — "drink_id_*", "drink_loc_*" and "drink_best_*" — rather
+            // than risk the drinkService list / detail showing a stale count or score.
+            PersistentCache.clearByPrefix("drink_")
         }
         return result
     }
