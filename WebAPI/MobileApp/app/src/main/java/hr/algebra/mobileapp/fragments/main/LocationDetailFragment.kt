@@ -437,7 +437,7 @@ class LocationDetailFragment : Fragment() {
             val m = parts[1].toIntOrNull() ?: return null
             return Pair(h, m)
         }
-        fun fmtTime(h: Int, m: Int) = "$h:${m.toString().padStart(2, '0')}"
+        fun fmtTime(h: Int, m: Int) = "${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}"
 
         data class DayRow(
             val key: String,
@@ -448,7 +448,7 @@ class LocationDetailFragment : Fragment() {
             val cbClosed: CheckBox
         )
 
-        val defaultOpen  = "8:00"
+        val defaultOpen  = "08:00"
         val defaultClose = "22:00"
 
         val days = listOf("monday","tuesday","wednesday","thursday","friday","saturday","sunday")

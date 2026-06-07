@@ -434,9 +434,9 @@ class LocationSearchFragment : Fragment() {
             if (parts.size != 2) return null
             return Pair(parts[0].toIntOrNull() ?: return null, parts[1].toIntOrNull() ?: return null)
         }
-        fun fmtTime(h: Int, m: Int) = "$h:${m.toString().padStart(2, '0')}"
+        fun fmtTime(h: Int, m: Int) = "${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}"
 
-        val defaultOpen  = "8:00"
+        val defaultOpen  = "08:00"
         val defaultClose = "22:00"
         val days      = listOf("monday","tuesday","wednesday","thursday","friday","saturday","sunday")
         val dayLabels = listOf("Mon","Tue","Wed","Thu","Fri","Sat","Sun")
