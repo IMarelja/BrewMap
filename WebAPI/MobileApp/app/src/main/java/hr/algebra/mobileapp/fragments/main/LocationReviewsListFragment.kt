@@ -17,7 +17,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import hr.algebra.mobileapp.R
 import hr.algebra.mobileapp.adapters.ReviewAdapter
-import hr.algebra.mobileapp.auth.TokenManager
 import hr.algebra.mobileapp.models.review.Review
 import hr.algebra.mobileapp.service.ServiceProvider
 import kotlinx.coroutines.NonCancellable.parent
@@ -32,16 +31,11 @@ class LocationReviewsListFragment : Fragment() {
     private lateinit var btnAddReview: MaterialButton
 
     private val reviewAdapter = ReviewAdapter().apply {
-        setOnItemLongClickListener { review ->
-            if(review.userId == TokenManager.getUserId()){
-                editReviewDialog(review)
-            } else{
-                AlertDialog.Builder(requireContext())
-                    .setTitle(R.string.dialog_title_error)
-                    .setMessage(R.string.error_edit_own_reviews)
-                    .setPositiveButton(R.string.btn_ok, null)
-                    .show()
-            }
+        setOnEditClickListener { review ->
+            editReview(review)
+        }
+        setOnDeleteClickListener { review ->
+            deleteReview(review)
         }
         setOnReportReviewClickListener { review ->
             // Reporting is not implemented yet.
@@ -146,21 +140,6 @@ class LocationReviewsListFragment : Fragment() {
                 }
             }
             .setNegativeButton(R.string.btn_cancel, null)
-            .show()
-    }
-
-    private fun editReviewDialog(review: Review) {
-
-        val options = arrayOf(getString(R.string.btn_edit), getString(R.string.btn_delete))
-
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.dialog_title_choose_option)
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> editReview(review)
-                    1 -> deleteReview(review)
-                }
-            }
             .show()
     }
 

@@ -5,17 +5,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import hr.algebra.mobileapp.R
+import hr.algebra.mobileapp.auth.TokenManager
 import hr.algebra.mobileapp.models.review.Review
 
 class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
 
     private val items = mutableListOf<Review>()
 
-    private var onItemLongClickListener: ((Review) -> Unit)? = null
+    private var onEditClickListener: ((Review) -> Unit)? = null
+    private var onDeleteClickListener: ((Review) -> Unit)? = null
     private var onReportReviewClickListener: ((Review) -> Unit)? = null
     private var onReportUserClickListener: ((Review) -> Unit)? = null
 
@@ -31,12 +35,18 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
 
         val viewHolder = ReviewViewHolder(view)
 
-        view.setOnLongClickListener { v ->
+        viewHolder.btnEdit.setOnClickListener {
             val position = viewHolder.adapterPosition
             if (position != RecyclerView.NO_POSITION) {
-                onItemLongClickListener?.invoke(items[position])
+                onEditClickListener?.invoke(items[position])
             }
-            true
+        }
+
+        viewHolder.btnDelete.setOnClickListener {
+            val position = viewHolder.adapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                onDeleteClickListener?.invoke(items[position])
+            }
         }
 
         viewHolder.btnMenu.setOnClickListener { anchor ->
@@ -70,7 +80,10 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
         private val tvRating: TextView = itemView.findViewById(R.id.tv_review_rating)
         private val tvComment: TextView = itemView.findViewById(R.id.tv_review_comment)
         private val tvDate: TextView = itemView.findViewById(R.id.tv_review_date)
+        private val llOwnerActions: LinearLayout = itemView.findViewById(R.id.ll_review_owner_actions)
         val btnMenu: ImageButton = itemView.findViewById(R.id.btn_review_menu)
+        val btnEdit: MaterialButton = itemView.findViewById(R.id.btn_edit_review)
+        val btnDelete: MaterialButton = itemView.findViewById(R.id.btn_delete_review)
 
         fun bind(review: Review) {
             val ctx = itemView.context
@@ -84,11 +97,19 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
             tvRating.text = ctx.getString(R.string.review_rating_format, review.rating)
             tvComment.text = review.comment?.takeIf { it.isNotBlank() } ?: ctx.getString(R.string.review_no_comment)
             tvDate.text = ctx.getString(R.string.review_created_format, review.createdAt.take(10))
+
+            val currentUserId = TokenManager.getUserId()
+            val isOwnReview = currentUserId != null && currentUserId == review.userId
+            llOwnerActions.visibility = if (isOwnReview) View.VISIBLE else View.GONE
         }
     }
 
-    fun setOnItemLongClickListener(listener: (Review) -> Unit) {
-        this.onItemLongClickListener = listener
+    fun setOnEditClickListener(listener: (Review) -> Unit) {
+        this.onEditClickListener = listener
+    }
+
+    fun setOnDeleteClickListener(listener: (Review) -> Unit) {
+        this.onDeleteClickListener = listener
     }
 
     fun setOnReportReviewClickListener(listener: (Review) -> Unit) {
