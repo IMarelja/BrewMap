@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
+import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -35,6 +36,9 @@ class LocationDrinksListFragment : Fragment() {
     private val drinkAdapter = DrinkAdapter().apply {
         setOnItemLongClickListener { drink ->
             editDrinkDialog(drink)
+        }
+        setOnAddReviewClickListener { drink ->
+            addDrinkReviewDialog(drink)
         }
     }
 
@@ -122,6 +126,61 @@ class LocationDrinksListFragment : Fragment() {
                     .show()
             }
         }
+    }
+
+    private fun ratingFromRadioGroup(rgRating: RadioGroup): Int? = when (rgRating.checkedRadioButtonId) {
+        R.id.rb_rating_1 -> 1
+        R.id.rb_rating_2 -> 2
+        R.id.rb_rating_3 -> 3
+        R.id.rb_rating_4 -> 4
+        R.id.rb_rating_5 -> 5
+        else -> null
+    }
+
+    private fun addDrinkReviewDialog(drink: Drink) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_review_form, null)
+        val rgRating = dialogView.findViewById<RadioGroup>(R.id.rg_rating)
+        val etComment = dialogView.findViewById<TextInputEditText>(R.id.et_comment)
+
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.dialog_title_add_review)
+            .setView(dialogView)
+            .setPositiveButton(R.string.btn_save) { _, _ ->
+                val rating = ratingFromRadioGroup(rgRating)
+                val comment = etComment.text.toString().trim().takeIf { it.isNotEmpty() }
+
+                if (rating == null || rating > 5 || rating < 1) {
+                    AlertDialog.Builder(requireContext())
+                        .setTitle(R.string.dialog_title_error)
+                        .setMessage(R.string.error_rating_range)
+                        .setPositiveButton(R.string.btn_ok, null)
+                        .show()
+                    return@setPositiveButton
+                }
+
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val locationId = requireArguments().getString(ARG_LOCATION_ID).orEmpty()
+                    val result = ServiceProvider.reviewService.createForDrink(drink.id, rating, comment)
+
+                    if (result.isSuccess) {
+                        AlertDialog.Builder(requireContext())
+                            .setTitle(R.string.dialog_title_success)
+                            .setMessage(R.string.success_review_added)
+                            .setPositiveButton(R.string.btn_ok) { _, _ ->
+                                loadDrinks(locationId)
+                            }
+                            .show()
+                    } else {
+                        AlertDialog.Builder(requireContext())
+                            .setTitle(R.string.dialog_title_error)
+                            .setMessage(getString(R.string.error_add_review_format, result.errorMessage() ?: getString(R.string.error_unknown)))
+                            .setPositiveButton(R.string.btn_ok, null)
+                            .show()
+                    }
+                }
+            }
+            .setNegativeButton(R.string.btn_cancel, null)
+            .show()
     }
 
     private fun editDrinkDialog(drink: Drink){

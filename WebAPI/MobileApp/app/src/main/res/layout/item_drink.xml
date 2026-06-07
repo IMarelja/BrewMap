@@ -40,6 +40,15 @@
             android:textColor="@color/brew_dark"
             android:textSize="13sp" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_add_drink_review"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="4dp"
+            android:text="@string/btn_add_review" />
+
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>
