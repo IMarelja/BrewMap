@@ -15,7 +15,8 @@
     <string name="register_subtitle">Join the BrewMap community</string>
 
     <!-- Hints -->
-    <string name="hint_email">Email/Username</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_email_username">Email/Username</string>
     <string name="hint_password">Password</string>
     <string name="hint_username">Username</string>
     <string name="hint_confirm_password">Confirm Password</string>
