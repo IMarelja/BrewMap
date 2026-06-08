@@ -1,6 +1,7 @@
 using BrewMapAPI.DTO.Review;
 using BrewMapAPI.Models;
 using BrewMapAPI.Repository.Drinks;
+using BrewMapAPI.Repository.Flags;
 using BrewMapAPI.Repository.Locations;
 using BrewMapAPI.Repository.Reviews;
 using BrewMapAPI.Repository.Users;
@@ -15,13 +16,15 @@ namespace BrewMapAPI.Service.Review
         private readonly ILocationRepo _locationRepo;
         private readonly IDrinkRepo _drinkRepo;
         private readonly IUserRepo _userRepo;
+        private readonly IFlagRepo _flagRepo;
 
-        public ReviewService(IReviewRepo repo, ILocationRepo locationRepo, IDrinkRepo drinkRepo, IUserRepo userRepo)
+        public ReviewService(IReviewRepo repo, ILocationRepo locationRepo, IDrinkRepo drinkRepo, IUserRepo userRepo, IFlagRepo flagRepo)
         {
             _repo = repo;
             _locationRepo = locationRepo;
             _drinkRepo = drinkRepo;
             _userRepo = userRepo;
+            _flagRepo = flagRepo;
         }
 
         public async Task<ReadReview?> GetById(string id)
@@ -118,7 +121,10 @@ namespace BrewMapAPI.Service.Review
 
             var deleted = await _repo.Delete(id);
             if (deleted)
+            {
+                await _flagRepo.DeleteByTarget("review", id);
                 await RefreshTargetRating(targetType, targetId);
+            }
             return deleted;
         }
 

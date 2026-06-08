@@ -119,5 +119,14 @@ namespace BrewMapAPI.Repository.Flags
             // - "review" -> ReviewRepo.IncrementReportCount(targetId)
             await Task.CompletedTask;
         }
+
+        public async Task<long> DeleteByTarget(string targetType, string targetId)
+        {
+            var result = await _context.Flags.DeleteManyAsync(
+                x => x.Target.Type == targetType &&
+                     x.Target.TargetId == targetId);
+
+            return result.DeletedCount;
+        }
     }
 }

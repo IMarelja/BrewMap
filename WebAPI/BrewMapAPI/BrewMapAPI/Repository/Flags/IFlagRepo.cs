@@ -11,5 +11,6 @@ namespace BrewMapAPI.Repository.Flags
         Task<Flag?> UpdateStatus(UpdateFlagStatus dto);
         Task<Flag?> GetByUserAndTarget(string userId, string targetId, string targetType);
         Task<Dictionary<string, int>> GetStatistics();
+        Task<long> DeleteByTarget(string targetType, string targetId);
     }
 }

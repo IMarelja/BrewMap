@@ -11,59 +11,74 @@ export default function SearchPage() {
   const [query, setQuery] = useState('')
   const [drinkQuery, setDrinkQuery] = useState('')
   const [rating, setRating] = useState('')
-  const [distance, setDistance] = useState('5000')
+  const [distance, setDistance] = useState('20000')
   const [categories, setCategories] = useState<Category[]>([])
   const [paymentOptions, setPaymentOptions] = useState<PaymentOption[]>([])
   const [selectedCategory, setSelectedCategory] = useState('')
-  const [selectedPayment, setSelectedPayment] = useState('')
+  const [selectedPayments, setSelectedPayments] = useState<string[]>([])
   const [results, setResults] = useState<Cafe[]>([])
   const [loading, setLoading] = useState(false)
+  const [isPaymentsOpen, setIsPaymentsOpen] = useState(false)
 
+  // Load payment options
+  useEffect(() => {
+    api.get('/api/PaymentOption')
+      .then(res => setPaymentOptions(res.data))
+      .catch(() => setPaymentOptions([]))
 
-  const recentSearches = ['espresso', 'outdoor seating', 'cozy cafe', 'cold brew']
-  const Ameneties= ['WiFi', 'Pet Friendly', 'Good for Work', 'Outdoor Seating', 'Quiet']
+    api.get('/api/Category')
+    .then(res => setCategories(res.data))
+    .catch(() => setCategories([]))
+  }, [])
 
-useEffect(() => {
-
-  if (!query.trim()) {
+  const fetchSearch = () => {
     setLoading(true)
-    api.get(`/api/Locations/search`, {
-      params: {
-        query: "", 
-        longitude: 15.8457503, 
-        latitude: 45.7976803,
-        radiusMeters: 10000 
-      }
+
+    const params = new URLSearchParams()
+
+    if (query) params.append('query', query)
+    if (drinkQuery) params.append('drinkQuery', drinkQuery)
+    if (rating) params.append('minRating', rating)
+
+    if (selectedCategory) {
+      params.append('categoryTags', selectedCategory)
+    }
+
+    selectedPayments.forEach(payment => {
+      params.append('paymentOptionTags', payment)
     })
-    .then(res => {
-      const data = Array.isArray(res.data) ? res.data : res.data.locations || []
-      setResults(data.slice(0, 4)) // Show only the first 4 as "Featured"
-    })
-    .catch(() => setResults([]))
-    .finally(() => setLoading(false))
-    return
+
+    params.append('longitude', '15.8457503')
+    params.append('latitude', '45.7976803')
+    params.append('radiusMeters', distance)
+
+    api.get(`/api/Locations/search?${params.toString()}`)
+      .then(res => {
+        const data = Array.isArray(res.data)
+          ? res.data
+          : res.data.locations || []
+
+        setResults(data)
+      })
+      .catch(() => setResults([]))
+      .finally(() => setLoading(false))
   }
-  
-  const timer = setTimeout(() => {
-    setLoading(true)
-    api.get(`/api/Locations/search`, {
-      params: {
-        query: query,
-        longitude: 15.8457503, 
-        latitude: 45.7976803,
-        radiusMeters: 5000 
-      }
-    })
-    .then(res => {
-      const data = Array.isArray(res.data) ? res.data : res.data.locations || []
-      setResults(data)
-    })
-    .catch(() => setResults([]))
-    .finally(() => setLoading(false))
-  }, 400)
-  
-  return () => clearTimeout(timer)
-}, [query])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchSearch()
+    }, 400)
+
+    return () => clearTimeout(timer)
+  }, [query, drinkQuery, rating, distance, selectedCategory, selectedPayments])
+
+  const togglePayment = (tag: string) => {
+  setSelectedPayments(prev =>
+    prev.includes(tag)
+      ? prev.filter(t => t !== tag)
+      : [...prev, tag]
+  )
+}
 
   return (
     <ProtectedRoute>
@@ -77,9 +92,12 @@ useEffect(() => {
 
           {/* Search Bar Section */}
           <div style={{ position: 'relative', marginBottom: '2rem' }}>
-            <span style={{ position: 'absolute', left: '15px', top: '18%', transform: 'translateY(-50%)', fontSize: '20px', color: '#888' }}>🔍</span>
+            <span style={{ position: 'absolute', left: '15px', top: '12%', transform: 'translateY(-50%)', fontSize: '20px', color: '#888' }}>🔍</span>
+
             <input
-              type="text" value={query} onChange={e => setQuery(e.target.value)}
+              type="text"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
               placeholder="Search for cafes, drinks, or amenities..."
               style={{ 
                 width: '100%', 
@@ -118,10 +136,12 @@ useEffect(() => {
               onChange={e => setDistance(e.target.value)}
               className="border border-[#E8D5B7] rounded-xl px-4 py-3"
             >
-              <option value="1000">1 km</option>
               <option value="5000">5 km</option>
               <option value="10000">10 km</option>
               <option value="20000">20 km</option>
+              <option value="30000">30 km</option>
+              <option value="40000">40 km</option>
+              <option value="50000">50 km</option>
             </select>
 
             <select
@@ -137,48 +157,84 @@ useEffect(() => {
               ))}
             </select>
 
-            <select
-              value={selectedPayment}
-              onChange={e => setSelectedPayment(e.target.value)}
-              className="border border-[#E8D5B7] rounded-xl px-4 py-3"
-            >
-              <option value="">All payment methods</option>
-              {paymentOptions.map(p => (
-                <option key={p.id} value={p.tag}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+            <div style={{ position: 'relative', width: '260px' }}>
+              <button
+                type="button"
+                onClick={() => setIsPaymentsOpen(prev => !prev)}
+                className="border border-[#E8D5B7] rounded-xl px-4 py-3 bg-white w-full text-left"
+                style={{
+                  cursor: 'pointer',
+                  color: '#2C1A0E'
+                }}
+              >
+                {selectedPayments.length > 0
+                  ? `${selectedPayments.length} payment option${selectedPayments.length > 1 ? 's' : ''} selected`
+                  : 'Select payment methods'}
+              </button>
+
+              {isPaymentsOpen && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '110%',
+                    left: 0,
+                    width: '100%',
+                    background: '#fff',
+                    border: '1px solid #E8D5B7',
+                    borderRadius: '12px',
+                    padding: '12px',
+                    zIndex: 1000,
+                    boxShadow: '0 8px 20px rgba(0,0,0,0.08)',
+                    maxHeight: '220px',
+                    overflowY: 'auto'
+                  }}
+                >
+                  {paymentOptions.map(option => (
+                    <label
+                      key={option.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        padding: '8px 4px',
+                        cursor: 'pointer',
+                        color: '#2C1A0E'
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedPayments.includes(option.tag)}
+                        onChange={() => togglePayment(option.tag)}
+                      />
+
+                      {option.name}
+                    </label>
+                  ))}
+
+                  {selectedPayments.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPayments([])}
+                      style={{
+                        marginTop: '10px',
+                        width: '100%',
+                        border: 'none',
+                        background: '#F5EFE6',
+                        padding: '8px',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        color: '#6B3F1F',
+                        fontWeight: 600
+                      }}
+                    >
+                      Clear selection
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Recent Searches Section - Only shows when not searching */}
-          {!query && (
-            <>
-              <div style={{ marginBottom: '2rem' }}>
-                <h3 style={{ fontSize: '0.9rem', color: '#8C7861', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '1rem' }}>Recent Searches</h3>
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                  {recentSearches.map(item => (
-                    <button key={item} onClick={() => setQuery(item)} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #E8D5B7', background: 'transparent', cursor: 'pointer', color: '#2C1A0E', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                     <span style={{ fontSize: '12px' }}>🔍</span> {item}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ marginBottom: '3rem' }}>
-                <h3 style={{ fontSize: '0.9rem', color: '#8C7861', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '1rem' }}>Ameneties</h3>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  {Ameneties.map(tag => (
-                    <span key={tag} style={{ padding: '6px 12px', background: '#EADBC8', borderRadius: '6px', fontSize: '0.85rem', color: '#5C4033', cursor: 'pointer' }}>
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Results Section */}
           <h2 style={{ fontSize: '1.25rem', color: '#2C1A0E', marginBottom: '1.5rem' }}>
             {query ? `Results for "${query}"` : 'Featured Cafes'}
           </h2>
@@ -201,40 +257,49 @@ useEffect(() => {
                   gap: '1.25rem', 
                   alignItems: 'center',
                   transition: 'transform 0.2s',
-                }}
-                onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-                >
-                  <div style={{ 
-                    width: '80px', 
-                    height: '80px', 
-                    background: '#F0F0F0', 
-                    borderRadius: '8px', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                    fontSize: '32px', 
-                    flexShrink: 0,
-                    border: '1px solid #EEE'
-                  }}>
-                    {/* Using an emoji as a placeholder for the image circle in your ref */}
-                    <img 
-                    src= "/placeholder.png"
-                    alt= "Profile placeholder"
-                    style = {{
-                      width:'100%',
-                      height:"100%",
-                      objectFit:'cover'
-                    }}
+                }}>
+                  <div style={{ width: '80px', height: '80px' }}>
+                    <img
+                      src="/placeholder.png"
+                      alt="Cafe"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                   </div>
+
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: '700', fontSize: '1.1rem', color: '#2C1A0E', marginBottom: '4px' }}>{cafe.name}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}>
-                      <span style={{ color: '#D4A373' }}>★★★★☆</span>
-                      <span style={{ fontSize: '0.85rem', color: '#888' }}>(128)</span>
+                    <div style={{ fontWeight: '700', fontSize: '1.1rem', color: '#2C1A0E' }}>
+                      {cafe.name}
                     </div>
-                    <div style={{ fontSize: '0.9rem', color: '#8C7861' }}>{cafe.address.street}, {cafe.address.city}</div>
+                    <div style={{ fontSize: '0.9rem', color: '#8C7861' }}>
+                      {cafe.address.street}, {cafe.address.city}
+                    </div>
+                     {cafe.paymentOptionTags?.length > 0 && (
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          gap: '6px',
+                          marginTop: '10px'
+                        }}
+                      >
+                        {cafe.paymentOptionTags.map(payment => (
+                          <span
+                            key={payment}
+                            style={{
+                              background: '#F5EFE6',
+                              color: '#6B3F1F',
+                              padding: '4px 10px',
+                              borderRadius: '999px',
+                              fontSize: '12px',
+                              fontWeight: 500,
+                              border: '1px solid #E8D5B7'
+                            }}
+                          >
+                            {payment}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </Link>
@@ -242,7 +307,9 @@ useEffect(() => {
           </div>
 
           {!loading && query && results.length === 0 && (
-            <div style={{ textAlign: 'center', color: '#6B3F1F', padding: '2rem' }}>No cafes found for "{query}"</div>
+            <div style={{ textAlign: 'center', color: '#6B3F1F', padding: '2rem' }}>
+              No cafes found for "{query}"
+            </div>
           )}
         </div>
       </div>
