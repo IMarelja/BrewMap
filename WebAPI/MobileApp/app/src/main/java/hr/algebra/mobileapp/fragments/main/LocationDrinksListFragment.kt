@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import hr.algebra.mobileapp.R
 import hr.algebra.mobileapp.adapters.DrinkAdapter
 import hr.algebra.mobileapp.models.drink.CreateDrinkRequest
@@ -38,7 +39,7 @@ class LocationDrinksListFragment : Fragment() {
             editDrinkDialog(drink)
         }
         setOnReportClickListener { drink ->
-            // Reporting is not implemented yet.
+            reportDrinkDialog(drink)
         }
         setOnAddReviewClickListener { drink ->
             addDrinkReviewDialog(drink)
@@ -238,6 +239,54 @@ class LocationDrinksListFragment : Fragment() {
         }
     }
 
+
+    private fun reportDrinkDialog(drink: Drink) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_report, null)
+        val tilReason = dialogView.findViewById<TextInputLayout>(R.id.til_report_reason)
+        val etReason = dialogView.findViewById<TextInputEditText>(R.id.et_report_reason)
+        val etDescription = dialogView.findViewById<TextInputEditText>(R.id.et_report_description)
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle(R.string.dialog_title_report_drink)
+            .setView(dialogView)
+            .setPositiveButton(R.string.btn_submit, null)
+            .setNegativeButton(R.string.btn_cancel, null)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val reason = etReason.text.toString().trim()
+                val description = etDescription.text.toString().trim().takeIf { it.isNotEmpty() }
+
+                tilReason.error = if (reason.length < 3) getString(R.string.error_report_reason_too_short) else null
+                if (reason.length < 3) return@setOnClickListener
+
+                dialog.dismiss()
+                reportDrink(drink.id, reason, description)
+            }
+        }
+        dialog.show()
+    }
+
+    private fun reportDrink(drinkId: String, reason: String, description: String?) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = ServiceProvider.flagService.create("product", drinkId, reason, description)
+
+            if (result.isSuccess) {
+                AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.dialog_title_success)
+                    .setMessage(R.string.success_drink_reported)
+                    .setPositiveButton(R.string.btn_ok, null)
+                    .show()
+            } else {
+                AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.dialog_title_error)
+                    .setMessage(getString(R.string.error_report_drink_format, result.errorMessage() ?: getString(R.string.error_unknown)))
+                    .setPositiveButton(R.string.btn_ok, null)
+                    .show()
+            }
+        }
+    }
 
     private fun loadDrinks(locationId: String) {
         progressDrinks.visibility = View.VISIBLE

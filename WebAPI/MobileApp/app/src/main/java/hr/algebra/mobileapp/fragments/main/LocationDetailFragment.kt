@@ -636,7 +636,7 @@ class LocationDetailFragment : Fragment() {
     private fun reportLocationDialog() {
         val location = currentLocation ?: return
 
-        val dialogView = layoutInflater.inflate(R.layout.dialog_report_location, null)
+        val dialogView = layoutInflater.inflate(R.layout.dialog_report, null)
         val tilReason = dialogView.findViewById<TextInputLayout>(R.id.til_report_reason)
         val etReason = dialogView.findViewById<TextInputEditText>(R.id.et_report_reason)
         val etDescription = dialogView.findViewById<TextInputEditText>(R.id.et_report_description)

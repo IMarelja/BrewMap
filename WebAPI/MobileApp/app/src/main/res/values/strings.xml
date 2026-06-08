@@ -168,11 +168,13 @@
     <string name="success_location_updated">Location updated successfully</string>
     <string name="error_update_location_format">Error updating location: %1$s</string>
 
-    <!-- Report location dialog -->
-    <string name="dialog_title_report_location">Report location</string>
+    <!-- Report dialog (shared fields) -->
     <string name="hint_report_reason">Reason</string>
     <string name="hint_report_description">Additional details (optional)</string>
     <string name="error_report_reason_too_short">Reason must be at least 3 characters</string>
+
+    <!-- Report location dialog -->
+    <string name="dialog_title_report_location">Report location</string>
     <string name="success_location_reported">Location reported. Thank you for letting us know.</string>
     <string name="error_report_location_format">Unable to report location: %1$s</string>
 
@@ -182,6 +184,9 @@
     <string name="error_create_drink_format">Unable to create drink: %1$s</string>
     <string name="success_drink_updated">Drink updated successfully</string>
     <string name="error_update_drink_format">Unable to update drink: %1$s</string>
+    <string name="dialog_title_report_drink">Report drink</string>
+    <string name="success_drink_reported">Drink reported. Thank you for letting us know.</string>
+    <string name="error_report_drink_format">Unable to report drink: %1$s</string>
 
     <!-- Review dialog messages -->
     <string name="error_rating_range">Rating must be between 1-5</string>
