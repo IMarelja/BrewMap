@@ -197,6 +197,12 @@
     <string name="error_add_review_format">Unable to add review: %1$s</string>
     <string name="error_delete_review_format">Unable to delete review: %1$s</string>
     <string name="error_update_review_format">Unable to update review: %1$s</string>
+    <string name="dialog_title_report_review">Report review</string>
+    <string name="success_review_reported">Review reported. Thank you for letting us know.</string>
+    <string name="error_report_review_format">Unable to report review: %1$s</string>
+    <string name="dialog_title_report_user">Report user</string>
+    <string name="success_user_reported">User reported. Thank you for letting us know.</string>
+    <string name="error_report_user_format">Unable to report user: %1$s</string>
     <string name="error_unknown">An unknown error occurred.</string>
     <string name="error_field_required">Required</string>
 </resources>
