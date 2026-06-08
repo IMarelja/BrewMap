@@ -20,8 +20,8 @@
         <item name="alertDialogTheme">@style/Theme.BrewMap.AlertDialog</item>
         <item name="colorOutline">@color/brew_light</item>
         <item name="colorOutlineVariant">@color/brew_light</item>
-        <item name="android:statusBarColor">@color/brew_bg</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:statusBarColor">@color/brew_dark</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
     </style>
 
 </resources>

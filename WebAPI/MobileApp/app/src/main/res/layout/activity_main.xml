@@ -7,6 +7,12 @@
     android:orientation="vertical"
     android:background="@color/brew_bg">
 
+    <View
+        android:id="@+id/status_bar_scrim"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/brew_dark" />
+
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/main_toolbar"
         android:layout_width="match_parent"
