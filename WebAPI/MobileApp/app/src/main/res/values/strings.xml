@@ -155,7 +155,9 @@
     <string name="btn_report_drink">Report drink</string>
     <string name="btn_report_review">Report the review</string>
     <string name="btn_report_user">Report the user</string>
+    <string name="btn_report_location">Report location</string>
     <string name="btn_more_options">More options</string>
+    <string name="btn_submit">Submit</string>
 
     <!-- Location dialog messages -->
     <string name="error_fill_all_fields">Please fill in all fields</string>
@@ -165,6 +167,14 @@
     <string name="error_create_location_format">Unable to create location: %1$s</string>
     <string name="success_location_updated">Location updated successfully</string>
     <string name="error_update_location_format">Error updating location: %1$s</string>
+
+    <!-- Report location dialog -->
+    <string name="dialog_title_report_location">Report location</string>
+    <string name="hint_report_reason">Reason</string>
+    <string name="hint_report_description">Additional details (optional)</string>
+    <string name="error_report_reason_too_short">Reason must be at least 3 characters</string>
+    <string name="success_location_reported">Location reported. Thank you for letting us know.</string>
+    <string name="error_report_location_format">Unable to report location: %1$s</string>
 
     <!-- Drink dialog messages -->
     <string name="error_name_empty">Name cannot be empty</string>

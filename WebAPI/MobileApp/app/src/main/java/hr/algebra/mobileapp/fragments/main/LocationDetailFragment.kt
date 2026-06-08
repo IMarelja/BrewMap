@@ -13,10 +13,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
@@ -74,6 +76,7 @@ class LocationDetailFragment : Fragment() {
 
     private var currentLocation : Location? = null
     private lateinit var btnEditLocation: MaterialButton
+    private lateinit var btnLocationMenu: ImageButton
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -95,6 +98,7 @@ class LocationDetailFragment : Fragment() {
         btnReviews = view.findViewById(R.id.btn_reviews)
         btnDrinks = view.findViewById(R.id.btn_drinks)
         btnEditLocation = view.findViewById(R.id.btn_edit_location)
+        btnLocationMenu = view.findViewById(R.id.btn_location_menu)
 
         mapView.setTileSource(TileSourceFactory.MAPNIK)
         mapView.setMultiTouchControls(true)
@@ -134,6 +138,18 @@ class LocationDetailFragment : Fragment() {
 
         btnEditLocation.setOnClickListener {
             editLocationDialog()
+        }
+
+        btnLocationMenu.setOnClickListener { anchor ->
+            PopupMenu(anchor.context, anchor).apply {
+                inflate(R.menu.menu_location_detail)
+                setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        R.id.action_report_location -> { reportLocationDialog(); true }
+                        else -> false
+                    }
+                }
+            }.show()
         }
 
         updateSectionButtonState(Section.NONE)
@@ -617,5 +633,53 @@ class LocationDetailFragment : Fragment() {
         }
     }
 
+    private fun reportLocationDialog() {
+        val location = currentLocation ?: return
 
+        val dialogView = layoutInflater.inflate(R.layout.dialog_report_location, null)
+        val tilReason = dialogView.findViewById<TextInputLayout>(R.id.til_report_reason)
+        val etReason = dialogView.findViewById<TextInputEditText>(R.id.et_report_reason)
+        val etDescription = dialogView.findViewById<TextInputEditText>(R.id.et_report_description)
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle(R.string.dialog_title_report_location)
+            .setView(dialogView)
+            .setPositiveButton(R.string.btn_submit, null)
+            .setNegativeButton(R.string.btn_cancel, null)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val reason = etReason.text.toString().trim()
+                val description = etDescription.text.toString().trim().takeIf { it.isNotEmpty() }
+
+                tilReason.error = if (reason.length < 3) getString(R.string.error_report_reason_too_short) else null
+                if (reason.length < 3) return@setOnClickListener
+
+                dialog.dismiss()
+                reportLocation(location.id, reason, description)
+            }
+        }
+        dialog.show()
+    }
+
+    private fun reportLocation(locationId: String, reason: String, description: String?) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = ServiceProvider.flagService.create("location", locationId, reason, description)
+
+            if (result.isSuccess) {
+                AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.dialog_title_success)
+                    .setMessage(R.string.success_location_reported)
+                    .setPositiveButton(R.string.btn_ok, null)
+                    .show()
+            } else {
+                AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.dialog_title_error)
+                    .setMessage(getString(R.string.error_report_location_format, result.errorMessage() ?: getString(R.string.error_unknown)))
+                    .setPositiveButton(R.string.btn_ok, null)
+                    .show()
+            }
+        }
+    }
 }
