@@ -62,6 +62,12 @@ export default function AdminPage() {
           )
           break
 
+        case 'user':
+          response = await api.get(
+            `/api/Moderation/user/${flag.target.id}`
+          )
+          break
+
         default:
           return
       }
@@ -103,6 +109,27 @@ export default function AdminPage() {
       await loadFlags()
     } catch (err) {
       console.error('Failed to update flag status:', err)
+    }
+  }
+
+  const suspendUser = async () => {
+    if (!selectedContent) return
+
+    try {
+      setContentLoading(true)
+
+      await api.patch(`/api/Moderation/user/${selectedContent.id}`, {
+        suspended: true
+      })
+
+      alert('User suspended successfully')
+      setShowModal(false)
+      await loadFlags()
+    } catch (err) {
+      console.error(err)
+      alert('Failed to suspend user')
+    } finally {
+      setContentLoading(false)
     }
   }
 
@@ -407,13 +434,27 @@ export default function AdminPage() {
                 </pre>
 
                 <div className="mt-6 flex justify-end border-t pt-4">
-                  <button
-                    onClick={deleteContent}
-                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
-                    disabled={contentLoading}
-                  >
-                    {contentLoading ? 'Deleting...' : 'Delete Content'}
-                  </button>
+                  {showModalFlagType === 'user' ? (
+                    <button
+                      onClick={suspendUser}
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+                      disabled={contentLoading || selectedContent?.isActive === false}
+                    >
+                      {contentLoading
+                        ? 'Suspending...'
+                        : selectedContent?.isActive === false
+                        ? 'Already Suspended'
+                        : 'Suspend'}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={deleteContent}
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+                      disabled={contentLoading}
+                    >
+                      {contentLoading ? 'Deleting...' : 'Delete Content'}
+                    </button>
+                  )}
                 </div>
               </>
             )}
