@@ -12,7 +12,7 @@ import hr.algebra.mobileapp.models.drink.Drink
 import hr.algebra.mobileapp.service.RequestBodyValidator
 
 /**
- * **Production** drinkService service — delegates every call to the BrewMap REST API.
+ * **Production** drink service — delegates every call to the BrewMap REST API.
  */
 class DrinkServiceApi : IDrinkService {
 
@@ -24,7 +24,7 @@ class DrinkServiceApi : IDrinkService {
             endpoint     = "Drink/$id",
             method       = HttpMethod.GET,
             responseType = object : TypeToken<Drink>() {}
-        ).toServiceResult("Could not load drinkService.")
+        ).toServiceResult("Could not load drink.")
         Log.d("DrinkServiceApi", "getById($id) → success=${result.isSuccess}")
         return result
     }
@@ -42,7 +42,7 @@ class DrinkServiceApi : IDrinkService {
         return result
     }
 
-    // ── GET api/Drink/location/{locationId}/best-drinkService ────────────────────────
+    // ── GET api/Drink/location/{locationId}/best-drink ────────────────────────
 
     override suspend fun getBestDrinkByLocationId(locationId: String): ServiceResult<BestDrink?> {
         val client = API.createClient()
@@ -69,7 +69,7 @@ class DrinkServiceApi : IDrinkService {
             method       = HttpMethod.POST,
             body         = request,
             responseType = object : TypeToken<Drink>() {}
-        ).toServiceResult("Could not create drinkService.")
+        ).toServiceResult("Could not create drink.")
         Log.d("DrinkServiceApi", "create → success=${result.isSuccess}")
         return result
     }
@@ -89,7 +89,7 @@ class DrinkServiceApi : IDrinkService {
             method       = HttpMethod.PUT,
             body         = body,
             responseType = object : TypeToken<Drink>() {}
-        ).toServiceResult("Could not update drinkService.")
+        ).toServiceResult("Could not update drink.")
         Log.d("DrinkServiceApi", "update($id) → success=${result.isSuccess}")
         return result
     }
