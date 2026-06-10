@@ -103,6 +103,18 @@ class MainActivity : AppCompatActivity() {
         toolbar.title = getString(R.string.title_location)
     }
 
+    fun openMyProfile() {
+        supportFragmentManager.beginTransaction()
+            .replace(
+                R.id.main_fragment_container,
+                ProfileMyFragment(),
+                TAG_PROFILE
+            )
+            .addToBackStack(TAG_PROFILE)
+            .commit()
+        toolbar.title = getString(R.string.my_profile)
+    }
+
     fun openStrangerProfile(userId: String) {
         supportFragmentManager.beginTransaction()
             .replace(

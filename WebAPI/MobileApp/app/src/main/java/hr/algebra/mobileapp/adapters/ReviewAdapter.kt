@@ -59,6 +59,15 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
                 inflate(R.menu.menu_review_item)
                 setOnMenuItemClickListener { item ->
                     when (item.itemId) {
+                        R.id.action_view_profile -> {
+                            val activity = anchor.context as? MainActivity
+                            if (TokenManager.getUserId() == review.userId) {
+                                activity?.openMyProfile()
+                            } else {
+                                activity?.openStrangerProfile(review.userId)
+                            }
+                            true
+                        }
                         R.id.action_report_review -> { onReportReviewClickListener?.invoke(review); true }
                         R.id.action_report_user -> { onReportUserClickListener?.invoke(review); true }
                         else -> false
@@ -77,7 +86,7 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
     override fun getItemCount(): Int = items.size
 
     class ReviewViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val tvUsername: MaterialButton = itemView.findViewById(R.id.btn_review_username)
+        private val tvUsername: TextView = itemView.findViewById(R.id.tv_review_username)
         private val tvRating: TextView = itemView.findViewById(R.id.tv_review_rating)
         private val tvComment: TextView = itemView.findViewById(R.id.tv_review_comment)
         private val tvDate: TextView = itemView.findViewById(R.id.tv_review_date)
@@ -94,9 +103,6 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
                 tvUsername.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
             } else {
                 tvUsername.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
-            }
-            tvUsername.setOnClickListener {
-                MainActivity().openStrangerProfile(review.userId)
             }
             tvRating.text = ctx.getString(R.string.review_rating_format, review.rating)
             tvComment.text = review.comment?.takeIf { it.isNotBlank() } ?: ctx.getString(R.string.review_no_comment)

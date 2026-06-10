@@ -23,11 +23,12 @@
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_review_username"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tv_review_username"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textColor="@color/brew_light"
+                android:layout_weight="1"
+                android:textColor="@color/brew_dark"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
