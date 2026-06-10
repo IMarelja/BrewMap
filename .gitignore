@@ -1,5 +1,8 @@
 .dotnet/
 .home/
+.DS_Store
+*.lscache
+*.csproj.user
 **/bin/
 **/obj/
 .vs
