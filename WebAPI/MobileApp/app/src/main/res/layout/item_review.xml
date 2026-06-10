@@ -76,10 +76,18 @@
             android:layout_marginTop="4dp">
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_view_location"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_view_location" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_edit_review"
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
                 android:text="@string/btn_edit" />
 
             <com.google.android.material.button.MaterialButton

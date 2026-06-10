@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/action_view_profile"
+        android:title="@string/btn_view_profile" />
+    <item
         android:id="@+id/action_report_review"
         android:title="@string/btn_report_review" />
     <item

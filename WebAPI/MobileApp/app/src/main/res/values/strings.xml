@@ -153,11 +153,13 @@
     <string name="btn_add_review">Add review</string>
     <string name="btn_edit_drink">Edit drink</string>
     <string name="btn_report_drink">Report drink</string>
+    <string name="btn_view_profile">View profile</string>
     <string name="btn_report_review">Report the review</string>
     <string name="btn_report_user">Report the user</string>
     <string name="btn_report_location">Report location</string>
     <string name="btn_more_options">More options</string>
     <string name="btn_submit">Submit</string>
+    <string name="btn_view_location">View Location</string>
 
     <!-- Location dialog messages -->
     <string name="error_fill_all_fields">Please fill in all fields</string>
@@ -204,5 +206,19 @@
     <string name="success_user_reported">User reported. Thank you for letting us know.</string>
     <string name="error_report_user_format">Unable to report user: %1$s</string>
     <string name="error_unknown">An unknown error occurred.</string>
+    <string name="error_location_not_found">Unable to find the location for this review.</string>
     <string name="error_field_required">Required</string>
+
+
+    <string name="my_profile">My Profile</string>
+    <string name="user_profile">User Profile</string>
+    <string name="edit_details">Edit Details</string>
+    <string name="edit_your_details">Edit your details</string>
+    <string name="hint_new_email">New Email</string>
+    <string name="btn_update_email">Update Email</string>
+    <string name="hint_current_password">Current Password</string>
+    <string name="hint_new_password">New Password</string>
+    <string name="hint_confirm_new_password">Confirm New Password</string>
+    <string name="btn_update_password">Update Password</string>
+    <string name="error_missing_user_id">Missing user id</string>
 </resources>
