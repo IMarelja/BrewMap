@@ -159,6 +159,7 @@
     <string name="btn_report_location">Report location</string>
     <string name="btn_more_options">More options</string>
     <string name="btn_submit">Submit</string>
+    <string name="btn_view_location">View Location</string>
 
     <!-- Location dialog messages -->
     <string name="error_fill_all_fields">Please fill in all fields</string>
@@ -205,6 +206,7 @@
     <string name="success_user_reported">User reported. Thank you for letting us know.</string>
     <string name="error_report_user_format">Unable to report user: %1$s</string>
     <string name="error_unknown">An unknown error occurred.</string>
+    <string name="error_location_not_found">Unable to find the location for this review.</string>
     <string name="error_field_required">Required</string>
 
 

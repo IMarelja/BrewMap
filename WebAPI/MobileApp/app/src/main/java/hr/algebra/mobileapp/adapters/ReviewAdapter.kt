@@ -15,7 +15,7 @@ import hr.algebra.mobileapp.R
 import hr.algebra.mobileapp.auth.TokenManager
 import hr.algebra.mobileapp.models.review.Review
 
-class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
+class ReviewAdapter(private val showLocationButton: Boolean = false) : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
 
     private val items = mutableListOf<Review>()
 
@@ -23,6 +23,7 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
     private var onDeleteClickListener: ((Review) -> Unit)? = null
     private var onReportReviewClickListener: ((Review) -> Unit)? = null
     private var onReportUserClickListener: ((Review) -> Unit)? = null
+    private var onViewLocationClickListener: ((Review) -> Unit)? = null
 
     fun submitData(reviews: List<Review>) {
         items.clear()
@@ -47,6 +48,13 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
             val position = viewHolder.adapterPosition
             if (position != RecyclerView.NO_POSITION) {
                 onDeleteClickListener?.invoke(items[position])
+            }
+        }
+
+        viewHolder.btnViewLocation.setOnClickListener {
+            val position = viewHolder.adapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                onViewLocationClickListener?.invoke(items[position])
             }
         }
 
@@ -80,7 +88,7 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: ReviewViewHolder, position: Int) {
-        holder.bind(items[position])
+        holder.bind(items[position], showLocationButton)
     }
 
     override fun getItemCount(): Int = items.size
@@ -94,8 +102,9 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
         val btnMenu: ImageButton = itemView.findViewById(R.id.btn_review_menu)
         val btnEdit: MaterialButton = itemView.findViewById(R.id.btn_edit_review)
         val btnDelete: MaterialButton = itemView.findViewById(R.id.btn_delete_review)
+        val btnViewLocation: MaterialButton = itemView.findViewById(R.id.btn_view_location)
 
-        fun bind(review: Review) {
+        fun bind(review: Review, showLocationButton: Boolean) {
             val ctx = itemView.context
             val displayName = review.username?.takeIf { it.isNotBlank() }
             tvUsername.text = displayName ?: ctx.getString(R.string.review_deleted_user)
@@ -110,7 +119,10 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
 
             val currentUserId = TokenManager.getUserId()
             val isOwnReview = currentUserId != null && currentUserId == review.userId
-            llOwnerActions.visibility = if (isOwnReview) View.VISIBLE else View.GONE
+            btnEdit.visibility = if (isOwnReview) View.VISIBLE else View.GONE
+            btnDelete.visibility = if (isOwnReview) View.VISIBLE else View.GONE
+            btnViewLocation.visibility = if (showLocationButton) View.VISIBLE else View.GONE
+            llOwnerActions.visibility = if (isOwnReview || showLocationButton) View.VISIBLE else View.GONE
         }
     }
 
@@ -128,5 +140,9 @@ class ReviewAdapter : RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder>() {
 
     fun setOnReportUserClickListener(listener: (Review) -> Unit) {
         this.onReportUserClickListener = listener
+    }
+
+    fun setOnViewLocationClickListener(listener: (Review) -> Unit) {
+        this.onViewLocationClickListener = listener
     }
 }
