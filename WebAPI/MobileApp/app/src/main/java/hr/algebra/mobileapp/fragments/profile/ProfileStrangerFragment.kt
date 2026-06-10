@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import hr.algebra.mobileapp.MainActivity
 import hr.algebra.mobileapp.R
 import hr.algebra.mobileapp.adapters.ReviewAdapter
@@ -38,6 +39,12 @@ class ProfileStrangerFragment : Fragment() {
         }
         setOnViewLocationClickListener { review ->
             navigateToReviewLocation(review)
+        }
+        setOnReportReviewClickListener { review ->
+            reportReviewDialog(review)
+        }
+        setOnReportUserClickListener { review ->
+            reportUserDialog(review)
         }
     }
 
@@ -253,6 +260,102 @@ class ProfileStrangerFragment : Fragment() {
             .setMessage(R.string.error_location_not_found)
             .setPositiveButton(R.string.btn_ok, null)
             .show()
+    }
+
+    private fun reportReviewDialog(review: Review) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_report, null)
+        val tilReason = dialogView.findViewById<TextInputLayout>(R.id.til_report_reason)
+        val etReason = dialogView.findViewById<TextInputEditText>(R.id.et_report_reason)
+        val etDescription = dialogView.findViewById<TextInputEditText>(R.id.et_report_description)
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle(R.string.dialog_title_report_review)
+            .setView(dialogView)
+            .setPositiveButton(R.string.btn_submit, null)
+            .setNegativeButton(R.string.btn_cancel, null)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val reason = etReason.text.toString().trim()
+                val description = etDescription.text.toString().trim().takeIf { it.isNotEmpty() }
+
+                tilReason.error = if (reason.length < 3) getString(R.string.error_report_reason_too_short) else null
+                if (reason.length < 3) return@setOnClickListener
+
+                dialog.dismiss()
+                reportReview(review.id, reason, description)
+            }
+        }
+        dialog.show()
+    }
+
+    private fun reportReview(reviewId: String, reason: String, description: String?) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = ServiceProvider.flagService.create("review", reviewId, reason, description)
+
+            if (result.isSuccess) {
+                AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.dialog_title_success)
+                    .setMessage(R.string.success_review_reported)
+                    .setPositiveButton(R.string.btn_ok, null)
+                    .show()
+            } else {
+                AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.dialog_title_error)
+                    .setMessage(getString(R.string.error_report_review_format, result.errorMessage() ?: getString(R.string.error_unknown)))
+                    .setPositiveButton(R.string.btn_ok, null)
+                    .show()
+            }
+        }
+    }
+
+    private fun reportUserDialog(review: Review) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_report, null)
+        val tilReason = dialogView.findViewById<TextInputLayout>(R.id.til_report_reason)
+        val etReason = dialogView.findViewById<TextInputEditText>(R.id.et_report_reason)
+        val etDescription = dialogView.findViewById<TextInputEditText>(R.id.et_report_description)
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle(R.string.dialog_title_report_user)
+            .setView(dialogView)
+            .setPositiveButton(R.string.btn_submit, null)
+            .setNegativeButton(R.string.btn_cancel, null)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val reason = etReason.text.toString().trim()
+                val description = etDescription.text.toString().trim().takeIf { it.isNotEmpty() }
+
+                tilReason.error = if (reason.length < 3) getString(R.string.error_report_reason_too_short) else null
+                if (reason.length < 3) return@setOnClickListener
+
+                dialog.dismiss()
+                reportUser(review.userId, reason, description)
+            }
+        }
+        dialog.show()
+    }
+
+    private fun reportUser(userId: String, reason: String, description: String?) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = ServiceProvider.flagService.create("user", userId, reason, description)
+
+            if (result.isSuccess) {
+                AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.dialog_title_success)
+                    .setMessage(R.string.success_user_reported)
+                    .setPositiveButton(R.string.btn_ok, null)
+                    .show()
+            } else {
+                AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.dialog_title_error)
+                    .setMessage(getString(R.string.error_report_user_format, result.errorMessage() ?: getString(R.string.error_unknown)))
+                    .setPositiveButton(R.string.btn_ok, null)
+                    .show()
+            }
+        }
     }
 
     companion object {
