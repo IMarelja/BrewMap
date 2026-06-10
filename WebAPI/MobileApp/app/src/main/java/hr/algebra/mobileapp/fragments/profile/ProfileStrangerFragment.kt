@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import hr.algebra.mobileapp.R
 import hr.algebra.mobileapp.adapters.ReviewAdapter
+import hr.algebra.mobileapp.fragments.main.NonScrollableLinearLayoutManager
 import hr.algebra.mobileapp.models.user.StrangerProfile
 import hr.algebra.mobileapp.service.ServiceProvider
 import kotlinx.coroutines.launch
@@ -36,6 +37,11 @@ class ProfileStrangerFragment : Fragment() {
 
         progressStranger = view.findViewById(R.id.progress_stranger)
         tvUsername = view.findViewById(R.id.tv_stranger_username)
+        tvReviewState = view.findViewById(R.id.tv_review_state_stranger)
+        rvReviews = view.findViewById(R.id.rv_reviews_stranger)
+
+        rvReviews.layoutManager = NonScrollableLinearLayoutManager(requireContext())
+        rvReviews.adapter = reviewAdapter
 
         userId = requireArguments().getString(ARG_USER_ID).orEmpty()
         if (userId.isBlank()) {
@@ -43,7 +49,7 @@ class ProfileStrangerFragment : Fragment() {
             return
         }
         loadProfileDetails(userId)
-
+        loadUserReviews(userId)
     }
 
     private fun loadProfileDetails(userId: String) {
@@ -68,13 +74,13 @@ class ProfileStrangerFragment : Fragment() {
         tvUsername.text = profile.username
     }
 
-    private fun loadMyReviews() {
+    private fun loadUserReviews(userId: String) {
         progressStranger.visibility = View.VISIBLE
         tvReviewState.visibility = View.VISIBLE
         tvReviewState.text = getString(R.string.state_loading_reviews)
 
         viewLifecycleOwner.lifecycleScope.launch {
-            val result = ServiceProvider.reviewService.getMyReviews()
+            val result = ServiceProvider.reviewService.getByUserId(userId)
             when {
                 result.isUnauthorized      -> { /* MainActivity navigating to login */ }
                 result.isNetworkError      -> tvReviewState.text = getString(R.string.error_no_connection)

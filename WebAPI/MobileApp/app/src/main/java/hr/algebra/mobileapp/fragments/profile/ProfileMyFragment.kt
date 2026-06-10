@@ -14,6 +14,7 @@ import com.google.android.material.button.MaterialButton
 import hr.algebra.mobileapp.MainActivity
 import hr.algebra.mobileapp.R
 import hr.algebra.mobileapp.adapters.ReviewAdapter
+import hr.algebra.mobileapp.fragments.main.NonScrollableLinearLayoutManager
 import hr.algebra.mobileapp.models.user.UserProfile
 import hr.algebra.mobileapp.service.ServiceProvider
 import kotlinx.coroutines.launch
@@ -44,6 +45,9 @@ class ProfileMyFragment : Fragment() {
         btnSettings = view.findViewById(R.id.btn_profile_settings)
         tvReviewState = view.findViewById(R.id.tv_review_state_my)
         rvReviews = view.findViewById(R.id.rv_reviews_my)
+
+        rvReviews.layoutManager = NonScrollableLinearLayoutManager(requireContext())
+        rvReviews.adapter = reviewAdapter
 
         btnSettings.setOnClickListener {
             openProfileSettings()

@@ -16,6 +16,12 @@
         android:paddingTop="56dp"
         android:paddingBottom="32dp">
 
+        <ProgressBar
+            android:id="@+id/progress_stranger"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone" />
 
         <TextView
             android:layout_width="wrap_content"
