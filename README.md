@@ -1,26 +1,20 @@
-# ⚠️ Warning
+# BrewMap ☕
 
-This README.md (for now) is just purely for something to be put in this repo including the diagram that will be used for later in development
+BrewMap the service that lets users review not just locations but also their drinks for a more informative experience
 
-The instructions bellow are just stuff I vibe coded on the side of the project and are generally how the project will look
+## Technology stack
 
-# BrewMap
+| Component | Main technologies / languages |
+| --- | --- |
+| Database | MongoDB, with JavaScript init and seed scripts |
+| Web API | ASP.NET Core 8.0 REST API written in C# |
+| Web app (frontend) | Next.js and React written in TypeScript/TSX, with CSS/Tailwind styling |
+| Mobile app | Android app written in Kotlin, with XML layouts and Gradle Kotlin DSL |
 
-Very simple Docker Compose setup based on the provided diagram:
+## Infrastructure
 
-- `nginx` reverse proxy
-- ASP.NET Core MVC `webapp`
-- ASP.NET Core REST `api`
-- `mongodb`
+The project uses Docker Compose for infrastructure. It currently starts the MongoDB database in a container, keeps database data in Docker volumes, and runs the initialization scripts from `init-db` when the database is created.
 
-The Mobile app from the diagram is intentionally ignored.
+## How to install
 
-## Architecture
-
-- Client calls `nginx` on `http://example.org`
-- `nginx` forwards:
-  - `/` to the MVC webapp
-  - `/api` to the REST API
-- The REST API stores and reads words from MongoDB
-- The MVC app loads words from the API and submits new words to the API
-
+Check technical documentation of the BrewMap project
