@@ -38,4 +38,12 @@
         android:overScrollMode="never"
         android:nestedScrollingEnabled="false" />
 
+    <com.google.android.material.button.MaterialButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="Add drink"
+        android:id="@+id/btn_add_drink" />
+
+
 </LinearLayout>

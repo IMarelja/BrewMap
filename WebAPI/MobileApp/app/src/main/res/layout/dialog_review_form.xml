@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/brew_bg"
+    android:padding="15dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Rating"
+        android:textColor="@color/brew_dark"/>
+
+    <RadioGroup
+        android:id="@+id/rg_rating"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <RadioButton
+            android:id="@+id/rb_rating_1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="1"
+            android:buttonTint="@color/brew_checkbox_tint"
+            android:textColor="@color/brew_dark"/>
+
+        <RadioButton
+            android:id="@+id/rb_rating_2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="2"
+            android:buttonTint="@color/brew_checkbox_tint"
+            android:textColor="@color/brew_dark"/>
+
+        <RadioButton
+            android:id="@+id/rb_rating_3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="3"
+            android:buttonTint="@color/brew_checkbox_tint"
+            android:textColor="@color/brew_dark"/>
+
+        <RadioButton
+            android:id="@+id/rb_rating_4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="4"
+            android:buttonTint="@color/brew_checkbox_tint"
+            android:textColor="@color/brew_dark"/>
+
+        <RadioButton
+            android:id="@+id/rb_rating_5"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="5"
+            android:buttonTint="@color/brew_checkbox_tint"
+            android:textColor="@color/brew_dark"/>
+
+    </RadioGroup>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Comment (optional)">
+
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_comment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+</LinearLayout>

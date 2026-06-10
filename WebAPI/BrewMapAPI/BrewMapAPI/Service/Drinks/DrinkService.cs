@@ -1,6 +1,7 @@
 ﻿using BrewMapAPI.DTO.Drink;
 using BrewMapAPI.Models;
 using BrewMapAPI.Repository.Drinks;
+using BrewMapAPI.Repository.Flags;
 using MongoDB.Driver;
 
 namespace BrewMapAPI.Service.Drinks
@@ -8,10 +9,12 @@ namespace BrewMapAPI.Service.Drinks
     public class DrinkService : IDrinkService
     {
         private readonly IDrinkRepo _repo;
+        private readonly IFlagRepo _flagRepo;
 
-        public DrinkService(IDrinkRepo repo)
+        public DrinkService(IDrinkRepo repo, IFlagRepo flagRepo)
         {
             _repo = repo;
+            _flagRepo = flagRepo;
         }
 
         public async Task<ReadDrink> CreateDrink(CreateDrink drink, string userId)
@@ -32,7 +35,14 @@ namespace BrewMapAPI.Service.Drinks
 
         public async Task<bool> DeleteDrink(string id)
         {
-            return await _repo.DeleteDrink(id);
+            var deleted = await _repo.DeleteDrink(id);
+
+            if (deleted)
+            {
+                await _flagRepo.DeleteByTarget("product", id);
+            }
+
+            return deleted;
         }
 
         public async Task<ReadDrink?> GetById(string id)

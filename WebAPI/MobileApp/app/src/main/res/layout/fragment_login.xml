@@ -93,7 +93,7 @@
                     style="@style/Widget.BrewMap.TextInputLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/hint_email">
+                    android:hint="@string/hint_email_username">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_email"

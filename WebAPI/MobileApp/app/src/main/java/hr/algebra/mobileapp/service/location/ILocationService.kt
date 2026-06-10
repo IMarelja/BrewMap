@@ -7,7 +7,7 @@ import hr.algebra.mobileapp.models.location.Pin
 import hr.algebra.mobileapp.models.location.UpdateLocationRequest
 
 /**
- * Contract for locationService read **and write** operations.
+ * Contract for location read **and write** operations.
  *
  * Three implementations:
  *  - [LocationServiceApi]        — live BrewMap REST API

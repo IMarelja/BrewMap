@@ -23,7 +23,7 @@ class ReviewServiceHardCode(private val data: HardCodeData) : IReviewService {
 
     override suspend fun getByLocationId(locationId: String): ServiceResult<List<Review>> =
         ServiceResult.success(
-            data.reviews.filter { it.targetType == "locationService" && it.targetId == locationId && it.isVisible }
+            data.reviews.filter { it.targetType == "location" && it.targetId == locationId && it.isVisible }
         )
 
     override suspend fun getByDrinkId(drinkId: String): ServiceResult<List<Review>> =
@@ -63,6 +63,7 @@ class ReviewServiceHardCode(private val data: HardCodeData) : IReviewService {
             updatedAt   = now
         )
         data.reviews.add(review)
+        data.pushReview(review)
         return ServiceResult.success(review)
     }
 
@@ -84,6 +85,7 @@ class ReviewServiceHardCode(private val data: HardCodeData) : IReviewService {
             updatedAt   = now
         )
         data.reviews.add(review)
+        data.pushReview(review)
         return ServiceResult.success(review)
     }
 

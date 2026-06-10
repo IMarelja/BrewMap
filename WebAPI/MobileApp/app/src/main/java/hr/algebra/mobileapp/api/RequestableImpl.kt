@@ -8,6 +8,7 @@ import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import kotlinx.coroutines.CancellationException
 
 class RequestableImpl(
     private val client: HttpClient,
@@ -88,6 +89,11 @@ class RequestableImpl(
 
             ApiResult.Success(gson.fromJson(rawBody, responseType.type))
 
+        } catch (e: CancellationException) {
+            // Coroutine was cancelled (e.g. the fragment's view was destroyed mid-request).
+            // Must propagate so the caller's coroutine actually stops — swallowing it here
+            // would let the caller keep running on a detached fragment and crash.
+            throw e
         } catch (e: Exception) {
             Log.e("RequestableImpl", "Request failed: ${e.message}", e)
             ApiResult.NetworkError(e)

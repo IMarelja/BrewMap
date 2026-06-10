@@ -26,7 +26,7 @@ class LocationServiceApi : ILocationService {
             endpoint     = "Locations/$id",
             method       = HttpMethod.GET,
             responseType = object : TypeToken<Location>() {}
-        ).toServiceResult("Could not load locationService.")
+        ).toServiceResult("Could not load location.")
         Log.d("LocationServiceApi", "getById($id) → success=${result.isSuccess}")
         return result
     }

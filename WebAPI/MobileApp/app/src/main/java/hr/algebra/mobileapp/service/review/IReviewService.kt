@@ -27,10 +27,10 @@ interface IReviewService {
 
     // ── Write ─────────────────────────────────────────────────────────────────
 
-    /** `POST api/Review/locationService/{locationId}` — rating must be 1–5. */
+    /** `POST api/Review/location/{locationId}` — rating must be 1–5. */
     suspend fun createForLocation(locationId: String, rating: Int, comment: String?): ServiceResult<Review>
 
-    /** `POST api/Review/drinkService/{drinkId}` — rating must be 1–5. */
+    /** `POST api/Review/drink/{drinkId}` — rating must be 1–5. */
     suspend fun createForDrink(drinkId: String, rating: Int, comment: String?): ServiceResult<Review>
 
     /** `PUT api/Review/{id}` — pass null for fields that should not change. */

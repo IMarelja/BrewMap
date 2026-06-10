@@ -108,12 +108,28 @@ object TokenManager {
     fun isLoggedIn(): Boolean = getToken() != null
 
     /**
-     * Decodes the `id` claim from the stored JWT without verifying the signature.
+     * Claim keys that may carry the userService ID, depending on which authService
+     * service issued the token:
+     *  - "id"                                                          → [hr.algebra.mobileapp.service.auth.AuthServiceHardCode] mock JWTs
+     *  - "nameid" / the long ClaimTypes.NameIdentifier URI             → API JWTs ([hr.algebra.mobileapp.service.auth.AuthServiceApi]),
+     *    where `JwtSecurityTokenHandler` serializes `ClaimTypes.NameIdentifier`
+     *    using its short outbound name "nameid".
+     */
+    private val USER_ID_CLAIM_KEYS = listOf(
+        "id",
+        "nameid",
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+    )
+
+    /**
+     * Decodes the userService ID claim from the stored JWT without verifying the signature.
      *
-     * Used by hard-code service stubs that need to associate in-memory write
-     * operations (create reviewService, update profile, …) with the currently logged-in userService.
+     * Used by service stubs that need to associate write operations (create reviewService,
+     * update profile, …) with the currently logged-in userService, and by the UI to decide
+     * whether "Edit"/"Delete" actions belong to the current userService.
      *
-     * Returns `null` when there is no token or the token cannot be parsed.
+     * Returns `null` when there is no token, no recognised claim is present, or the
+     * token cannot be parsed.
      */
     fun getUserId(): String? {
         val token = getToken() ?: return null
@@ -124,9 +140,11 @@ object TokenManager {
                 parts[1],
                 Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP
             )
-            JSONObject(String(payloadBytes, Charsets.UTF_8))
-                .optString("id")
-                .takeIf { it.isNotEmpty() }
+            val payload = JSONObject(String(payloadBytes, Charsets.UTF_8))
+            USER_ID_CLAIM_KEYS
+                .asSequence()
+                .map { payload.optString(it) }
+                .firstOrNull { it.isNotEmpty() }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to decode userService ID from JWT", e)
             null
