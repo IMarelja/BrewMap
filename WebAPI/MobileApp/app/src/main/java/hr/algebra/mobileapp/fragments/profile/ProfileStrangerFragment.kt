@@ -9,7 +9,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import hr.algebra.mobileapp.R
+import hr.algebra.mobileapp.adapters.ReviewAdapter
 import hr.algebra.mobileapp.models.user.StrangerProfile
 import hr.algebra.mobileapp.service.ServiceProvider
 import kotlinx.coroutines.launch
@@ -17,7 +19,11 @@ import kotlinx.coroutines.launch
 class ProfileStrangerFragment : Fragment() {
     private lateinit var progressStranger: ProgressBar
     private lateinit var tvUsername: TextView
+    private lateinit var tvReviewState: TextView
+    private lateinit var rvReviews: RecyclerView
+
     private var userId: String = ""
+    private val reviewAdapter = ReviewAdapter()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -60,6 +66,35 @@ class ProfileStrangerFragment : Fragment() {
 
     private fun bindProfile(profile: StrangerProfile) {
         tvUsername.text = profile.username
+    }
+
+    private fun loadMyReviews() {
+        progressStranger.visibility = View.VISIBLE
+        tvReviewState.visibility = View.VISIBLE
+        tvReviewState.text = getString(R.string.state_loading_reviews)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = ServiceProvider.reviewService.getMyReviews()
+            when {
+                result.isUnauthorized      -> { /* MainActivity navigating to login */ }
+                result.isNetworkError      -> tvReviewState.text = getString(R.string.error_no_connection)
+                result.errors.isNotEmpty() -> {
+                    reviewAdapter.submitData(emptyList())
+                    tvReviewState.text = result.errorMessage()
+                }
+                else -> {
+                    val reviews = result.data!!
+                    reviewAdapter.submitData(reviews)
+                    rvReviews.post { rvReviews.requestLayout() }
+                    tvReviewState.text = if (reviews.isEmpty()) {
+                        "This user has no reviews"
+                    } else {
+                        getString(R.string.state_reviews_loaded, reviews.size)
+                    }
+                }
+            }
+            progressStranger.visibility = View.GONE
+        }
     }
 
     companion object {

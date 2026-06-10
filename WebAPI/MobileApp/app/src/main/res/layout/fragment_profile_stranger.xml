@@ -55,5 +55,21 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <TextView
+            android:id="@+id/tv_review_state_stranger"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/brew_brown"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+        <hr.algebra.mobileapp.fragments.main.ExpandedRecyclerView
+            android:id="@+id/rv_reviews_stranger"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:overScrollMode="never"
+            android:nestedScrollingEnabled="false" />
     </LinearLayout>
 </ScrollView>
