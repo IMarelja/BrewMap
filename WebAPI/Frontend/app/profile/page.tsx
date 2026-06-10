@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import ProtectedRoute from '@/components/auth/protected-route'
 import Navbar from '@/components/ui/navbar'
 import api from '@/lib/api'
-import { getUser } from '@/lib/auth'
+import { getUser, logout } from '@/lib/auth'
 import { Review } from '@/lib/types'
 
 // Simple SVG Eye Icon 
@@ -116,10 +116,7 @@ const handleExportData = async () => {
 
       await api.delete('/api/User/me')
 
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-
-      window.location.href = '/login'
+      logout()
     } catch (err: any) {
       console.error(err)
 
