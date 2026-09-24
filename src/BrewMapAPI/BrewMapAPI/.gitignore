@@ -1,0 +1,19 @@
+.dotnet/
+.home/
+**/bin/
+**/obj/
+.vs
+.vscode
+
+# Database specific
+brewmap_data/
+brewmap_config/
+# Environment variables
+.env
+
+# dependencies
+node_modules/
+
+# API specific
+appsettings.json
+appsettings.Development.json

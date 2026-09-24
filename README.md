@@ -11,6 +11,19 @@ BrewMap the service that lets users review not just locations but also their dri
 | Web app (frontend) | Next.js and React written in TypeScript/TSX, with CSS/Tailwind styling |
 | Mobile app | Android app written in Kotlin, with XML layouts and Gradle Kotlin DSL |
 
+## Project structure
+
+```
+BrewMap/
+├── src/
+│   ├── BrewMapAPI/     # ASP.NET Core API + endpoint tests (BrewMapAPI.sln)
+│   ├── Frontend/       # Next.js web app
+│   └── MobileApp/      # Android app
+├── init-db/            # MongoDB init & seed scripts
+├── docker-compose.yaml
+└── .env.example
+```
+
 ## Infrastructure
 
 The project uses Docker Compose for infrastructure. It currently starts the MongoDB database in a container, keeps database data in Docker volumes, and runs the initialization scripts from `init-db` when the database is created.
