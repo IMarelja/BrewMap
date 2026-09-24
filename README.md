@@ -31,6 +31,7 @@ The project uses Docker Compose for infrastructure. It currently starts the Mong
 ## How to install
 
 ~~Check technical documentation of the BrewMap project~~
+
 The full details are in `BrewMap-TechnicalDocumentation.pdf`. The steps below are a quick-start version.
 
 ### Prerequisites
